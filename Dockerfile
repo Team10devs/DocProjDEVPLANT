@@ -1,25 +1,25 @@
-﻿FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build-env
+﻿FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+USER $APP_UID
 WORKDIR /app
+EXPOSE 8080
+EXPOSE 8081
 
-# Copy csproj and restore as distinct layers
-COPY containers/DocProjDEVPLANT/DocProjDEVPLANT.csproj ./DocProjDEVPLANT/
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+ARG BUILD_CONFIGURATION=Release
+WORKDIR /src
 
-RUN dotnet restore
 
-# Copy everything else and build
+COPY ["containers/DocProjDEVPLANT/DocProjDEVPLANT/DocProjDEVPLANT.csproj", "DocProjDEVPLANT/"]
+
+RUN dotnet restore "containers/DocProjDEVPLANT/DocProjDEVPLANT/DocProjDEVPLANT.csproj"
 COPY . .
-RUN dotnet build
+WORKDIR "/src/DocProjDEVPLANT"
+RUN dotnet build "DocProjDEVPLANT.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
-# Publish
-RUN dotnet publish DocProjDEVPLANT.csproj -c Release -o /app/out
+FROM build AS publish
+ARG BUILD_CONFIGURATION=Release
+RUN dotnet publish "DocProjDEVPLANT.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
-# Runtime image
-FROM mcr.microsoft.com/dotnet/aspnet:8.0
+FROM base AS final
 WORKDIR /app
-COPY --from=build-env /app/out .
-
-COPY docker-entrypoint.sh /usr/bin/docker-entrypoint.sh
-RUN chmod +x /usr/bin/docker-entrypoint.sh
-ENTRYPOINT ["docker-entrypoint.sh"]
-
-LABEL org.opencontainers.image.source=https://github.com/Team10devs/DocProjDEVPLANT
+COPY --from=publish /app/publish .

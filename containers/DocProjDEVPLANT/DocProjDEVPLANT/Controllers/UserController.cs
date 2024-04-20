@@ -4,7 +4,8 @@ using DocProjDEVPLANT.Utils.ResultPattern;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DocProjDEVPLANT.Controllers;
-
+[Route("User")]
+[ApiController]
 public class UserController : ControllerBase
 {
     private readonly IUserService _userService;

@@ -3,7 +3,7 @@ using DocProjDEVPLANT.Utils.ResultPattern;
 
 namespace DocProjDEVPLANT.Services;
 
-public class UserService
+public class UserService : IUserService
 {
     private readonly IUserRepository _userRepository;
 

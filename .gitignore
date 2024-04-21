@@ -488,3 +488,10 @@ fabric.properties
 .idea/caches/build_file_checksums.ser
 
 # End of https://www.toptal.com/developers/gitignore/api/rider,dotnetcore,csharp
+containers/.DS_Store
+
+containers/DocProjDEVPLANT/.DS_Store
+
+containers/DocProjDEVPLANT/Entities/.DS_Store
+
+containers/DocProjDEVPLANT/DocProjDEVPLANT/appsettings.Development.json

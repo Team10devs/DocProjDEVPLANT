@@ -1,7 +1,0 @@
-﻿services:
-  web:
-    build: .
-    ports:
-      - "8000:8080"
-    volumes:
-      - ./DocProjDEVPLANT/appsettings.Development.json:/app/appsettings.json

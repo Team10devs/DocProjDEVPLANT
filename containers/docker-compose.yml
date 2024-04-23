@@ -1,0 +1,57 @@
+﻿version: '3.8'
+
+networks:
+  dev:
+    driver: bridge
+
+services:
+  minio:
+    image: minio/minio
+    container_name: minio
+    restart: always
+    ports:
+      - "9000:9000"
+    volumes:
+      - minio_data:/data
+    environment:
+      MINIO_ROOT_USER: 'minio_user'
+      MINIO_ROOT_PASSWORD: 'minio_password'
+      MINIO_ADDRESS: ':9000'
+      MINIO_CONSOLE_ADDRESS: ':9001'
+    command: minio server /data
+
+  db:
+    image: postgres:latest
+    container_name: db
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=database_plant
+    restart: always
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgresql_data:/var/lib/postgresql/data
+    networks:
+      - dev
+
+  web:
+    build:
+      dockerfile: DocProjDEVPLANT/Dockerfile
+      context: .
+    image: docprojdevplant:latest
+    depends_on:
+      - "db"
+    container_name: web-services
+    ports:
+      - "8080:8080"
+    environment:
+      - ConnectionStrings__Default=Host=db;Port=5433;Username=postgres;Password=postgres;Database=database_plant;Pooling=true;
+      - ASPNETCORE_URLS=http://+:8080
+    
+    networks:
+      - dev
+
+volumes:
+  minio_data:
+  postgresql_data:

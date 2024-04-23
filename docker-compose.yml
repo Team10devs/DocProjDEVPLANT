@@ -1,8 +1,8 @@
 ﻿version: '3.8'
 
-networks:
-  dev:
-    driver: bridge
+# networks:
+#   dev:
+#     driver: bridge
 
 services:
   minio:
@@ -11,8 +11,6 @@ services:
     restart: always
     ports:
       - "9000:9000"
-    volumes:
-      - minio_data:/data
     environment:
       MINIO_ROOT_USER: 'minio_user'
       MINIO_ROOT_PASSWORD: 'minio_password'
@@ -30,13 +28,14 @@ services:
     restart: always
     ports:
       - "5433:5432"
-    volumes:
-      - postgresql_data:/var/lib/postgresql/data
-    networks:
-      - dev
+    # networks:
+    #   - dev
 
   web:
-    image: docprojdevplant:latest
+    build:
+      dockerfile: Dockerfile
+      context: .
+    #image: docprojdevplant:latest
     depends_on:
       - "db"
     container_name: web-services
@@ -44,13 +43,8 @@ services:
       - "8080:8080"
     environment:
       - ConnectionStrings__Default=Host=db;Port=5433;Username=your_username;Password=your_password;Database=your_database_name;Pooling=true;
-      - ASPNETCORE_URLS=http://+=8080
-    volumes:
-      - ./media:/app/media
-      - ./appsettings.json:/app/DocProjDEVPLANT
-    networks:
-      - dev
+      - ASPNETCORE_URLS=http://+:8080
 
-volumes:
-  minio_data:
-  postgresql_data:
+    # networks:
+    #   - dev
+

@@ -8,13 +8,6 @@
       <jdbc-url>jdbc:postgresql://gdscupt.tech:6969/postgres</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
-    <data-source source="LOCAL" name="postgres@localhost" uuid="d206150c-a3bd-4c1d-a7c8-1896a66440b8">
-      <driver-ref>postgresql</driver-ref>
-      <synchronize>true</synchronize>
-      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
-      <jdbc-url>jdbc:postgresql://localhost:5433/postgres</jdbc-url>
-      <working-dir>$ProjectFileDir$</working-dir>
-    </data-source>
     <data-source source="LOCAL" name="database_plant@db" uuid="c6957b0b-f85d-40ad-b312-679e23c93500">
       <driver-ref>postgresql</driver-ref>
       <synchronize>true</synchronize>

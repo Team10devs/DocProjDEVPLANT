@@ -32,15 +32,8 @@ var app = builder.Build();
     app.UseSwaggerUI();
 //}
 
-<<<<<<< HEAD:containers/DocProjDEVPLANT/DocProjDEVPLANT/Program.cs
-app.UseCors("EnableAll");
-// app.UseHttpsRedirection();
-
-
-=======
 app.UseHttpsRedirection();
 app.UseCors("EnableAll");
->>>>>>> c9de7be47c84bf676995ec419ca0a2cb066af4e9:containers/DocProjDEVPLANT/Program.cs
 app.UseAuthentication();
 app.UseAuthorization();
 

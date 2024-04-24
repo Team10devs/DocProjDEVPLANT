@@ -1,17 +1,23 @@
-﻿FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-WORKDIR /src
-
-COPY . .
-
-RUN dotnet restore "DocProjDEVPLANT/containers/DocProjDEVPLANT/DocProjDEVPLANT.csproj" --disable-parallel
-RUN dotnet publish "DocProjDEVPLANT/containers/DocProjDEVPLANT/DocProjDEVPLANT.csproj" -c release -o /app --no-restore
-
-
-# server
-FROM mcr.microsoft.com/dotnet/sdk:8.0
+﻿FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+USER $APP_UID
 WORKDIR /app
-COPY --from=build /app ./
-
 EXPOSE 8080
+EXPOSE 8081
 
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+ARG BUILD_CONFIGURATION=Release
+WORKDIR /src
+COPY ["DocProjDEVPLANT/DocProjDEVPLANT.csproj", "DocProjDEVPLANT/"]
+RUN dotnet restore "DocProjDEVPLANT/DocProjDEVPLANT.csproj"
+COPY . .
+WORKDIR "/src/DocProjDEVPLANT"
+RUN dotnet build "DocProjDEVPLANT.csproj" -c $BUILD_CONFIGURATION -o /app/build
+
+FROM build AS publish
+ARG BUILD_CONFIGURATION=Release
+RUN dotnet publish "DocProjDEVPLANT.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "DocProjDEVPLANT.dll"]

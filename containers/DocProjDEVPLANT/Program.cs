@@ -18,6 +18,7 @@ services.AddCors(options => options.AddPolicy("EnableAll", policy =>
 services.AddControllers();
 
 // Add Swagger
+services.AddEndpointsApiExplorer();
 services.AddSwaggerGen();
 
 // Add repositories
@@ -25,11 +26,11 @@ services.AddRepositories(configuration);
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
+//if (app.Environment.IsDevelopment())
+//{
     app.UseSwagger();
     app.UseSwaggerUI();
-}
+//}
 
 app.UseHttpsRedirection();
 app.UseCors("EnableAll");

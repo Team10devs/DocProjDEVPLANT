@@ -26,7 +26,7 @@ public class UserController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<UserModel>> CreateUser([FromBody] UserRequest user)
     {
-        {
+        
             var result = await _userService.CreateUserAsync(user);
 
             if (result.IsSucces)
@@ -37,7 +37,7 @@ public class UserController : ControllerBase
             {
                 return BadRequest(result.Error);
             }
-        }
+        
 
     }
 }

@@ -1,4 +1,4 @@
-﻿using DocProjDEVPLANT.Entities.Enums;
+using DocProjDEVPLANT.Entities.Enums;
 using DocProjDEVPLANT.Utils.ResultPattern;
 using Microsoft.AspNetCore.Identity;
 

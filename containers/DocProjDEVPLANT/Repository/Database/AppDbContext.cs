@@ -1,4 +1,4 @@
-﻿using DocProjDEVPLANT.Entities;
+using DocProjDEVPLANT.Entities;
 using DocProjDEVPLANT.Entities.User;
 using Microsoft.EntityFrameworkCore;
 

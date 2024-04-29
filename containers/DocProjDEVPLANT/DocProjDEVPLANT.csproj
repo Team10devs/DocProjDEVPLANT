@@ -46,4 +46,8 @@
       <None Remove="Repository\Repositories\**" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Domain\" />
+    </ItemGroup>
+
 </Project>

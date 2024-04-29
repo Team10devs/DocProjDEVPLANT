@@ -43,6 +43,10 @@ public class UserService : IUserService
             request.username,
             request.password,
             request.email,
+            request.address,
+            request.fullname,
+            request.cnp,
+            company,
             request.role);
         
         if (result.IsFailure)

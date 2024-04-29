@@ -26,6 +26,10 @@ public class UserModel : Entity
         string username,
         string password,
         string email,
+        string adress,
+        string fullname,
+        string cnp,
+        CompanyModel companyModel,
         RoleEnum role)
     {
         return new UserModel
@@ -33,6 +37,10 @@ public class UserModel : Entity
             UserName = username,
             Password = password,
             Email = email,
+            Address = adress,
+            FullName = fullname,
+            CNP = cnp,
+            Company = companyModel,
             Role = role
         };
     }

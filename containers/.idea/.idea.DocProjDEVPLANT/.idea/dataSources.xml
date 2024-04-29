@@ -15,5 +15,12 @@
       <jdbc-url>jdbc:postgresql://localhost:5433/database_plant</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
+    <data-source source="LOCAL" name="postgres@gdscupt.tech" uuid="1b329b3b-cdc0-4e5b-9746-ef5c03614105">
+      <driver-ref>postgresql</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
+      <jdbc-url>jdbc:postgresql://gdscupt.tech:6969/postgres</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
   </component>
 </project>

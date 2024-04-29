@@ -15,9 +15,19 @@ public class CompanyRepository(AppDbContext context) : Repository<CompanyModel>(
         await _appDbContext.SaveChangesAsync();
     }
 
-    public async Task<CompanyModel> FindById(string id)
+    public async Task<CompanyModel> FindByIdAsync(string id)
     {
         return await _appDbContext.Companies.FirstOrDefaultAsync(c => c.Id == id);
+    }
+
+    public async Task DeleteCompanyAsync(CompanyModel companyModel)
+    {
+        var company = await _appDbContext.Companies.FindAsync(companyModel.Id);
+        
+        if (company is null) return;
+        
+        _appDbContext.Companies.Remove(company);
+        await _appDbContext.SaveChangesAsync();
     }
     
 }

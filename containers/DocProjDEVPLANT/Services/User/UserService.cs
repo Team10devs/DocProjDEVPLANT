@@ -21,9 +21,18 @@ public class UserService : IUserService
         return await _userRepository.GetAllUsersAsync();
     }
 
+    public async Task<Result<UserModel>> GetByIdAsync(string id)
+    {
+        var user = await _userRepository.FindByIdAsync(id);
+
+        if (user is null)
+            return Result.Failure<UserModel>(new Error(ErrorType.NotFound, "User"));
+        
+        return user;
+    } 
     public async Task<Result<UserModel>> CreateUserAsync(UserRequest request)
     {
-        var company = await _companyRepository.FindById(request.companyId);
+        var company = await _companyRepository.FindByIdAsync(request.companyId);
 
         if (company is null)
             return Result.Failure<UserModel>(new Error(ErrorType.NotFound, "Company"));

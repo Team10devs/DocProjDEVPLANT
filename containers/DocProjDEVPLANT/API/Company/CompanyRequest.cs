@@ -1,3 +1,8 @@
-﻿namespace DocProjDEVPLANT.API.Company;
+﻿using DocProjDEVPLANT.Domain.Entities.Enums;
 
-public record CompanyRequest(string name);
+namespace DocProjDEVPLANT.API.Company;
+
+public record CompanyRequest(string username,
+    string password,
+    string email,
+    RoleEnum role);

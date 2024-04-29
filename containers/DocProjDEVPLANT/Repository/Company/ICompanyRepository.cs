@@ -1,4 +1,6 @@
-﻿namespace DocProjDEVPLANT.Entities;
+﻿using DocProjDEVPLANT.Domain.Entities.Company;
+
+namespace DocProjDEVPLANT.Repository.Company;
 
 public interface ICompanyRepository
 {

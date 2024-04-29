@@ -1,8 +1,9 @@
-using DocProjDEVPLANT.Entities.Enums;
-using DocProjDEVPLANT.Utils.ResultPattern;
-using Microsoft.AspNetCore.Identity;
+using DocProjDEVPLANT.Domain.Entities.Company;
+using DocProjDEVPLANT.Domain.Entities.Enums;
+using DocProjDEVPLANT.Repository.User;
+using DocProjDEVPLANT.Services.Utils.ResultPattern;
 
-namespace DocProjDEVPLANT.Entities.User;
+namespace DocProjDEVPLANT.Domain.Entities.User;
 
 public class UserModel : Entity 
 {

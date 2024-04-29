@@ -1,4 +1,4 @@
-﻿namespace DocProjDEVPLANT.Entities.Enums;
+﻿namespace DocProjDEVPLANT.Domain.Entities.Enums;
 
 public enum RoleEnum
 {

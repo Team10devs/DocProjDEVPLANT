@@ -1,4 +1,4 @@
-﻿namespace DocProjDEVPLANT.Entities;
+﻿namespace DocProjDEVPLANT.Domain.Entities;
 
 public class Entity : IEntity
 {

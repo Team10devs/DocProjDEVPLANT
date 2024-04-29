@@ -1,9 +1,10 @@
-﻿using DocProjDEVPLANT.Entities.User;
-using DocProjDEVPLANT.Services;
-using DocProjDEVPLANT.Utils.ResultPattern;
+﻿using DocProjDEVPLANT.API.User;
+using DocProjDEVPLANT.Domain.Entities.User;
+using DocProjDEVPLANT.Services.User;
+using DocProjDEVPLANT.Services.Utils.ResultPattern;
 using Microsoft.AspNetCore.Mvc;
 
-namespace DocProjDEVPLANT.Controllers;
+namespace DocProjDEVPLANT.API.Controllers;
 [Route("User")]
 [ApiController]
 public class UserController : ControllerBase
@@ -26,8 +27,6 @@ public class UserController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<UserModel>> CreateUser([FromBody] UserRequest user)
     {
-<<<<<<<< HEAD:containers/DocProjDEVPLANT/API/Controllers/UserController.cs
-
         var result = await _userService.CreateUserAsync(user);
 
         if (result.IsSucces)
@@ -38,20 +37,5 @@ public class UserController : ControllerBase
         {
             return BadRequest(result.Error);
         }
-========
-        
-            var result = await _userService.CreateUserAsync(user);
-
-            if (result.IsSucces)
-            {
-                return Ok(result.Value); 
-            }
-            else
-            {
-                return BadRequest(result.Error);
-            }
-        
-
->>>>>>>> cooking:containers/DocProjDEVPLANT/Controllers/Users/UserController.cs
     }
 }

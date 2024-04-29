@@ -1,4 +1,4 @@
-﻿using DocProjDEVPLANT.Entities.User;
+﻿using DocProjDEVPLANT.Domain.Entities.User;
 
 namespace DocProjDEVPLANT.API.Company;
 

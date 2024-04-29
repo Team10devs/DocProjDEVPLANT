@@ -1,4 +1,4 @@
-﻿namespace DocProjDEVPLANT.Utils.ResultPattern;
+﻿namespace DocProjDEVPLANT.Services.Utils.ResultPattern;
 
 public record Error(ErrorType Type, string Description)
 {

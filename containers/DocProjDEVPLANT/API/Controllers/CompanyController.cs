@@ -1,11 +1,8 @@
 ﻿using DocProjDEVPLANT.API.Company;
-using DocProjDEVPLANT.Entities;
+using DocProjDEVPLANT.Domain.Entities.Company;
 using DocProjDEVPLANT.Services.Company;
-using DocProjDEVPLANT.Utils.ResultPattern;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
 
-namespace DocProjDEVPLANT.Controllers;
+namespace DocProjDEVPLANT.API.Controllers;
 
 public class CompanyController
 {

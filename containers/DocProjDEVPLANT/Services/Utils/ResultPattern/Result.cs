@@ -1,4 +1,4 @@
-﻿namespace DocProjDEVPLANT.Utils.ResultPattern;
+﻿namespace DocProjDEVPLANT.Services.Utils.ResultPattern;
 
 public class Result
 {

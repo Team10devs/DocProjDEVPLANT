@@ -1,8 +1,8 @@
-using DocProjDEVPLANT.Entities;
-using DocProjDEVPLANT.Entities.User;
+using DocProjDEVPLANT.Domain.Entities.Company;
+using DocProjDEVPLANT.Domain.Entities.User;
 using Microsoft.EntityFrameworkCore;
 
-namespace DocProjDEVPLANT.Repository;
+namespace DocProjDEVPLANT.Repository.Database;
 
 public class AppDbContext : DbContext
 {

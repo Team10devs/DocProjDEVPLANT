@@ -1,6 +1,8 @@
-﻿using DocProjDEVPLANT.Entities;
+﻿using DocProjDEVPLANT.Domain.Entities.Company;
+using DocProjDEVPLANT.Repository.Database;
 using Microsoft.EntityFrameworkCore;
-namespace DocProjDEVPLANT.Repository.Repositories;
+
+namespace DocProjDEVPLANT.Repository.Company;
 
 public class CompanyRepository(AppDbContext context) : Repository<CompanyModel>(context), ICompanyRepository
 {

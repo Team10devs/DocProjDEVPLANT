@@ -1,6 +1,6 @@
-﻿using DocProjDEVPLANT.Entities.Enums;
+﻿using DocProjDEVPLANT.Domain.Entities.Enums;
 
-namespace DocProjDEVPLANT.Controllers;
+namespace DocProjDEVPLANT.API.User;
 
 public record UserRequest(string username, string password, string email,
                         string address, string fullname, string cnp,

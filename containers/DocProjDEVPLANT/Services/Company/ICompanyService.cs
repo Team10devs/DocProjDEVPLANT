@@ -1,6 +1,6 @@
 ﻿using DocProjDEVPLANT.API.Company;
-using DocProjDEVPLANT.Entities;
-using DocProjDEVPLANT.Utils.ResultPattern;
+using DocProjDEVPLANT.Domain.Entities.Company;
+using DocProjDEVPLANT.Services.Utils.ResultPattern;
 
 namespace DocProjDEVPLANT.Services.Company;
 

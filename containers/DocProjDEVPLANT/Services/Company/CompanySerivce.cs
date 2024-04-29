@@ -1,6 +1,7 @@
 ﻿using DocProjDEVPLANT.API.Company;
-using DocProjDEVPLANT.Entities;
-using DocProjDEVPLANT.Utils.ResultPattern;
+using DocProjDEVPLANT.Domain.Entities.Company;
+using DocProjDEVPLANT.Repository.Company;
+using DocProjDEVPLANT.Services.Utils.ResultPattern;
 
 namespace DocProjDEVPLANT.Services.Company;
 
@@ -23,7 +24,10 @@ public class CompanySerivce : ICompanyService
 
         var result = await CompanyModel.CreateAsync(
             _companyRepository,
-            request.name
+            request.username,
+            request.password,
+            request.email,
+            request.role
         );
 
         if (result.IsFailure)

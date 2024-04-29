@@ -1,9 +1,10 @@
-using DocProjDEVPLANT.Entities;
-using DocProjDEVPLANT.Entities.User;
 using DocProjDEVPLANT.Repository;
-using DocProjDEVPLANT.Repository.Repositories;
+using DocProjDEVPLANT.Repository.Company;
+using DocProjDEVPLANT.Repository.Database;
+using DocProjDEVPLANT.Repository.User;
 using DocProjDEVPLANT.Services;
 using DocProjDEVPLANT.Services.Company;
+using DocProjDEVPLANT.Services.User;
 using Microsoft.EntityFrameworkCore;
 
 namespace DocProjDEVPLANT;

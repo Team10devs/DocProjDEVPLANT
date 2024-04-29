@@ -1,9 +1,8 @@
-﻿using DocProjDEVPLANT.Controllers;
-using DocProjDEVPLANT.Entities.User;
-using Microsoft.AspNetCore.Identity;
+﻿using DocProjDEVPLANT.Domain.Entities.User;
+using DocProjDEVPLANT.Repository.Database;
 using Microsoft.EntityFrameworkCore;
 
-namespace DocProjDEVPLANT.Repository;
+namespace DocProjDEVPLANT.Repository.User;
 
 public class UserRepository : Repository<UserModel> , IUserRepository
 {

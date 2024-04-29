@@ -1,4 +1,6 @@
-﻿namespace DocProjDEVPLANT.Entities.User;
+﻿using DocProjDEVPLANT.Domain.Entities.User;
+
+namespace DocProjDEVPLANT.Repository.User;
 
 public interface IUserRepository
 {

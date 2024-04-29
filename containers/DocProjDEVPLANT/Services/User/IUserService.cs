@@ -1,8 +1,8 @@
-﻿using DocProjDEVPLANT.Controllers;
-using DocProjDEVPLANT.Entities.User;
-using DocProjDEVPLANT.Utils.ResultPattern;
+﻿using DocProjDEVPLANT.API.User;
+using DocProjDEVPLANT.Domain.Entities.User;
+using DocProjDEVPLANT.Services.Utils.ResultPattern;
 
-namespace DocProjDEVPLANT.Services;
+namespace DocProjDEVPLANT.Services.User;
 
 public interface IUserService
 {

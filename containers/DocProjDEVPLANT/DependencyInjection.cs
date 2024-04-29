@@ -1,6 +1,9 @@
-﻿using DocProjDEVPLANT.Entities.User;
+﻿using DocProjDEVPLANT.Entities;
+using DocProjDEVPLANT.Entities.User;
 using DocProjDEVPLANT.Repository;
+using DocProjDEVPLANT.Repository.Repositories;
 using DocProjDEVPLANT.Services;
+using DocProjDEVPLANT.Services.Company;
 using Microsoft.EntityFrameworkCore;
 
 namespace DocProjDEVPLANT;
@@ -18,6 +21,9 @@ public static class DependencyInjection
         
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IUserService, UserService>();
+
+        services.AddScoped<ICompanyRepository, CompanyRepository>();
+        services.AddScoped<ICompanyService, CompanySerivce>();
        
         
         return services;

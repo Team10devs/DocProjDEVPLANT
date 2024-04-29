@@ -26,18 +26,16 @@ public class UserController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<UserModel>> CreateUser([FromBody] UserRequest user)
     {
+
+        var result = await _userService.CreateUserAsync(user);
+
+        if (result.IsSucces)
         {
-            var result = await _userService.CreateUserAsync(user);
-
-            if (result.IsSucces)
-            {
-                return Ok(result.Value); 
-            }
-            else
-            {
-                return BadRequest(result.Error);
-            }
+            return Ok(result.Value); 
         }
-
+        else
+        {
+            return BadRequest(result.Error);
+        }
     }
 }

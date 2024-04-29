@@ -1,5 +1,4 @@
 using DocProjDEVPLANT;
-using DocProjDEVPLANT.Entities.User;
 using DocProjDEVPLANT.Repository;
 using Microsoft.EntityFrameworkCore;
 

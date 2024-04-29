@@ -1,6 +1,4 @@
 ﻿using System.Linq.Expressions;
-using DocProjDEVPLANT.Entities;
-using DocProjDEVPLANT.Entities.User;
 
 namespace DocProjDEVPLANT.Repository;
 

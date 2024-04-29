@@ -1,27 +1,35 @@
-﻿using DocProjDEVPLANT.Utils.ResultPattern;
+﻿using DocProjDEVPLANT.Entities.Company;
+using DocProjDEVPLANT.Entities.Enums;
+using DocProjDEVPLANT.Utils.ResultPattern;
 using Microsoft.AspNetCore.Identity;
 
 namespace DocProjDEVPLANT.Entities.User;
 
-public class UserModel : Entity //model de baza pt utilizatori in sistemele de autentificare si autorizare (are multe prop)
+public class UserModel : Entity 
 {
-    public string FirstName { get; set; }
-    public string LastName { get; set; }
+    public string UserName { get; set; }
+    public string Password { get; set; }
+    public string Email { get; set; }
+    public RoleEnum Role { get; set; }
+    public CompanyModel Company { get; set; }
+    
 
-    private UserModel()
-    {
-        
-    }
+    private UserModel() { }
 
     public static async Task<Result<UserModel>> CreateAsync(
         IUserRepository repo,
-        string firstname,
-        string lastname)
+        string username,
+        string password,
+        string email,
+        RoleEnum role
+        )
     {
         return new UserModel
         {
-            FirstName = firstname,
-            LastName = lastname
+            UserName = username,
+            Password = password,
+            Email = email,
+            Role = role
         };
     }
 }

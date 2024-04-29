@@ -46,8 +46,12 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - ConnectionStrings__Default=Host=db;Port=5433;Username=postgres;Password=postgres;Database=database_plant;Pooling=true;
+      - ConnectionStrings__Default=Host=db;Port=5432;Username=postgres;Password=postgres;Database=database_plant;Pooling=true;
+<<<<<<< Updated upstream
       - ASPNETCORE_URLS=http://+:8080
+=======
+      #- ASPNETCORE_URLS=http://+:8080
+>>>>>>> Stashed changes
     
     networks:
       - dev

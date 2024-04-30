@@ -33,5 +33,10 @@ public class CompanyRepository(AppDbContext context) : Repository<CompanyModel>(
         _appDbContext.Companies.Remove(company);
         await _appDbContext.SaveChangesAsync();
     }
+
+    public async Task SaveChangesAsync()
+    {
+        await _appDbContext.SaveChangesAsync();
+    }
     
 }

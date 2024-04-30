@@ -8,4 +8,5 @@ public interface ICompanyService
 {
     Task<Result<IEnumerable<CompanyModel>>> GetAllAsync();
     Task<Result<CompanyModel>> CreateCompanyAsync(CompanyRequest request);
+    Task<Result<CompanyModel>> GetByIdAsync(string companyId);
 }

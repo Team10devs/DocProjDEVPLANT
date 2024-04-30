@@ -2,7 +2,6 @@
 
 namespace DocProjDEVPLANT.API.Company;
 
-public record CompanyRequest(string username,
-    string password,
+public record CompanyRequest(
     string email,
-    RoleEnum role);
+    string name);

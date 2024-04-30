@@ -26,10 +26,8 @@ public class CompanySerivce : ICompanyService
 
         var result = await CompanyModel.CreateAsync(
             _companyRepository,
-            request.username,
-            request.password,
             request.email,
-            request.role
+            request.name
         );
 
         if (result.IsFailure)
@@ -38,5 +36,15 @@ public class CompanySerivce : ICompanyService
         await _companyRepository.CreateCompanyAsync(result.Value);
 
         return result.Value;
+    }
+
+    public async Task<Result<CompanyModel>> GetByIdAsync(string id)
+    {
+        var company = await _companyRepository.FindByIdAsync(id);
+
+        if (company is null)
+            return Result.Failure<CompanyModel>(new Error(ErrorType.NotFound, "Company"));
+        
+        return company;
     }
 }

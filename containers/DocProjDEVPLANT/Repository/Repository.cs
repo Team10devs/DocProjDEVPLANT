@@ -1,6 +1,5 @@
 ﻿using System.Linq.Expressions;
-using DocProjDEVPLANT.Entities;
-using DocProjDEVPLANT.Entities.User;
+using DocProjDEVPLANT.Repository.Database;
 using Microsoft.EntityFrameworkCore;
 
 namespace DocProjDEVPLANT.Repository;

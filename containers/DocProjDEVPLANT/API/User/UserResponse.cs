@@ -5,7 +5,7 @@ namespace DocProjDEVPLANT.API.User;
 
 public class UserResponse
 {
-    public UserResponse(string id, string username, string fullname, string cnp, RoleEnum role, string companyId)
+    public UserResponse(string id, string username, string fullname, string cnp, RoleEnum role, string? companyId = null)
     {
         Id = id;
         Username = username;
@@ -20,11 +20,5 @@ public class UserResponse
     public string Fullname { get; set; }
     public string Cnp { get; set; }
     public RoleEnum Role { get; set; }
-    public string CompanyId { get; set; }
-    /*string Id,
-    string Username,
-    string Fullname,
-    string Cnp,
-    RoleEnum Role
-    string CompanyId*/
+    public string? CompanyId { get; set; } // optional
 }

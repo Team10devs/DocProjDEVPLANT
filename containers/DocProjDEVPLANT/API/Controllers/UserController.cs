@@ -42,14 +42,29 @@ public class UserController : ControllerBase
     
     private UserResponse Map(UserModel userModel)
     {
-
-        var company = new CompanyResponse(userModel.Company.Id, userModel.Company.Name);
-        
-        return new UserResponse(userModel.Id,
-            userModel.UserName,
-            userModel.FullName,
-            userModel.CNP,
-            userModel.Role,
-            company.Id);
+        if (userModel.Company != null)
+        {
+            // Dacă utilizatorul are o companie asociată, poți adăuga și informații despre companie în răspuns
+            return new UserResponse(
+                userModel.Id,
+                userModel.UserName,
+                userModel.FullName,
+                userModel.CNP,
+                userModel.Role,
+                userModel.Company.Id // sau userModel.Company?.Id dacă Company poate fi null
+            );
+        }
+        else
+        {
+            // Dacă utilizatorul nu are o companie asociată, poți crea răspunsul fără informații despre companie
+            return new UserResponse(
+                userModel.Id,
+                userModel.UserName,
+                userModel.FullName,
+                userModel.CNP,
+                userModel.Role
+            );
+        }
     }
+
 }

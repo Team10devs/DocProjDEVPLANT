@@ -2,6 +2,7 @@
 using DocProjDEVPLANT.Repository.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -10,9 +11,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DocProjDEVPLANT.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240430154150_NullableCompanyId")]
+    partial class NullableCompanyId
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -49,6 +52,7 @@ namespace DocProjDEVPLANT.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("CompanyId")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Email")
@@ -77,7 +81,9 @@ namespace DocProjDEVPLANT.Migrations
                 {
                     b.HasOne("DocProjDEVPLANT.Domain.Entities.Company.CompanyModel", "Company")
                         .WithMany("Users")
-                        .HasForeignKey("CompanyId");
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Company");
                 });

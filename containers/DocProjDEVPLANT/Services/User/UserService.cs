@@ -33,14 +33,13 @@ public class UserService : IUserService
     } 
     public async Task<Result<UserModel>> CreateUserAsync(UserRequest request)
     {
-        var company = await _companyRepository.FindByIdAsync(request.companyId);
+        //var company = await _companyRepository.FindByIdAsync(request.companyId);
 
-        if (company is null)
-            return Result.Failure<UserModel>(new Error(ErrorType.NotFound, "Company"));
+      //  if (company is null)
+        //    return Result.Failure<UserModel>(new Error(ErrorType.NotFound, "Company"));
         
         var result = await UserModel.CreateAsync(
             _userRepository,
-            company,
             request.username,
             request.email,
             request.address,

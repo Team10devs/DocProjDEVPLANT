@@ -13,7 +13,7 @@ public class UserModel : Entity
     public string FullName { get; set; }
     public string CNP { get; set; }
     public RoleEnum Role { get; set; }
-    public CompanyModel Company { get; set; }
+    public CompanyModel? Company { get; set; }
 
     public UserModel()
     {
@@ -22,7 +22,6 @@ public class UserModel : Entity
 
     public static async Task<Result<UserModel>> CreateAsync(
         IUserRepository repo,
-        CompanyModel companyModel,
         string username,
         string email,
         string adress,
@@ -33,7 +32,6 @@ public class UserModel : Entity
         return new UserModel
         {
             UserName = username,
-            Company = companyModel,
             Email = email,
             Address = adress,
             FullName = fullname,

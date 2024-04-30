@@ -8,7 +8,9 @@ public class CompanyRepository(AppDbContext context) : Repository<CompanyModel>(
 {
     public async Task<List<CompanyModel>> GetAllCompaniesAsync()
     {
-        return await _appDbContext.Companies.ToListAsync();
+        return await _appDbContext.Companies
+            .Include(c => c.Users)
+            .ToListAsync();
     }
 
     public async Task CreateCompanyAsync(CompanyModel companyModel)

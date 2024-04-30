@@ -16,31 +16,31 @@ public class UserModel : Entity
     public RoleEnum Role { get; set; }
     public CompanyModel Company { get; set; }
 
-    private UserModel()
+    public UserModel()
     {
         
     }
 
     public static async Task<Result<UserModel>> CreateAsync(
         IUserRepository repo,
+        CompanyModel companyModel,
         string username,
         string password,
         string email,
         string adress,
         string fullname,
         string cnp,
-        CompanyModel companyModel,
         RoleEnum role)
     {
         return new UserModel
         {
             UserName = username,
+            Company = companyModel,
             Password = password,
             Email = email,
             Address = adress,
             FullName = fullname,
             CNP = cnp,
-            Company = companyModel,
             Role = role
         };
     }

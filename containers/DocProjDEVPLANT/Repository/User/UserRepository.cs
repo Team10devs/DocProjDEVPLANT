@@ -13,7 +13,9 @@ public class UserRepository : Repository<UserModel> , IUserRepository
 
     public async Task<List<UserModel>> GetAllUsersAsync()
     {
-        return await _appDbContext.Users.ToListAsync();
+        return await _appDbContext.Users
+            .Include(u => u.Company)
+            .ToListAsync();
     }
     
     public async Task CreateUserAsync(UserModel userModel)

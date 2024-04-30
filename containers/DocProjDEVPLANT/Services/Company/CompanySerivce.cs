@@ -1,7 +1,9 @@
 ﻿using DocProjDEVPLANT.API.Company;
+using DocProjDEVPLANT.API.User;
 using DocProjDEVPLANT.Domain.Entities.Company;
 using DocProjDEVPLANT.Repository.Company;
 using DocProjDEVPLANT.Services.Utils.ResultPattern;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace DocProjDEVPLANT.Services.Company;
 
@@ -16,7 +18,7 @@ public class CompanySerivce : ICompanyService
 
     public async Task<Result<IEnumerable<CompanyModel>>> GetAllAsync()
     {
-        return await _companyRepository.GetAllCompaniesAsync();
+         return await _companyRepository.GetAllCompaniesAsync();
     }
 
     public async Task<Result<CompanyModel>> CreateCompanyAsync(CompanyRequest request)

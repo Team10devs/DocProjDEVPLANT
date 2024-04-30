@@ -40,13 +40,13 @@ public class UserService : IUserService
         
         var result = await UserModel.CreateAsync(
             _userRepository,
+            company,
             request.username,
             request.password,
             request.email,
             request.address,
             request.fullname,
             request.cnp,
-            company,
             request.role);
         
         if (result.IsFailure)

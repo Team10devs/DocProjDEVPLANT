@@ -16,22 +16,21 @@ public class CompanyController : ControllerBase
 {
     private readonly ICompanyService _companyService;
     private readonly IUserService _userService;
-    private readonly ICompanyRepository _companyRepository;
+   // private readonly ICompanyRepository _companyRepository;
 
     public CompanyController(ICompanyService service,IUserService userService,ICompanyRepository companyRepository )
     {
         _companyService = service;
         _userService = userService;
-        _companyRepository = companyRepository;
+      //  _companyRepository = companyRepository;
     }
-
 
     [HttpGet(Name = "GetAllCompanies")]
     public async Task<ActionResult<IEnumerable<CompanyResponse>>> GetAllCompanies()
     {
         var companies = await _companyService.GetAllAsync();
 
-        var ceva = companies.Value.Select(c => new CompanyResponseWithUsers
+        return Ok(companies.Select(c => new CompanyResponseWithUsers
         {
             Id = c.Id,
             Name = c.Name,
@@ -43,47 +42,42 @@ public class CompanyController : ControllerBase
                 CNP = u.CNP,
                 Role = u.Role
             }).ToList()
-        }).ToList();
-
-        return Ok(ceva);
+        }).ToList());
     }
 
     [HttpPost]
     public async Task<ActionResult<CompanyModel>> CreateCompany([FromBody] CompanyRequest companyRequest)
     {
-        var company = _companyService.CreateCompanyAsync(companyRequest);
+        var company = await _companyService.CreateCompanyAsync(companyRequest);
 
-        if ( company.Result.IsFailure )
+        if (company is null)
         {
-            return BadRequest(company.Result);
+            return BadRequest(company);
         }
 
-        return Ok(company.Result);
+        return Ok(company);
     }
-
+    /*
     [HttpPatch(Name = "AddUserToCompany")]
     public async Task<ActionResult<CompanyModel>> AddCompanyUser(string companyId, [FromBody] string userId)
     {
         var user = await _userService.GetByIdAsync(userId);
 
-        if (user.IsFailure || user.Value is null)
+        if (user is null)
             return BadRequest($"User with id {userId} not found!");
 
         var company = await _companyService.GetByIdAsync(companyId);
-        
-        if( company.IsFailure || company.Value is null)
+
+        if( company is null)
             return BadRequest($"Company with id {companyId} not found!");
-        
-        company.Value.Users.Add(user.Value);
-        user.Value.Company = company.Value;
-        
-        await _companyRepository.SaveChangesAsync();
 
-        return Ok(company.Value);
+        company.Users.Add(user);
+        user.Company = company;
+
+        return Ok(company);
     }
+    */
     
-    
-
     /*private CompanyResponse Map(CompanyModel companyModel)
     {
         return new CompanyResponseWithUsers(companyModel.Id,

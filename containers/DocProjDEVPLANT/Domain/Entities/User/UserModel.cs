@@ -1,6 +1,5 @@
 using DocProjDEVPLANT.Domain.Entities.Company;
 using DocProjDEVPLANT.Domain.Entities.Enums;
-using DocProjDEVPLANT.Repository.User;
 using DocProjDEVPLANT.Services.Utils.ResultPattern;
 
 namespace DocProjDEVPLANT.Domain.Entities.User;
@@ -8,24 +7,19 @@ namespace DocProjDEVPLANT.Domain.Entities.User;
 public class UserModel : Entity 
 {
     public string UserName { get; set; }
-    public string Password { get; set; }
     public string Email { get; set; }
     public string Address { get; set; }
     public string FullName { get; set; }
     public string CNP { get; set; }
     public RoleEnum Role { get; set; }
-    public CompanyModel Company { get; set; }
+    public CompanyModel? Company { get; set; }
 
     public UserModel()
     {
         
     }
 
-    public static async Task<Result<UserModel>> CreateAsync(
-        IUserRepository repo,
-        CompanyModel companyModel,
-        string username,
-        string password,
+    public static async Task<UserModel> CreateAsync(string username,
         string email,
         string adress,
         string fullname,
@@ -35,8 +29,6 @@ public class UserModel : Entity
         return new UserModel
         {
             UserName = username,
-            Company = companyModel,
-            Password = password,
             Email = email,
             Address = adress,
             FullName = fullname,

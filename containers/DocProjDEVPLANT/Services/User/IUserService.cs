@@ -6,8 +6,8 @@ namespace DocProjDEVPLANT.Services.User;
 
 public interface IUserService
 {
-    Task<Result<IEnumerable<UserModel>>> GetAllAsync();
+    Task<IEnumerable<UserModel>> GetAllAsync();
 
-    Task<Result<UserModel>> CreateUserAsync(UserRequest request);
-    Task<Result<UserModel>> GetByIdAsync(string id);
+    Task<UserModel> CreateUserAsync(UserRequest request);
+    Task<UserModel> GetByIdAsync(string id);
 }

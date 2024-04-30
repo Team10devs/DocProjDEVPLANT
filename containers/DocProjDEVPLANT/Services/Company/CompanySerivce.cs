@@ -2,48 +2,55 @@
 using DocProjDEVPLANT.API.User;
 using DocProjDEVPLANT.Domain.Entities.Company;
 using DocProjDEVPLANT.Repository.Company;
+using DocProjDEVPLANT.Repository.Database;
 using DocProjDEVPLANT.Services.Utils.ResultPattern;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.EntityFrameworkCore;
 
 namespace DocProjDEVPLANT.Services.Company;
 
 public class CompanySerivce : ICompanyService
 {
-    private readonly ICompanyRepository _companyRepository;
+    //private readonly ICompanyRepository _companyRepository;
+    private readonly AppDbContext _context;
 
-    public CompanySerivce(ICompanyRepository repository)
+    public CompanySerivce(AppDbContext context)
     {
-        _companyRepository = repository;
+        //_companyRepository = repository;
+        _context = context;
     }
 
-    public async Task<Result<IEnumerable<CompanyModel>>> GetAllAsync()
+    public async Task<IEnumerable<CompanyModel>> GetAllAsync()
     {
-         return await _companyRepository.GetAllCompaniesAsync();
+         var companies = await _context.Companies
+             .Include(c => c.Users)
+             .ToListAsync();
+
+         return companies;
     }
 
-    public async Task<Result<CompanyModel>> CreateCompanyAsync(CompanyRequest request)
+    public async Task<CompanyModel> CreateCompanyAsync(CompanyRequest request)
     {
 
-        var result = await CompanyModel.CreateAsync(
-            _companyRepository,
-            request.email,
+        var company = await CompanyModel.CreateAsync(request.email,
             request.name
         );
 
-        if (result.IsFailure)
-            return Result.Failure<CompanyModel>(result.Error);
+        if (company is null)
+            throw new NotImplementedException();
 
-        await _companyRepository.CreateCompanyAsync(result.Value);
-
-        return result.Value;
+        _context.Companies.Add(company);
+        await _context.SaveChangesAsync();
+        
+        return company;
     }
 
-    public async Task<Result<CompanyModel>> GetByIdAsync(string id)
+    public async Task<CompanyModel> GetByIdAsync(string id)
     {
-        var company = await _companyRepository.FindByIdAsync(id);
+        var company = await _context.Companies.FirstOrDefaultAsync( c => c.Id == id);
 
         if (company is null)
-            return Result.Failure<CompanyModel>(new Error(ErrorType.NotFound, "Company"));
+            throw new NotImplementedException();
         
         return company;
     }

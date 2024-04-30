@@ -1,6 +1,5 @@
 using DocProjDEVPLANT.Domain.Entities.Enums;
 using DocProjDEVPLANT.Domain.Entities.User;
-using DocProjDEVPLANT.Repository.Company;
 using DocProjDEVPLANT.Services.Utils.ResultPattern;
 
 namespace DocProjDEVPLANT.Domain.Entities.Company;
@@ -22,9 +21,7 @@ public class CompanyModel : Entity
         Users = users;
     }
     
-    public static async Task<Result<CompanyModel>> CreateAsync(
-        ICompanyRepository repo,
-        string email,
+    public static async Task<CompanyModel> CreateAsync(string email,
         string name
         )
     {

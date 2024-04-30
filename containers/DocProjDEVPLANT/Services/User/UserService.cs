@@ -1,59 +1,58 @@
 ﻿using DocProjDEVPLANT.API.User;
 using DocProjDEVPLANT.Domain.Entities.User;
 using DocProjDEVPLANT.Repository.Company;
+using DocProjDEVPLANT.Repository.Database;
 using DocProjDEVPLANT.Repository.User;
 using DocProjDEVPLANT.Services.Utils.ResultPattern;
+using Microsoft.EntityFrameworkCore;
 
 namespace DocProjDEVPLANT.Services.User;
 
 public class UserService : IUserService
 {
-    private readonly IUserRepository _userRepository;
-    private readonly ICompanyRepository _companyRepository;
+    //private readonly IUserRepository _userRepository;
+    //private readonly ICompanyRepository _companyRepository;
+    private readonly AppDbContext _context;
 
-    public UserService(IUserRepository repository, ICompanyRepository companyRepository)
+    public UserService(AppDbContext context,IUserRepository repository, ICompanyRepository companyRepository)
     {
-        _userRepository = repository;
-        _companyRepository = companyRepository;
+        _context = context;
+        //_userRepository = repository;
+       // _companyRepository = companyRepository;
     }
 
-    public async Task<Result<IEnumerable<UserModel>>> GetAllAsync()
+    public async Task<IEnumerable<UserModel>> GetAllAsync()
     {
-        return await _userRepository.GetAllUsersAsync();
+        return await _context.Users
+           // .Include(u => u.Company ) da ciclic
+            .ToListAsync();
     }
 
-    public async Task<Result<UserModel>> GetByIdAsync(string id)
+    public async Task<UserModel> GetByIdAsync(string id)
     {
-        var user = await _userRepository.FindByIdAsync(id);
+        var user = await _context.Users.Where(u => u.Id == id ).FirstOrDefaultAsync(); //da null useru 
 
         if (user is null)
-            return Result.Failure<UserModel>(new Error(ErrorType.NotFound, "User"));
+            throw new NotImplementedException();
         
         return user;
     } 
-    public async Task<Result<UserModel>> CreateUserAsync(UserRequest request)
+    
+    public async Task<UserModel> CreateUserAsync(UserRequest request)
     {
-        var company = await _companyRepository.FindByIdAsync(request.companyId);
-
-        if (company is null)
-            return Result.Failure<UserModel>(new Error(ErrorType.NotFound, "Company"));
-        
-        var result = await UserModel.CreateAsync(
-            _userRepository,
-            company,
-            request.username,
-            request.password,
+        var user = await UserModel.CreateAsync(request.username,
             request.email,
             request.address,
             request.fullname,
             request.cnp,
             request.role);
-        
-        if (result.IsFailure)
-            return Result.Failure<UserModel>(result.Error);
 
-        await _userRepository.CreateUserAsync(result.Value);
+        if (user is null)
+            throw new NotImplementedException();
 
-        return result.Value;
+        _context.Users.Add(user);
+        await _context.SaveChangesAsync();
+
+        return user;
     }
 }

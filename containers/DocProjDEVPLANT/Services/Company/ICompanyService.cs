@@ -6,7 +6,7 @@ namespace DocProjDEVPLANT.Services.Company;
 
 public interface ICompanyService
 {
-    Task<Result<IEnumerable<CompanyModel>>> GetAllAsync();
-    Task<Result<CompanyModel>> CreateCompanyAsync(CompanyRequest request);
-    Task<Result<CompanyModel>> GetByIdAsync(string companyId);
+    Task<IEnumerable<CompanyModel>> GetAllAsync();
+    Task<CompanyModel> CreateCompanyAsync(CompanyRequest request);
+    Task<CompanyModel> GetByIdAsync(string companyId);
 }

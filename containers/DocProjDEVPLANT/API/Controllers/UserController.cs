@@ -20,24 +20,27 @@ public class UserController : ControllerBase
     [HttpGet(Name = "GetAllUsers")]
     public async Task<ActionResult<IEnumerable<UserResponse>>> GetAllUsers()
     {
-        Result<IEnumerable<UserModel>> result = await _userService.GetAllAsync();
+        var users = await _userService.GetAllAsync();
 
-        return Ok(result.Value.Select(Map));
+        return Ok(users);
+    }
+
+    [HttpGet("{Id}")]
+    public async Task<ActionResult<UserResponse>> GetUserById(string id)
+    {
+        var user = await _userService.GetByIdAsync(id);
+        return Ok(user);
     }
 
     [HttpPost]
     public async Task<ActionResult<UserModel>> CreateUser([FromBody] UserRequest userRequest)
     {
-        var result = await _userService.CreateUserAsync(userRequest);
+        var user = await _userService.CreateUserAsync(userRequest);
 
-        if (result.IsSucces)
-        {
-            return Ok(Map(result.Value)); 
-        }
-        else
-        {
-            return BadRequest(result.Error);
-        }
+        if (user is null)
+            return BadRequest();
+        
+        return Ok(user);
     }
     
     private UserResponse Map(UserModel userModel)

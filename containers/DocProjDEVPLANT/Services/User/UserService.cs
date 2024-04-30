@@ -42,7 +42,6 @@ public class UserService : IUserService
             _userRepository,
             company,
             request.username,
-            request.password,
             request.email,
             request.address,
             request.fullname,

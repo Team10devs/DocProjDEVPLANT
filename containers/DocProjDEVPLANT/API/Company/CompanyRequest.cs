@@ -2,6 +2,4 @@
 
 namespace DocProjDEVPLANT.API.Company;
 
-public record CompanyRequest(
-    string email,
-    string name);
+public record CompanyRequest(string name);

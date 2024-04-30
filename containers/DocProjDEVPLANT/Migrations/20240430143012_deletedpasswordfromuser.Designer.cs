@@ -11,8 +11,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DocProjDEVPLANT.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240430091207_companytrim")]
-    partial class companytrim
+    [Migration("20240430143012_deletedpasswordfromuser")]
+    partial class deletedpasswordfromuser
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -27,10 +27,6 @@ namespace DocProjDEVPLANT.Migrations
             modelBuilder.Entity("DocProjDEVPLANT.Domain.Entities.Company.CompanyModel", b =>
                 {
                     b.Property<string>("Id")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Name")
@@ -64,10 +60,6 @@ namespace DocProjDEVPLANT.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("FullName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Password")
                         .IsRequired()
                         .HasColumnType("text");
 

@@ -8,7 +8,6 @@ namespace DocProjDEVPLANT.Domain.Entities.User;
 public class UserModel : Entity 
 {
     public string UserName { get; set; }
-    public string Password { get; set; }
     public string Email { get; set; }
     public string Address { get; set; }
     public string FullName { get; set; }
@@ -25,7 +24,6 @@ public class UserModel : Entity
         IUserRepository repo,
         CompanyModel companyModel,
         string username,
-        string password,
         string email,
         string adress,
         string fullname,
@@ -36,7 +34,6 @@ public class UserModel : Entity
         {
             UserName = username,
             Company = companyModel,
-            Password = password,
             Email = email,
             Address = adress,
             FullName = fullname,

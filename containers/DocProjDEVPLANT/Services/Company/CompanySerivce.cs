@@ -26,7 +26,6 @@ public class CompanySerivce : ICompanyService
 
         var result = await CompanyModel.CreateAsync(
             _companyRepository,
-            request.email,
             request.name
         );
 

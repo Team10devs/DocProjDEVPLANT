@@ -1,5 +1,6 @@
 using DocProjDEVPLANT.Domain.Entities.Company;
 using DocProjDEVPLANT.Domain.Entities.Enums;
+using DocProjDEVPLANT.Domain.Entities.Templates;
 using DocProjDEVPLANT.Repository.User;
 using DocProjDEVPLANT.Services.Utils.ResultPattern;
 
@@ -15,6 +16,7 @@ public class UserModel : Entity
     public RoleEnum Role { get; set; }
     public CompanyModel? Company { get; set; }
 
+    public List<PdfModel> GeneratedPdfs { get; set; }
     public UserModel()
     {
         

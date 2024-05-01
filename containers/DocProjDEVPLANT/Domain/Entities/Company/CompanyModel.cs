@@ -1,4 +1,5 @@
 using DocProjDEVPLANT.Domain.Entities.Enums;
+using DocProjDEVPLANT.Domain.Entities.Templates;
 using DocProjDEVPLANT.Domain.Entities.User;
 using DocProjDEVPLANT.Repository.Company;
 using DocProjDEVPLANT.Services.Utils.ResultPattern;
@@ -9,7 +10,8 @@ public class CompanyModel : Entity
 {
     public string Name { get; set; }
     public List<UserModel> Users { get; set; }
-    //list of templates
+
+    public List<TemplateModel> Templates { get; set; }
 
     private CompanyModel() { }
 

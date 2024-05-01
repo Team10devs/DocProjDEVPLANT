@@ -32,6 +32,7 @@
 
     <ItemGroup>
       <Folder Include="Domain\" />
+      <Folder Include="Repository\Templates&amp;PDF\" />
     </ItemGroup>
 
     <ItemGroup>

@@ -1,4 +1,4 @@
-﻿using DocProjDEVPLANT.Domain.Entities.Company;
+using DocProjDEVPLANT.Domain.Entities.Company;
 using DocProjDEVPLANT.Domain.Entities.Enums;
 
 namespace DocProjDEVPLANT.API.User;

@@ -1,6 +1,6 @@
 namespace DocProjDEVPLANT.Domain.Entities.Templates;
 
-public class PdfModel
+public class PdfModel : Entity
 {
     public byte[] Content { get; set; }
     

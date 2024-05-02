@@ -2,6 +2,7 @@ using System.Text.RegularExpressions;
 using DocProjDEVPLANT.API.Company;
 using DocProjDEVPLANT.API.User;
 using DocProjDEVPLANT.Domain.Entities.Company;
+using DocProjDEVPLANT.Domain.Entities.Templates;
 using DocProjDEVPLANT.Domain.Entities.User;
 using DocProjDEVPLANT.Repository.Company;
 using DocProjDEVPLANT.Services.Company;
@@ -115,10 +116,33 @@ public class CompanyController : ControllerBase
         }
 
     }
+
+    private byte[] generateByteArray(IFormFile f)
+    {
+        byte[] fileByteArray = null;
+        
+        if (f != null)
+        {
+            using (var item = new MemoryStream())
+            {
+                f.CopyTo(item);
+                fileByteArray = item.ToArray();
+            }
+        }
+
+        return fileByteArray;
+    }
     
     [HttpPost("api/docx")]
-    public ActionResult<List<Input>> ConvertDocxToJson(IFormFile file)
+    public ActionResult<List<Input>> ConvertDocxToJson(string companyId, string templateName, IFormFile file)
     {
+        var company = _companyService.GetByIdAsync(companyId);
+
+        if (company.Result.IsFailure)
+            return BadRequest("Company");
+        
+        company.Result.Value.Templates.Add(
+            new TemplateModel(templateName,generateByteArray(file)));
 
         if (!file.FileName.Contains(".docx"))
         {

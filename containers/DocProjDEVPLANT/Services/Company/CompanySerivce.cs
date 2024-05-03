@@ -1,6 +1,7 @@
 ﻿using DocProjDEVPLANT.API.Company;
 using DocProjDEVPLANT.API.User;
 using DocProjDEVPLANT.Domain.Entities.Company;
+using DocProjDEVPLANT.Domain.Entities.Templates;
 using DocProjDEVPLANT.Repository.Company;
 using DocProjDEVPLANT.Services.Utils.ResultPattern;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -45,5 +46,28 @@ public class CompanySerivce : ICompanyService
             return Result.Failure<CompanyModel>(new Error(ErrorType.NotFound, "Company"));
         
         return company;
+    }
+
+    public async Task<Result> AddTemplateToCompanyAsync(string companyId, string templateName, byte[] fileContent)
+    {
+        var company = await _companyRepository.FindByIdAsync(companyId);
+
+        if (company is null)
+            return Result.Failure<CompanyModel>(new Error(ErrorType.NotFound, "Company"));
+        
+        if (company.Templates == null)
+        {
+            company.Templates = new List<TemplateModel>();
+        }
+        
+        company.Templates.Add(new TemplateModel(templateName,fileContent));
+
+        var result = await _companyRepository.UpdateAsync(company);
+        if (!result)
+        {
+            return Result.Failure(new Error(ErrorType.BadRequest,"Not updated correctly ! "));
+        }
+
+        return Result.Succes();
     }
 }

@@ -10,6 +10,7 @@ public class CompanyRepository(AppDbContext context) : Repository<CompanyModel>(
     {
         return await _appDbContext.Companies
             .Include(c => c.Users)
+            .Include(t=>t.Templates)
             .ToListAsync();
     }
 
@@ -39,4 +40,10 @@ public class CompanyRepository(AppDbContext context) : Repository<CompanyModel>(
         await _appDbContext.SaveChangesAsync();
     }
     
+    public async Task<bool> UpdateAsync(CompanyModel company)
+    {
+        _appDbContext.Companies.Update(company);
+        var affectedRows = await _appDbContext.SaveChangesAsync();
+        return affectedRows > 0;
+    }
 }

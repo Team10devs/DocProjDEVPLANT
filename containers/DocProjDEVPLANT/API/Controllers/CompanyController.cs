@@ -1,5 +1,6 @@
 using System.Text.RegularExpressions;
 using DocProjDEVPLANT.API.Company;
+using DocProjDEVPLANT.API.DTOs.Template;
 using DocProjDEVPLANT.API.User;
 using DocProjDEVPLANT.Domain.Entities.Company;
 using DocProjDEVPLANT.Domain.Entities.Templates;
@@ -35,6 +36,11 @@ public class CompanyController : ControllerBase
     {
         var companies = await _companyService.GetAllAsync();
 
+        if (companies is null)
+        {
+            return NotFound();
+        }
+        
         var ceva = companies.Value.Select(c => new CompanyResponseWithUsers
         {
             Id = c.Id,
@@ -46,7 +52,8 @@ public class CompanyController : ControllerBase
                 FullName = u.FullName,
                 CNP = u.CNP,
                 Role = u.Role
-            }).ToList()
+            }).ToList(),
+            Templates = c.Templates.Select(t=> new TemplateResponse(t.Name/*t.DocxFile*/)).ToList()
         }).ToList();
 
         return Ok(ceva);
@@ -65,7 +72,7 @@ public class CompanyController : ControllerBase
         return Ok(company.Result);
     }
 
-    [HttpPatch(Name = "AddUserToCompany")]
+   /* [HttpPatch(Name = "AddUserToCompany")]
     public async Task<ActionResult<CompanyModel>> AddCompanyUser(string companyId, [FromBody] string userId)
     {
         var user = await _userService.GetByIdAsync(userId);
@@ -84,7 +91,7 @@ public class CompanyController : ControllerBase
         await _companyRepository.SaveChangesAsync();
 
         return Ok(company.Value);
-    }
+    }*/
     
        public class Input {
         public Input(string key, string type)
@@ -134,24 +141,24 @@ public class CompanyController : ControllerBase
     }
     
     [HttpPost("api/docx")]
-    public ActionResult<List<Input>> ConvertDocxToJson(string companyId, string templateName, IFormFile file)
+    public async Task<ActionResult<List<Input>>> ConvertDocxToJson(string companyId, string templateName, IFormFile file)
     {
-        var company = _companyService.GetByIdAsync(companyId);
-
-        if (company.Result.IsFailure)
-            return BadRequest("Company");
-        
-        company.Result.Value.Templates.Add(
-            new TemplateModel(templateName,generateByteArray(file)));
+        if (file is null)
+            return BadRequest("File is null !");
 
         if (!file.FileName.Contains(".docx"))
         {
             return BadRequest($"Not a docx file.");
         }
         
+        var result = await _companyService.AddTemplateToCompanyAsync(companyId, templateName, generateByteArray(file));
+        if (result.IsFailure)
+            return BadRequest(result.Error);
+
+        
         var converter = new DocumentConverter();
-        var result = converter.ConvertToHtml(file.OpenReadStream());
-        var htmlContent = result.Value; 
+        var htmlresult = converter.ConvertToHtml(file.OpenReadStream());
+        var htmlContent = htmlresult.Value; 
 
         // Search for specific words in the HTML content
         var matches = Regex.Matches(htmlContent, @"\{\{.*?\}\}");
@@ -177,9 +184,8 @@ public class CompanyController : ControllerBase
     }
 
     [HttpPost("api/pdf")]
-    public async Task<ActionResult> GenerateDocument(IFormFile docx)
+    public async Task<ActionResult> GenerateDocument(IFormFile docx,[FromBody] Dictionary<string, string> template)
     {
-        var template = new Dictionary<string, string>();
         template.Add("client.societate", "roman");
         template.Add("doc.data", "azi");
         template.Add("doc.numar", "1");

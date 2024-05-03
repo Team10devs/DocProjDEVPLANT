@@ -9,4 +9,6 @@ public interface ICompanyRepository
     public Task<CompanyModel> FindByIdAsync(string id);
     public Task DeleteCompanyAsync(CompanyModel companyModel); 
     public Task SaveChangesAsync();
+
+    Task<bool> UpdateAsync(CompanyModel company);
 }

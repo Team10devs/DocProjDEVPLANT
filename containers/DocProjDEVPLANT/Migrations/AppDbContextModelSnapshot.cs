@@ -32,7 +32,7 @@ namespace DocProjDEVPLANT.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Companies");
+                    b.ToTable("Companies", (string)null);
                 });
 
             modelBuilder.Entity("DocProjDEVPLANT.Domain.Entities.User.UserModel", b =>
@@ -70,7 +70,7 @@ namespace DocProjDEVPLANT.Migrations
 
                     b.HasIndex("CompanyId");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("DocProjDEVPLANT.Domain.Entities.User.UserModel", b =>

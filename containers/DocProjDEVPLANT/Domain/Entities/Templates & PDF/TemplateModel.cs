@@ -6,6 +6,8 @@ public class TemplateModel : Entity
     public byte[] DocxFile { get; set; }
     public List<PdfModel> GeneratedPdfs { get; set; }
 
+    
+    public TemplateModel() {}
     public TemplateModel(string name, byte[] docxFile)
     {
         Name = name;

@@ -16,7 +16,7 @@ public class CompanyService : ICompanyService
     private readonly ICompanyRepository _companyRepository;
     private readonly IUserRepository _userRepository;
 
-    public CompanySerivce(ICompanyRepository repository,IUserRepository userRepository)
+    public CompanyService(ICompanyRepository repository,IUserRepository userRepository)
     {
         _companyRepository = repository;
         _userRepository = userRepository;

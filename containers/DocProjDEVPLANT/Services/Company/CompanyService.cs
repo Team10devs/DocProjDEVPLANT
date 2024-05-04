@@ -1,12 +1,12 @@
-﻿using System.Text.RegularExpressions;
+using System.Text.RegularExpressions;
 using DocProjDEVPLANT.API.Company;
-using DocProjDEVPLANT.API.User;
 using DocProjDEVPLANT.Domain.Entities.Company;
 using DocProjDEVPLANT.Domain.Entities.Templates;
+using DocProjDEVPLANT.Domain.Entities.User;
 using DocProjDEVPLANT.Repository.Company;
+using DocProjDEVPLANT.Repository.User;
 using DocProjDEVPLANT.Services.Utils.ResultPattern;
 using Mammoth;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Xceed.Words.NET;
 
 namespace DocProjDEVPLANT.Services.Company;
@@ -14,10 +14,12 @@ namespace DocProjDEVPLANT.Services.Company;
 public class CompanyService : ICompanyService
 {
     private readonly ICompanyRepository _companyRepository;
+    private readonly IUserRepository _userRepository;
 
-    public CompanyService(ICompanyRepository repository)
+    public CompanySerivce(ICompanyRepository repository,IUserRepository userRepository)
     {
         _companyRepository = repository;
+        _userRepository = userRepository;
     }
 
     public async Task<Result<IEnumerable<CompanyModel>>> GetAllAsync()
@@ -50,6 +52,31 @@ public class CompanyService : ICompanyService
         
         return company;
     }
+    public async Task<Result> AddUserToCompanyAsync(string companyId, string userId)
+    {
+        var company = await _companyRepository.FindByIdAsync(companyId);
+
+        if (company is null)
+            return Result.Failure<CompanyModel>(new Error(ErrorType.NotFound, $"Company with id {companyId} does not exist."));
+
+        var user = _userRepository.FindByIdAsync(userId);
+        
+        if (user.Result is null)
+        {
+            return Result.Failure<UserModel>(new Error(ErrorType.NotFound, $"User with id {userId} does not exist."));
+        }
+        
+        if ( company.Users is null )
+        {
+            company.Users = new List<UserModel>();
+        }
+        
+        company.Users.Add(user.Result);
+        await _companyRepository.SaveChangesAsync();
+      
+        return Result.Succes();
+    }
+
 
     public async Task<Result> AddTemplateToCompanyAsync(string companyId, string templateName, byte[] fileContent)
     {
@@ -130,7 +157,7 @@ public class CompanyService : ICompanyService
 
         return list;
     }
-
+    
     public async Task<Byte[]> MakePdfFromDictionay(string companyId, string templateId, Dictionary<string, string> dictionary)
     {
         TemplateModel template;

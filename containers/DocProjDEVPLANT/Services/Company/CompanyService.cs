@@ -1,4 +1,4 @@
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using DocProjDEVPLANT.API.Company;
 using DocProjDEVPLANT.Domain.Entities.Company;
 using DocProjDEVPLANT.Domain.Entities.Templates;

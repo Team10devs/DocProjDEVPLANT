@@ -4,6 +4,7 @@ using DocProjDEVPLANT.Repository.Database;
 using DocProjDEVPLANT.Repository.User;
 using DocProjDEVPLANT.Services;
 using DocProjDEVPLANT.Services.Company;
+using DocProjDEVPLANT.Services.Template;
 using DocProjDEVPLANT.Services.User;
 using Microsoft.EntityFrameworkCore;
 
@@ -25,7 +26,8 @@ public static class DependencyInjection
 
         services.AddScoped<ICompanyRepository, CompanyRepository>();
         services.AddScoped<ICompanyService, CompanySerivce>();
-       
+
+        services.AddScoped<ITemplateService, TemplateService>();
         
         return services;
     }

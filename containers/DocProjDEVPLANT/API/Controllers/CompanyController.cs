@@ -40,7 +40,7 @@ public class CompanyController : ControllerBase
                 CNP = u.CNP,
                 Role = u.Role
             }).ToList(),
-            Templates = c.Templates.Select(t=> new TemplateResponse(t.Name/*t.DocxFile*/)).ToList()
+            Templates = c.Templates.Select(t=> new TemplateResponse(t.Id,t.Name/*t.DocxFile*/)).ToList()
         }).ToList();
 
         return Ok(ceva);

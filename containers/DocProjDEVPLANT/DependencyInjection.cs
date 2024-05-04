@@ -18,13 +18,12 @@ public static class DependencyInjection
             options.UseNpgsql(configuration.GetConnectionString("Default"));
         });
         
-        services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IUserService, UserService>();
 
         services.AddScoped<ICompanyRepository, CompanyRepository>();
-        services.AddScoped<ICompanyService, CompanySerivce>();
+        services.AddScoped<ICompanyService, CompanyService>();
        
         
         return services;

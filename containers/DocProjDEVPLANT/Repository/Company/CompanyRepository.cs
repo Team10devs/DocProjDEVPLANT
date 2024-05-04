@@ -5,8 +5,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DocProjDEVPLANT.Repository.Company;
 
-public class CompanyRepository(AppDbContext context) : Repository<CompanyModel>(context), ICompanyRepository
+public class CompanyRepository :  ICompanyRepository
 {
+    
+    protected readonly AppDbContext _appDbContext;
+    
+    public CompanyRepository(AppDbContext appDbContext)
+    {
+        _appDbContext = appDbContext;
+    }
     public async Task<List<CompanyModel>> GetAllCompaniesAsync()
     {
         return await _appDbContext.Companies

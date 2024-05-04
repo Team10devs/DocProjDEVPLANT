@@ -4,11 +4,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DocProjDEVPLANT.Repository.User;
 
-public class UserRepository : Repository<UserModel> , IUserRepository
+public class UserRepository :  IUserRepository
 {
-    public UserRepository(AppDbContext context) : base(context)
+    protected readonly AppDbContext _appDbContext;
+    
+    public UserRepository(AppDbContext appDbContext)
     {
-        
+        _appDbContext = appDbContext;
     }
 
     public async Task<List<UserModel>> GetAllUsersAsync()

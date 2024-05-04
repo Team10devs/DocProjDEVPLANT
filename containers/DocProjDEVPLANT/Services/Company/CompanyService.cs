@@ -11,11 +11,11 @@ using Xceed.Words.NET;
 
 namespace DocProjDEVPLANT.Services.Company;
 
-public class CompanySerivce : ICompanyService
+public class CompanyService : ICompanyService
 {
     private readonly ICompanyRepository _companyRepository;
 
-    public CompanySerivce(ICompanyRepository repository)
+    public CompanyService(ICompanyRepository repository)
     {
         _companyRepository = repository;
     }

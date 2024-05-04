@@ -15,8 +15,6 @@ public class UserModel : Entity
     public string CNP { get; set; }
     public RoleEnum Role { get; set; }
     public CompanyModel? Company { get; set; }
-
-    public List<PdfModel> GeneratedPdfs { get; set; }
     public UserModel()
     {
         

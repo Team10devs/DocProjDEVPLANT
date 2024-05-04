@@ -1,4 +1,5 @@
 using DocProjDEVPLANT.Domain.Entities.Company;
+using DocProjDEVPLANT.Domain.Entities.Templates;
 using DocProjDEVPLANT.Domain.Entities.User;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,4 +14,6 @@ public class AppDbContext : DbContext
     
     public DbSet<UserModel> Users { get; set; } 
     public DbSet<CompanyModel> Companies { get; set; }
+    public DbSet<TemplateModel> Templates { get; set; }
+    
 }

@@ -13,4 +13,5 @@ public interface ICompanyService
     Task<Result> AddTemplateToCompanyAsync(string companyId, string templateName, byte[] fileContent);
     Task<Byte[]> MakePdfFromDictionay(string companyId, string templateId, Dictionary<string, string> dictionary);
     Task<List<Input>> MakeInputListFromDocx(string companyId, string templateName, IFormFile file);
+    Task<Result> AddUserToCompanyAsync(string companyId, string userId);
 }

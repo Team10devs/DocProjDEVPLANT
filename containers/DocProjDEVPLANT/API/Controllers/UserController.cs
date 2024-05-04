@@ -1,4 +1,3 @@
-using DocProjDEVPLANT.API.Company;
 using DocProjDEVPLANT.API.User;
 using DocProjDEVPLANT.Domain.Entities.User;
 using DocProjDEVPLANT.Services.User;

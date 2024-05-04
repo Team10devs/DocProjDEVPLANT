@@ -2,9 +2,7 @@ using DocProjDEVPLANT.API.Company;
 using DocProjDEVPLANT.API.DTOs.Template;
 using DocProjDEVPLANT.Domain.Entities.Company;
 using DocProjDEVPLANT.Domain.Entities.User;
-using DocProjDEVPLANT.Repository.Company;
 using DocProjDEVPLANT.Services.Company;
-using DocProjDEVPLANT.Services.User;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DocProjDEVPLANT.API.Controllers;
@@ -14,16 +12,11 @@ namespace DocProjDEVPLANT.API.Controllers;
 public class CompanyController : ControllerBase
 {
     private readonly ICompanyService _companyService;
-    private readonly IUserService _userService;
-    private readonly ICompanyRepository _companyRepository;
 
-    public CompanyController(ICompanyService service,IUserService userService,ICompanyRepository companyRepository )
+    public CompanyController(ICompanyService service )
     {
         _companyService = service;
-        _userService = userService;
-        _companyRepository = companyRepository;
     }
-
 
     [HttpGet(Name = "GetAllCompanies")]
     public async Task<ActionResult<IEnumerable<CompanyResponse>>> GetAllCompanies()
@@ -66,26 +59,19 @@ public class CompanyController : ControllerBase
         return Ok(company.Result);
     }
 
-   /* [HttpPatch(Name = "AddUserToCompany")]
+    [HttpPatch("AddUserToCompany")]
     public async Task<ActionResult<CompanyModel>> AddCompanyUser(string companyId, [FromBody] string userId)
     {
-        var user = await _userService.GetByIdAsync(userId);
-
-        if (user.IsFailure || user.Value is null)
-            return BadRequest($"User with id {userId} not found!");
-
-        var company = await _companyService.GetByIdAsync(companyId);
         
-        if( company.IsFailure || company.Value is null)
-            return BadRequest($"Company with id {companyId} not found!");
+        var result = await _companyService.AddUserToCompanyAsync(companyId,userId);
         
-        company.Value.Users.Add(user.Value);
-        user.Value.Company = company.Value;
-        
-        await _companyRepository.SaveChangesAsync();
-
-        return Ok(company.Value);
-    }*/
+        if( result.IsSucces)
+            return Ok(result);
+        else 
+        {
+            return BadRequest(result);
+        }
+    }
     
     [HttpPost("api/docx")]
     public async Task<ActionResult<List<Input>>> ConvertDocxToJson(string companyId, string templateName, IFormFile file)

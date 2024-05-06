@@ -8,4 +8,6 @@ public interface IUserRepository
     public Task<UserModel> FindByIdAsync(string id);
     public Task CreateUserAsync(UserModel userModel);
     public Task DeleteUserAsync(UserModel userModel);
+    
+    Task<List<UserModel>> GetUsersByCompanyAsync(string companyId);
 }

@@ -66,4 +66,15 @@ public class UserController : ControllerBase
         }
     }
 
+    
+    [HttpGet("company/{companyId}")]
+    public async Task<ActionResult<List<UserModel>>> GetUsersByCompany(string companyId)
+    {
+        var users = await _userService.GetUsersByCompanyAsync(companyId);
+        if (users == null)
+        {
+            return NotFound();
+        }
+        return Ok(users);
+    }
 }

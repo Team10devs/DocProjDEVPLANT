@@ -39,4 +39,11 @@ public class UserRepository :  IUserRepository
         _appDbContext.Remove(user);
         await _appDbContext.SaveChangesAsync();
     }
+
+    public async Task<List<UserModel>> GetUsersByCompanyAsync(string companyId)
+    {
+        return await _appDbContext.Users
+            .Where(u => u.Company.Id == companyId)
+            .ToListAsync();
+    }
 }

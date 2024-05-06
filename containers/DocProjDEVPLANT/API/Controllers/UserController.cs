@@ -67,10 +67,10 @@ public class UserController : ControllerBase
     }
 
     
-    [HttpGet("company/{companyId}")]
-    public async Task<ActionResult<List<UserModel>>> GetUsersByCompany(string companyId)
+    [HttpGet("company/{companyName}")]
+    public async Task<ActionResult<List<UserModel>>> GetUsersByCompany(string companyName)
     {
-        var users = await _userService.GetUsersByCompanyAsync(companyId);
+        var users = await _userService.GetUsersByCompanyAsync(companyName);
         if (users == null)
         {
             return NotFound();

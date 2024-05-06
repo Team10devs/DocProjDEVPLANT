@@ -55,8 +55,8 @@ public class UserService : IUserService
         return result.Value;
     }
     
-    public async Task<List<UserModel>> GetUsersByCompanyAsync(string companyId)
+    public async Task<List<UserModel>> GetUsersByCompanyAsync(string companyName)
     {
-        return await _userRepository.GetUsersByCompanyAsync(companyId);
+        return await _userRepository.GetUsersByCompanyAsync(companyName);
     }
 }

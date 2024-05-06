@@ -9,5 +9,5 @@ public interface IUserRepository
     public Task CreateUserAsync(UserModel userModel);
     public Task DeleteUserAsync(UserModel userModel);
     
-    Task<List<UserModel>> GetUsersByCompanyAsync(string companyId);
+    Task<List<UserModel>> GetUsersByCompanyAsync(string companyName);
 }

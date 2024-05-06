@@ -11,5 +11,5 @@ public interface IUserService
     Task<Result<UserModel>> CreateUserAsync(UserRequest request);
     Task<Result<UserModel>> GetByIdAsync(string id);
     
-    Task<List<UserModel>> GetUsersByCompanyAsync(string companyId);
+    Task<List<UserModel>> GetUsersByCompanyAsync(string companyName);
 }

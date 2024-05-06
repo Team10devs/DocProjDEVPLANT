@@ -40,10 +40,10 @@ public class UserRepository :  IUserRepository
         await _appDbContext.SaveChangesAsync();
     }
 
-    public async Task<List<UserModel>> GetUsersByCompanyAsync(string companyId)
+    public async Task<List<UserModel>> GetUsersByCompanyAsync(string companyName)
     {
         return await _appDbContext.Users
-            .Where(u => u.Company.Id == companyId)
+            .Where(u => u.Company.Name == companyName)
             .ToListAsync();
     }
 }

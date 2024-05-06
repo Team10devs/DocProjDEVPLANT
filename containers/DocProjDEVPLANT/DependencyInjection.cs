@@ -4,6 +4,7 @@ using DocProjDEVPLANT.Repository.Database;
 using DocProjDEVPLANT.Repository.User;
 using DocProjDEVPLANT.Services;
 using DocProjDEVPLANT.Services.Company;
+using DocProjDEVPLANT.Services.Mail;
 using DocProjDEVPLANT.Services.Template;
 using DocProjDEVPLANT.Services.User;
 using Microsoft.EntityFrameworkCore;
@@ -27,6 +28,7 @@ public static class DependencyInjection
         services.AddScoped<ICompanyService, CompanyService>();
         services.AddScoped<ITemplateService, TemplateService>();
         
+        services.AddScoped<IEmailService, EmailService>();
         return services;
     }
 }

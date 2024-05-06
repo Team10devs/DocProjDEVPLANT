@@ -1,9 +1,14 @@
 using DocProjDEVPLANT.API.Company;
 using DocProjDEVPLANT.API.DTOs.Template;
+using DocProjDEVPLANT.Domain.Entities;
 using DocProjDEVPLANT.Domain.Entities.Company;
 using DocProjDEVPLANT.Domain.Entities.User;
 using DocProjDEVPLANT.Services.Company;
+using DocProjDEVPLANT.Services.Mail;
+using DocProjDEVPLANT.Services.User;
+using DocProjDEVPLANT.Services.Utils.ResultPattern;
 using Microsoft.AspNetCore.Mvc;
+using MimeKit;
 
 namespace DocProjDEVPLANT.API.Controllers;
 
@@ -12,10 +17,12 @@ namespace DocProjDEVPLANT.API.Controllers;
 public class CompanyController : ControllerBase
 {
     private readonly ICompanyService _companyService;
+    private readonly IEmailService _emailService;
 
-    public CompanyController(ICompanyService service )
+    public CompanyController(ICompanyService service,IUserService userService,IEmailService emailService )
     {
         _companyService = service;
+        _emailService = emailService;
     }
 
     [HttpGet(Name = "GetAllCompanies")]
@@ -92,6 +99,8 @@ public class CompanyController : ControllerBase
     [HttpPost("api/pdf")]
     public async Task<ActionResult> GenerateDocument(string companyId,  string templateId, Dictionary<string, string> dictionary)
     {
+     
+        
         Byte[] pdfBytes;
         try
         {
@@ -102,6 +111,12 @@ public class CompanyController : ControllerBase
             return BadRequest(e.Message);
         }
 
+        var result = await _emailService.SendEmailAsync(pdfBytes);
+        if (!result.IsSucces)
+        {
+            return BadRequest("Trimiterea emailului a eșuat.");
+        }
+        
         return Ok(pdfBytes);
     }
         

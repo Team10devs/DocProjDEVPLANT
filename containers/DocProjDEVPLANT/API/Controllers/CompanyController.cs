@@ -112,7 +112,7 @@ public class CompanyController : ControllerBase
         {
             return BadRequest(e.Message);
         }
-
+        
         var result = await _emailService.SendEmailAsync(userId,pdfBytes);
         if (!result.IsSucces)
         {

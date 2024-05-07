@@ -15,6 +15,8 @@ public class UserModel : Entity
     public string CNP { get; set; }
     public RoleEnum Role { get; set; }
     public CompanyModel? Company { get; set; }
+
+    public bool isEmail { get; set; } = false;
     public UserModel()
     {
         

@@ -77,4 +77,17 @@ public class UserController : ControllerBase
         }
         return Ok(users);
     }
+
+    [HttpPatch("ChangeEmailState")]
+    public async Task<ActionResult<UserModel>> ChangeIsEmail(string userId)
+    {
+        var result = await _userService.ChangeIsEmailToTrue(userId);
+
+        if (result.IsFailure)
+        {
+            return NotFound(result.Error);
+        }
+
+        return Ok(result.Value);
+    }
 }

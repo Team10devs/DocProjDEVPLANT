@@ -1,5 +1,6 @@
 ﻿using DocProjDEVPLANT.Domain.Entities.User;
 using DocProjDEVPLANT.Repository.Database;
+using DocProjDEVPLANT.Services.Utils.ResultPattern;
 using Microsoft.EntityFrameworkCore;
 
 namespace DocProjDEVPLANT.Repository.User;
@@ -45,5 +46,12 @@ public class UserRepository :  IUserRepository
         return await _appDbContext.Users
             .Where(u => u.Company.Name == companyName)
             .ToListAsync();
+    }
+    
+    public async Task UpdateUserAsync(UserModel user)
+    {
+        _appDbContext.Users.Update(user); 
+        await _appDbContext.SaveChangesAsync();
+        
     }
 }

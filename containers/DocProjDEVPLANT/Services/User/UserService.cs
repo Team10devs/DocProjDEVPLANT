@@ -59,4 +59,18 @@ public class UserService : IUserService
     {
         return await _userRepository.GetUsersByCompanyAsync(companyName);
     }
+
+    public async Task<Result<UserModel>> ChangeIsEmailToTrue(string userId)
+    {
+        var user = await _userRepository.FindByIdAsync(userId);
+
+        if (user is null)
+        {
+            return Result.Failure<UserModel>(new Error(ErrorType.NotFound, "User"));
+        }
+
+        user.isEmail = true;
+        await _userRepository.UpdateUserAsync(user);
+        return user;
+    }
 }

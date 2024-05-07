@@ -4,5 +4,5 @@ namespace DocProjDEVPLANT.Services.Mail;
 
 public interface IEmailService
 {
-    Task<Result> SendEmailAsync(byte[] pdfBytes);
+    Task<Result> SendEmailAsync(string userId,byte[] pdfBytes);
 }

@@ -28,6 +28,7 @@ public static class DependencyInjection
         services.AddScoped<ICompanyService, CompanyService>();
         services.AddScoped<ITemplateService, TemplateService>();
         
+        services.Configure<EmailConfig>(configuration.GetSection("EmailConfig"));
         services.AddScoped<IEmailService, EmailService>();
         return services;
     }

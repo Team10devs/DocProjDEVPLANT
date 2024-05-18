@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Diagnostics;
+using System.Text.RegularExpressions;
 using DocProjDEVPLANT.API.Company;
 using DocProjDEVPLANT.Domain.Entities.Company;
 using DocProjDEVPLANT.Domain.Entities.Templates;
@@ -177,7 +178,7 @@ public class CompanyService : ICompanyService
         {
             throw new Exception("Not a docx file.");
         }
-
+        
         using (var stream = new MemoryStream(templateDocxBytes))
         {
 
@@ -206,20 +207,46 @@ public class CompanyService : ICompanyService
                     }
                 }
                 
-                MemoryStream modifiedStream = new MemoryStream();
+                var modifiedStream = new MemoryStream();
                 doc.SaveAs(modifiedStream);
-            
-                byte[] docxBytes = modifiedStream.ToArray();
+                var docxBytes = modifiedStream.ToArray();
 
-                License.LicenseKey = "IRONSUITE.RAZVANBITEA.GMAIL.COM.17651-9C9AAEB370-DTZN4QL-R2I4ZWMJXOPX-OQMK54H6DFL7-T5SITANSYT6A-F65WYMNNKULQ-DENBAHAFDFL6-4YNCCVIZDSSR-SIJXCB-TYNP5NUQAGGMUA-DEPLOYMENT.TRIAL-56YCTM.TRIAL.EXPIRES.31.MAY.2024";
-                var Renderer = new DocxToPdfRenderer();
-                PdfDocument pdf = Renderer.RenderDocxAsPdf(docxBytes);
-                
-                byte[] pdfBytes = pdf.BinaryData;
-                await _companyRepository.UploadDocument(companyId, templateId, pdfBytes);
-                
-                return pdfBytes;
+                var fileName = Guid.NewGuid().ToString();
+                var tempFilePath = Path.Combine(Directory.GetCurrentDirectory(), fileName + ".docx");
+                await File.WriteAllBytesAsync(tempFilePath, docxBytes);
 
+                var pdfFilePath = Path.ChangeExtension(tempFilePath, ".pdf");
+                var processStartInfo = new ProcessStartInfo
+                {
+                    FileName = "soffice",
+                    Arguments = $"--convert-to pdf {tempFilePath} --headless",
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                };
+                
+                using (var process = new Process { StartInfo = processStartInfo })
+                {
+                    process.Start();
+                    await process.WaitForExitAsync();
+
+                    // Read the output and error streams
+                    var output = process.StandardOutput.ReadToEnd();
+                    var error = process.StandardError.ReadToEnd();
+
+                    // Check for errors
+                    if (process.ExitCode != 0)
+                    {
+                        throw new Exception($"Error converting DOCX to PDF: {error}");
+                    }
+                    
+                    var pdfBytes = await File.ReadAllBytesAsync(pdfFilePath);
+                    File.Delete(tempFilePath);
+                    File.Delete(pdfFilePath);
+                    
+                    return pdfBytes;
+                }
             }
         }
         

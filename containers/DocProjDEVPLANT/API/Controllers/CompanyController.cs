@@ -112,11 +112,20 @@ public class CompanyController : ControllerBase
         {
             return BadRequest(e.Message);
         }
-        
-        var result = await _emailService.SendEmailAsync(userId,pdfBytes);
-        if (!result.IsSucces)
+
+        var userResult = await _userService.GetByIdAsync(userId);
+        if (userResult is null || !userResult.Value.isEmail)
         {
-            return BadRequest("Trimiterea emailului a eșuat.");
+            return Ok(new
+            {
+                Message = "User does not have an email adress, PDF generated but not sent through email. ", pdfBytes
+            });
+        }
+        
+        var emailResult = await _emailService.SendEmailAsync(userId,pdfBytes);
+        if (!emailResult.IsSucces)
+        {
+            return BadRequest("Sending email failed.");
         }
         
         return Ok(pdfBytes);

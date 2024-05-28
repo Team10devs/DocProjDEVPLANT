@@ -1,0 +1,36 @@
+﻿services:
+  minio:
+    image: minio/minio
+    container_name: minio
+    restart: always
+    ports:
+      - "9000:9000"
+    environment:
+      MINIO_ROOT_USER: 'minio_user'
+      MINIO_ROOT_PASSWORD: 'minio_password'
+      MINIO_ADDRESS: ':9000'
+      MINIO_CONSOLE_ADDRESS: ':9001'
+    command: minio server /data
+
+  db:
+    image: postgres:latest
+    container_name: db
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=docprojdevplant
+    restart: always
+    ports:
+      - "5432:5432"
+#trebuie adaugat ce a trimis mihai (testdb.tar) in home din db(docker)
+#si scris in terminal pg_restore -U postgres -d docprojdevplant testdb.tar
+#psql -U postgres -d docprojdevplant -W
+  web:
+    build:
+      dockerfile: Dockerfile
+      context: .
+    depends_on:
+      - "db"
+    container_name: web-services
+    ports:
+      - "8080:8080"

@@ -2,6 +2,7 @@
 using DocProjDEVPLANT.Repository.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -10,9 +11,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DocProjDEVPLANT.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240604130320_multipleUsers")]
+    partial class multipleUsers
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -48,13 +51,14 @@ namespace DocProjDEVPLANT.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("TemplateId")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
 
                     b.HasIndex("TemplateId");
 
-                    b.ToTable("Pdfs");
+                    b.ToTable("PdfModel");
                 });
 
             modelBuilder.Entity("DocProjDEVPLANT.Domain.Entities.Templates.TemplateModel", b =>
@@ -129,7 +133,9 @@ namespace DocProjDEVPLANT.Migrations
                 {
                     b.HasOne("DocProjDEVPLANT.Domain.Entities.Templates.TemplateModel", "Template")
                         .WithMany("GeneratedPdfs")
-                        .HasForeignKey("TemplateId");
+                        .HasForeignKey("TemplateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Template");
                 });

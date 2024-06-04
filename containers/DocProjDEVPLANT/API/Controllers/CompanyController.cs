@@ -1,15 +1,13 @@
 using DocProjDEVPLANT.API.Company;
 using DocProjDEVPLANT.API.DTOs.Template;
-using DocProjDEVPLANT.Domain.Entities;
 using DocProjDEVPLANT.Domain.Entities.Company;
+using DocProjDEVPLANT.Domain.Entities.Templates;
 using DocProjDEVPLANT.Domain.Entities.User;
 using DocProjDEVPLANT.Services.Company;
 using DocProjDEVPLANT.Services.Mail;
 using DocProjDEVPLANT.Services.User;
-using DocProjDEVPLANT.Services.Utils.ResultPattern;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Identity.Client;
-using MimeKit;
+
 
 namespace DocProjDEVPLANT.API.Controllers;
 
@@ -82,21 +80,45 @@ public class CompanyController : ControllerBase
             return BadRequest(result);
         }
     }
-    
-    [HttpPost("api/docx")]
-    public async Task<ActionResult<List<Input>>> ConvertDocxToJson(string companyId, string templateName, IFormFile file)
+
+    [HttpPost("api/generateEmptyPdf")]
+    public async Task<ActionResult<PdfResponse>> GenerateEmptyPdf(string companyId, string templateId)
     {
-        List<Input> list;
+        PdfModel pdf;
         try
         {
-            list = await _companyService.MakeInputListFromDocx(companyId, templateName, file);
+            pdf = await _companyService.GenerateEmptyPdf(companyId, templateId);
+        }
+        catch (Exception e)
+        {
+            throw new Exception(e.Message);
+        }
+
+        var pdfResponse = new PdfResponse
+        {
+            Id = pdf.Id,
+            TemplateId = pdf.Template.Id,
+            TemplateName = pdf.Template.Name,
+            CurrentNumberOfUsers = pdf.CurrentNumberOfUsers
+        };
+
+        return pdfResponse;
+    }
+    
+    [HttpPost("api/docx")]
+    public async Task<ActionResult> ConvertDocxToJson(string companyId, string templateName, IFormFile file)
+    {
+        byte[] byteArray;
+        try
+        {
+            byteArray = await _companyService.ConvertDocxToJson(companyId, templateName, file);
         }
         catch (Exception e)
         {
             return BadRequest(e.Message);
         }
         
-        return Ok(list);
+        return File(byteArray, "application/json", $"{templateName}.json");
     }
 
     [HttpPost("api/pdf")]
@@ -129,6 +151,29 @@ public class CompanyController : ControllerBase
         }
         
         return Ok(pdfBytes);
+    }
+    
+    [HttpPatch("api/addUserToPdf")]
+    public async Task<ActionResult<PdfResponse>> AddToPdf(string pdfId, string json)
+    {
+        try
+        {
+            var pdf = await _companyService.AddUserToPdf(pdfId, json);
+            
+            var pdfResponse = new PdfResponse
+            {
+                Id = pdf.Id,
+                TemplateId = pdf.Template.Id,
+                TemplateName = pdf.Template.Name,
+                CurrentNumberOfUsers = pdf.CurrentNumberOfUsers
+            };
+
+            return Ok(pdfResponse);
+        }
+        catch (Exception e)
+        {
+            return BadRequest(e.Message);
+        }
     }
         
     

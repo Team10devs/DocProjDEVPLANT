@@ -9,9 +9,10 @@ public interface ICompanyRepository
     public Task CreateCompanyAsync(CompanyModel companyModel);
     public Task<CompanyModel> FindByIdAsync(string id);
     public Task<TemplateModel> FindByIdWithTemplateAsync(string id, string templateId);
+    public Task<PdfModel> GenerateEmptyPdf(string companyId, string templateId);
     public Task DeleteCompanyAsync(CompanyModel companyModel); 
     public Task SaveChangesAsync();
-
     Task<bool> UpdateAsync(CompanyModel company);
-    Task UploadDocument(string companyId, string templateId, byte[] document);
+    Task UploadDocument(string companyId, string templateId, byte[]? document);
+    Task<PdfModel> AddUserToPdf(string pdfId, string json);
 }

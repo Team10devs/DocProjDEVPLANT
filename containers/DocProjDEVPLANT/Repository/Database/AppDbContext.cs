@@ -15,5 +15,5 @@ public class AppDbContext : DbContext
     public DbSet<UserModel> Users { get; set; } 
     public DbSet<CompanyModel> Companies { get; set; }
     public DbSet<TemplateModel> Templates { get; set; }
-    
+    public DbSet<PdfModel> Pdfs { get; set; }
 }

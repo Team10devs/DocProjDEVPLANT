@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Text;
 using System.Text.RegularExpressions;
 using DocProjDEVPLANT.API.Company;
 using DocProjDEVPLANT.Domain.Entities.Company;
@@ -8,6 +9,7 @@ using DocProjDEVPLANT.Repository.Company;
 using DocProjDEVPLANT.Repository.User;
 using DocProjDEVPLANT.Services.Utils.ResultPattern;
 using Mammoth;
+using Newtonsoft.Json.Linq;
 using Xceed.Words.NET;
 
 namespace DocProjDEVPLANT.Services.Company;
@@ -78,28 +80,42 @@ public class CompanyService : ICompanyService
         return Result.Succes();
     }
 
+    public async Task<PdfModel> AddUserToPdf(string pdfId, string json)
+    {
+        try
+        {
+            var pdf = await _companyRepository.AddUserToPdf(pdfId, json);
+            
+            return pdf;
+        }
+        catch (Exception e)
+        {
+            throw new Exception(e.Message);
+        }
+    }
 
-    public async Task<Result> AddTemplateToCompanyAsync(string companyId, string templateName, byte[] fileContent)
+
+    public async Task AddTemplateToCompanyAsync(string companyId, string templateName, byte[] fileContent, int totalNumberOfUsers)
     {
         var company = await _companyRepository.FindByIdAsync(companyId);
 
         if (company is null)
-            return Result.Failure<CompanyModel>(new Error(ErrorType.NotFound, $"Company with id {companyId} does not exist."));
+            throw new Exception( $"Company with id {companyId} does not exist.");
         
         if (company.Templates == null)
         {
             company.Templates = new List<TemplateModel>();
         }
+
+        var template = new TemplateModel(templateName, fileContent, company, totalNumberOfUsers);
         
-        company.Templates.Add(new TemplateModel(templateName,fileContent, company));
+        company.Templates.Add(template);
 
         var result = await _companyRepository.UpdateAsync(company);
         if (!result)
         {
-            return Result.Failure(new Error(ErrorType.BadRequest,"Not updated correctly ! "));
+            throw new Exception("Not updated correctly !");
         }
-
-        return Result.Succes();
     }
 
     private byte[] GenerateByteArray(IFormFile f)
@@ -118,8 +134,10 @@ public class CompanyService : ICompanyService
         return fileByteArray;
     }
     
-    public async Task<List<Input>> MakeInputListFromDocx(string companyId, string templateName, IFormFile file)
+    
+    public async Task<byte[]> ConvertDocxToJson(string companyId, string templateName,IFormFile file)
     {
+        
         if (file is null)
             throw new Exception("File is null!");
 
@@ -128,18 +146,26 @@ public class CompanyService : ICompanyService
             throw new Exception($"Not a docx file.");
         }
         
-        var result = await AddTemplateToCompanyAsync(companyId, templateName, GenerateByteArray(file));
-        if (result.IsFailure)
-            throw new Exception(result.Error.Description);
-        
-        var converter = new DocumentConverter();
-        var htmlresult = converter.ConvertToHtml(file.OpenReadStream());
-        var htmlContent = htmlresult.Value; 
+        byte[] fileContent;
+        using (var memoryStream = new MemoryStream())
+        {
+            await file.CopyToAsync(memoryStream);
+            fileContent = memoryStream.ToArray();
+        }
+
+        string htmlContent;
+        using (var stream = new MemoryStream(fileContent))
+        {
+            var converter = new DocumentConverter();
+            var result = converter.ConvertToHtml(stream);
+            htmlContent = result.Value;
+        }
 
         // Search for specific words in the HTML content
         var matches = Regex.Matches(htmlContent, @"\{\{.*?\}\}");
-        var list = new List<Input>();
-        
+        var nestedJson = new JObject();
+
+        var totalNumberOfUsers = 1;
         foreach (Match match in matches)
         {
             var cleanedWord = match.Value.TrimStart('{').TrimEnd('}');
@@ -147,17 +173,63 @@ public class CompanyService : ICompanyService
             
             if (parts.Length == 2)
             {
-                var input = new Input(cleanedWord, "input");
-
-                if (!list.Contains(input)) 
+                var primaryKey = parts[0].TrimStart();
+                var secondaryKey = parts[1].TrimEnd();
+                
+                // searches for numbers at the end of primarykey
+                var numberPart = Regex.Match(primaryKey, @"\d+$");
+                if (numberPart.Success)
                 {
-                    list.Add(input); 
+                    var number = int.Parse(numberPart.Value);
+
+                    if (number > totalNumberOfUsers)
+                    {
+                        totalNumberOfUsers = number;
+                    }
+                    primaryKey = Regex.Replace(primaryKey, @"\d+$", "");
                 }
+                
+                if (nestedJson[primaryKey] == null)
+                {
+                    nestedJson[primaryKey] = new JObject();
+                }
+                
+                // Add secondary key to the nested JObject with an empty value
+                nestedJson[primaryKey][secondaryKey] = "";
             }
         }
 
-        return list;
+        TemplateModel template;
+        try
+        {
+            await AddTemplateToCompanyAsync(companyId, templateName, GenerateByteArray(file), totalNumberOfUsers);
+        }
+        catch (Exception e)
+        {
+            throw new Exception(e.Message);
+        }
+        
+        var jsonContent = nestedJson.ToString();
+        var byteArray =  Encoding.UTF8.GetBytes(jsonContent);
+        
+        return byteArray;
     }
+
+    public async Task<PdfModel> GenerateEmptyPdf(string companyId, string templateId)
+    {
+        PdfModel pdf;
+        try
+        {
+            pdf = await _companyRepository.GenerateEmptyPdf(companyId, templateId);
+        }
+        catch (Exception e)
+        {
+            throw new Exception(e.Message);
+        }
+
+        return pdf;
+    }
+
     
     public async Task<Byte[]> MakePdfFromDictionay(string companyId, string templateId, Dictionary<string, string> dictionary)
     {

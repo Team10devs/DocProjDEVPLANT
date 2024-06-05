@@ -19,6 +19,7 @@ public class CompanyModel : Entity
     {
         Name = name;
         Users = users;
+        Templates = new List<TemplateModel>();
     }
     
     public static async Task<Result<CompanyModel>> CreateAsync(

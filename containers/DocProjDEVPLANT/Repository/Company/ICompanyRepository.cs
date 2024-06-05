@@ -15,4 +15,7 @@ public interface ICompanyRepository
     Task<bool> UpdateAsync(CompanyModel company);
     Task UploadDocument(string companyId, string templateId, byte[]? document);
     Task<PdfModel> AddUserToPdf(string pdfId, string json);
+    Task<(PdfModel, TemplateModel)> VerifyNumberOfUsers(string pdfId, string templateId);
+    Task AddContentToPdf(string pdfId, byte[] byteArray);
+    Task AddTemplate(string companyId, string templateName, byte[] fileContent, int totalNumberOfUsers);
 }

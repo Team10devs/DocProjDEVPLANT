@@ -10,7 +10,7 @@ public interface ICompanyService
     Task<Result<IEnumerable<CompanyModel>>> GetAllAsync();
     Task<Result<CompanyModel>> CreateCompanyAsync(CompanyRequest request);
     Task<Result<CompanyModel>> GetByIdAsync(string companyId);
-    Task<Byte[]> MakePdfFromDictionay(string companyId, string templateId, Dictionary<string, string> dictionary);
+    Task<Byte[]> GeneratePdf(string pdfId, string templateId);
     Task<byte[]> ConvertDocxToJson(string companyId, string templateName, IFormFile file);
     Task<PdfModel> GenerateEmptyPdf(string companyId, string templateId);
     Task<Result> AddUserToCompanyAsync(string companyId, string userId);

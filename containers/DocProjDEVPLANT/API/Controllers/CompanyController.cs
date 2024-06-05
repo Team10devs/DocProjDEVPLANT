@@ -99,7 +99,8 @@ public class CompanyController : ControllerBase
             Id = pdf.Id,
             TemplateId = pdf.Template.Id,
             TemplateName = pdf.Template.Name,
-            CurrentNumberOfUsers = pdf.CurrentNumberOfUsers
+            CurrentNumberOfUsers = pdf.CurrentNumberOfUsers,
+            Jsons = pdf.Jsons
         };
 
         return pdfResponse;
@@ -122,13 +123,13 @@ public class CompanyController : ControllerBase
     }
 
     [HttpPost("api/pdf")]
-    public async Task<ActionResult> GenerateDocument(string userId,string companyId,  string templateId, Dictionary<string, string> dictionary)
+    public async Task<ActionResult> GenerateDocument(string userId,string pdfId, string templateId)
     {
         
         Byte[] pdfBytes;
         try
         {
-            pdfBytes = await _companyService.MakePdfFromDictionay(companyId, templateId, dictionary);
+            pdfBytes = await _companyService.GeneratePdf(pdfId, templateId);
         }
         catch (Exception e)
         {
@@ -150,11 +151,12 @@ public class CompanyController : ControllerBase
             return BadRequest("Sending email failed.");
         }
         
-        return Ok(pdfBytes);
+        return File(pdfBytes, "application/docx", $"generated.docx");
+        // return Ok(pdfBytes);
     }
     
     [HttpPatch("api/addUserToPdf")]
-    public async Task<ActionResult<PdfResponse>> AddToPdf(string pdfId, string json)
+    public async Task<ActionResult<PdfResponse>> AddToPdf([FromQuery]string pdfId, [FromBody]string json)
     {
         try
         {
@@ -165,7 +167,8 @@ public class CompanyController : ControllerBase
                 Id = pdf.Id,
                 TemplateId = pdf.Template.Id,
                 TemplateName = pdf.Template.Name,
-                CurrentNumberOfUsers = pdf.CurrentNumberOfUsers
+                CurrentNumberOfUsers = pdf.CurrentNumberOfUsers,
+                Jsons = pdf.Jsons
             };
 
             return Ok(pdfResponse);

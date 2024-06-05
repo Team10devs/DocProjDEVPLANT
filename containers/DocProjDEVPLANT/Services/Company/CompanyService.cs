@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
 using DocProjDEVPLANT.API.Company;
@@ -93,30 +93,7 @@ public class CompanyService : ICompanyService
             throw new Exception(e.Message);
         }
     }
-
-
-    public async Task AddTemplateToCompanyAsync(string companyId, string templateName, byte[] fileContent, int totalNumberOfUsers)
-    {
-        var company = await _companyRepository.FindByIdAsync(companyId);
-
-        if (company is null)
-            throw new Exception( $"Company with id {companyId} does not exist.");
-        
-        if (company.Templates == null)
-        {
-            company.Templates = new List<TemplateModel>();
-        }
-
-        var template = new TemplateModel(templateName, fileContent, company, totalNumberOfUsers);
-        
-        company.Templates.Add(template);
-
-        var result = await _companyRepository.UpdateAsync(company);
-        if (!result)
-        {
-            throw new Exception("Not updated correctly !");
-        }
-    }
+    
 
     private byte[] GenerateByteArray(IFormFile f)
     {
@@ -198,11 +175,10 @@ public class CompanyService : ICompanyService
                 nestedJson[primaryKey][secondaryKey] = "";
             }
         }
-
-        TemplateModel template;
+        
         try
         {
-            await AddTemplateToCompanyAsync(companyId, templateName, GenerateByteArray(file), totalNumberOfUsers);
+            await _companyRepository.AddTemplate(companyId, templateName, fileContent, totalNumberOfUsers);
         }
         catch (Exception e)
         {
@@ -230,13 +206,14 @@ public class CompanyService : ICompanyService
         return pdf;
     }
 
-    
-    public async Task<Byte[]> MakePdfFromDictionay(string companyId, string templateId, Dictionary<string, string> dictionary)
+
+    public async Task<Byte[]> GeneratePdf(string pdfId, string templateId)
     {
+        PdfModel pdf;
         TemplateModel template;
         try
         {
-            template = await _companyRepository.FindByIdWithTemplateAsync(companyId, templateId);
+            (pdf, template) = await _companyRepository.VerifyNumberOfUsers(pdfId, templateId);
         }
         catch (Exception e)
         {
@@ -244,16 +221,20 @@ public class CompanyService : ICompanyService
         }
 
         var templateDocxBytes = template.DocxFile;
-        
-        
+
         if (templateDocxBytes == null || templateDocxBytes.Length == 0)
         {
             throw new Exception("Not a docx file.");
         }
+
+        var jsonList = new List<JObject>();
+        foreach (var json in pdf.Jsons)
+        {
+            jsonList.Add(JObject.Parse(json));
+        }
         
         using (var stream = new MemoryStream(templateDocxBytes))
         {
-
             stream.Seek(0, SeekOrigin.Begin);
             using (var doc = DocX.Load(stream))
             {
@@ -261,27 +242,53 @@ public class CompanyService : ICompanyService
 
                 foreach (var paragraph in doc.Paragraphs)
                 {
-
                     MatchCollection matches = Regex.Matches(paragraph.Text, pattern);
 
                     foreach (Match match in matches)
                     {
-                        string word = match.Groups[1].Value;
-                        
-                        if (dictionary.ContainsKey(word))
+                        var cleanedWord = match.Value.TrimStart('{').TrimEnd('}');
+                        var parts = cleanedWord.Split('.');
+
+                        if (parts.Length == 2)
                         {
-                            paragraph.ReplaceText(match.Value, dictionary[word]);
-                        }
-                        else
-                        {
-                            throw new Exception($"Dictionary does not have the key {match.Value}");
+                            var primaryKey = parts[0].TrimStart();
+                            var secondaryKey = parts[1].TrimEnd();
+
+                            // searches for numbers at the end of primarykey
+                            var numberPart = Regex.Match(primaryKey, @"\d+$");
+                            JObject jsonObject;
+                            if (numberPart.Success)
+                            {
+                                primaryKey = Regex.Replace(primaryKey, @"\d+$", "");
+                                primaryKey.TrimEnd();
+
+                                var number = int.Parse(numberPart.Value);
+                                jsonObject = jsonList[number - 1];
+                            }
+                            else
+                            {
+                                jsonObject = jsonList[^1];
+                            }
+
+                            if (jsonObject.TryGetValue(primaryKey, out JToken primaryToken) &&
+                                primaryToken is JObject primaryObject &&
+                                primaryObject.TryGetValue(secondaryKey, out JToken secondaryToken) &&
+                                secondaryToken.Type != JTokenType.Null)
+                            {
+                                paragraph.ReplaceText(match.Value, secondaryToken.ToString());
+                            }
+                            else
+                            {
+                                throw new Exception(
+                                    $"The json {jsonObject} does not have the value for {primaryKey}, {secondaryKey}");
+                            }
                         }
                     }
                 }
-                
+
                 var modifiedStream = new MemoryStream();
                 doc.SaveAs(modifiedStream);
-                var docxBytes = modifiedStream.ToArray();
+                var docxBytes = modifiedStream.ToArray(); // bitii astia de docx sunt buni mai trebuie uitat peste conversie
 
                 var fileName = Guid.NewGuid().ToString();
                 var tempFilePath = Path.Combine(Directory.GetCurrentDirectory(), fileName + ".docx");
@@ -297,7 +304,7 @@ public class CompanyService : ICompanyService
                     UseShellExecute = false,
                     CreateNoWindow = true
                 };
-                
+
                 using (var process = new Process { StartInfo = processStartInfo })
                 {
                     process.Start();
@@ -312,16 +319,28 @@ public class CompanyService : ICompanyService
                     {
                         throw new Exception($"Error converting DOCX to PDF: {error}");
                     }
-                    
+
                     var pdfBytes = await File.ReadAllBytesAsync(pdfFilePath);
+
+                    try
+                    {
+                        await _companyRepository.AddContentToPdf(pdfId, pdfBytes);
+                    }
+                    catch (Exception e)
+                    {
+                        throw new Exception(e.Message);
+                    }
+                    
                     File.Delete(tempFilePath);
                     File.Delete(pdfFilePath);
-                    
+
                     return pdfBytes;
                 }
             }
         }
-        
-        
+
     }
+
+        
+
 }

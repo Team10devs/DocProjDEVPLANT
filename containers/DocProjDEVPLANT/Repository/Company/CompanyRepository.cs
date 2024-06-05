@@ -1,4 +1,5 @@
-﻿using DocProjDEVPLANT.Domain.Entities.Company;
+﻿using System.Text.Json;
+using DocProjDEVPLANT.Domain.Entities.Company;
 using DocProjDEVPLANT.Domain.Entities.Templates;
 using DocProjDEVPLANT.Repository.Database;
 using Microsoft.EntityFrameworkCore;
@@ -117,11 +118,83 @@ public class CompanyRepository :  ICompanyRepository
         if (pdf is null)
             throw new Exception($"Pdf with id {pdfId} does not exist");
 
-        pdf.CurrentNumberOfUsers++;
+        if (string.IsNullOrWhiteSpace(json))
+            throw new Exception($"The json file must not be null");
+
+        try
+        {
+            using (var jsonDoc = JsonDocument.Parse(json))
+            {
+                pdf.CurrentNumberOfUsers++;
+                pdf.Jsons.Add(json);
+                
+                _appDbContext.Pdfs.Update(pdf);
+                await _appDbContext.SaveChangesAsync();
+                
+                return pdf;
+            }
+        }
+        catch (Exception e)
+        {
+            throw new Exception(e.Message);
+        }
+    }
+
+    public async Task<(PdfModel, TemplateModel)> VerifyNumberOfUsers(string pdfId, string templateId)
+    {
+        var pdf = await _appDbContext.Pdfs
+            .Include(p=>p.Template)
+            .FirstOrDefaultAsync(p => p.Id == pdfId);
+        
+        if (pdf is null)
+            throw new Exception($"Pdf with id {pdfId} does not exist");
+
+        var template = await _appDbContext.Templates
+            .Include(t => t.GeneratedPdfs)
+            .FirstOrDefaultAsync(t => t.Id == templateId);
+        
+        if (template is null)
+            throw new Exception($"Template with id {templateId} does not exist");
+
+        if (pdf.Template.Id != templateId)
+            throw new Exception($"The pdf does not correspond to the template");
+
+        if (pdf.CurrentNumberOfUsers < template.TotalNumberOfUsers)
+            throw new Exception($"Not enough users have completed their forms {pdf.CurrentNumberOfUsers}/{template.TotalNumberOfUsers}");
+        
+        if (pdf.CurrentNumberOfUsers > template.TotalNumberOfUsers)
+            throw new Exception($"More users than required have completed their forms");
+        
+        return (pdf, template);
+    }
+
+    public async Task AddContentToPdf(string pdfId, byte[] byteArray)
+    {
+        var pdf = await _appDbContext.Pdfs
+            .Include(p=>p.Template)
+            .FirstOrDefaultAsync(p => p.Id == pdfId);
+
+        if (pdf is null)
+            throw new Exception($"Pdf with id {pdfId} does not exist");
+        
+        pdf.Content = byteArray;
         _appDbContext.Pdfs.Update(pdf);
         await _appDbContext.SaveChangesAsync();
-        //baga logica aici, pdf urile ar trebui sa aiba o lista de json uri
+    }
+    
+    public async Task AddTemplate (string companyId, string templateName, byte[] fileContent, int totalNumberOfUsers)
+    {
+        var company = await _appDbContext.Companies.Include(c => c.Templates)
+            .FirstOrDefaultAsync(c => c.Id == companyId);
+
+        if (company is null)
+            throw new Exception( $"Company with id {companyId} does not exist.");
+
+        var template = new TemplateModel(templateName, fileContent, company, totalNumberOfUsers);
         
-        return pdf;
+        company.Templates.Add(template);
+
+        _appDbContext.Templates.Add(template);
+        await _appDbContext.SaveChangesAsync();
     }
 }

@@ -5,6 +5,7 @@ using DocProjDEVPLANT.Repository.User;
 using DocProjDEVPLANT.Services;
 using DocProjDEVPLANT.Services.Company;
 using DocProjDEVPLANT.Services.Mail;
+using DocProjDEVPLANT.Services.Scanner;
 using DocProjDEVPLANT.Services.Template;
 using DocProjDEVPLANT.Services.User;
 using Microsoft.EntityFrameworkCore;
@@ -30,6 +31,7 @@ public static class DependencyInjection
         
         services.Configure<EmailConfig>(configuration.GetSection("EmailConfig"));
         services.AddScoped<IEmailService, EmailService>();
+        services.AddScoped<IOcrService, OcrService>();
         return services;
     }
 }

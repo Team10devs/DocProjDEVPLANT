@@ -7,6 +7,7 @@ using DocProjDEVPLANT.Domain.Entities.Templates;
 using DocProjDEVPLANT.Domain.Entities.User;
 using DocProjDEVPLANT.Repository.Company;
 using DocProjDEVPLANT.Repository.User;
+using DocProjDEVPLANT.Services.Scanner;
 using DocProjDEVPLANT.Services.Utils.ResultPattern;
 using Mammoth;
 using Newtonsoft.Json.Linq;
@@ -18,11 +19,13 @@ public class CompanyService : ICompanyService
 {
     private readonly ICompanyRepository _companyRepository;
     private readonly IUserRepository _userRepository;
+    private readonly IOcrService _ocrService;
 
-    public CompanyService(ICompanyRepository repository,IUserRepository userRepository)
+    public CompanyService(ICompanyRepository repository,IUserRepository userRepository,IOcrService ocrService)
     {
         _companyRepository = repository;
         _userRepository = userRepository;
+        _ocrService = ocrService;
     }
 
     public async Task<Result<IEnumerable<CompanyModel>>> GetAllAsync()
@@ -207,7 +210,7 @@ public class CompanyService : ICompanyService
     }
 
 
-    public async Task<Byte[]> GeneratePdf(string pdfId, string templateId)
+    public async Task<Byte[]> GeneratePdf(string pdfId, string templateId,string imagePath)
     {
         PdfModel pdf;
         TemplateModel template;
@@ -233,6 +236,15 @@ public class CompanyService : ICompanyService
             jsonList.Add(JObject.Parse(json));
         }
         
+        var ocrText = _ocrService.ExtractTextFromImage(imagePath);
+        Console.WriteLine(ocrText);
+        var mrzData = _ocrService.ExtractMrzData(ocrText); 
+        
+        if (mrzData == null)
+        {
+            throw new Exception("Failed to extract MRZ data from the image.");
+        }
+        
         using (var stream = new MemoryStream(templateDocxBytes))
         {
             stream.Seek(0, SeekOrigin.Begin);
@@ -240,47 +252,59 @@ public class CompanyService : ICompanyService
             {
                 string pattern = @"\{\{([^{}]+)\}\}";
 
-                foreach (var paragraph in doc.Paragraphs)
+                foreach (var json in pdf.Jsons)
                 {
-                    MatchCollection matches = Regex.Matches(paragraph.Text, pattern);
+                    var updatedJson = JObject.Parse(json);
+                    
+                    updatedJson["client"]["nume"] = mrzData.Nume;
+                    updatedJson["client"]["tara"] = mrzData.Country;
+                    updatedJson["client"]["cetatenie"] = mrzData.Cetatenie;
+                    updatedJson["client"]["cnp"] = mrzData.CNP;
+                    updatedJson["client"]["sex"] = mrzData.Sex;
 
-                    foreach (Match match in matches)
+                    foreach (var paragraph in doc.Paragraphs)
                     {
-                        var cleanedWord = match.Value.TrimStart('{').TrimEnd('}');
-                        var parts = cleanedWord.Split('.');
+                        MatchCollection matches = Regex.Matches(paragraph.Text, pattern);
 
-                        if (parts.Length == 2)
+                        foreach (Match match in matches)
                         {
-                            var primaryKey = parts[0].TrimStart();
-                            var secondaryKey = parts[1].TrimEnd();
+                            var cleanedWord = match.Value.TrimStart('{').TrimEnd('}');
+                            var parts = cleanedWord.Split('.');
 
-                            // searches for numbers at the end of primarykey
-                            var numberPart = Regex.Match(primaryKey, @"\d+$");
-                            JObject jsonObject;
-                            if (numberPart.Success)
+                            if (parts.Length == 2)
                             {
-                                primaryKey = Regex.Replace(primaryKey, @"\d+$", "");
-                                primaryKey.TrimEnd();
+                                var primaryKey = parts[0].TrimStart();
+                                var secondaryKey = parts[1].TrimEnd();
 
-                                var number = int.Parse(numberPart.Value);
-                                jsonObject = jsonList[number - 1];
-                            }
-                            else
-                            {
-                                jsonObject = jsonList[^1];
-                            }
+                                // searches for numbers at the end of primarykey
+                                var numberPart = Regex.Match(primaryKey, @"\d+$");
+                                JObject jsonObject;
+                                if (numberPart.Success)
+                                {
+                                    primaryKey = Regex.Replace(primaryKey, @"\d+$", "");
+                                    primaryKey.TrimEnd();
 
-                            if (jsonObject.TryGetValue(primaryKey, out JToken primaryToken) &&
-                                primaryToken is JObject primaryObject &&
-                                primaryObject.TryGetValue(secondaryKey, out JToken secondaryToken) &&
-                                secondaryToken.Type != JTokenType.Null)
-                            {
-                                paragraph.ReplaceText(match.Value, secondaryToken.ToString());
-                            }
-                            else
-                            {
-                                throw new Exception(
-                                    $"The json {jsonObject} does not have the value for {primaryKey}, {secondaryKey}");
+                                    var number = int.Parse(numberPart.Value);
+                                    jsonObject = jsonList[number - 1];
+                                }
+                                else
+                                {
+                                    jsonObject = jsonList[^1];
+                                }
+
+                                if (jsonObject.TryGetValue(primaryKey, out JToken primaryToken) &&
+                                    primaryToken is JObject primaryObject &&
+                                    primaryObject.TryGetValue(secondaryKey, out JToken secondaryToken) &&
+                                    secondaryToken.Type != JTokenType.Null)
+                                {
+                                    paragraph.ReplaceText(match.Value, secondaryToken.ToString());
+                                }
+                                else
+                                {
+                                    throw new Exception(
+                                        $"The json {jsonObject} does not have the value for {primaryKey}, {secondaryKey}");
+                                }
+                                jsonList.Add(updatedJson);
                             }
                         }
                     }
@@ -332,11 +356,16 @@ public class CompanyService : ICompanyService
                     {
                         throw new Exception(e.Message);
                     }
+
+                    
                     
                     File.Delete(tempFilePath);
                     File.Delete(pdfFilePath);
-
+                    //File.Delete(imagePath);
+                    
                     return pdfBytes;
+                    
+                  
                 }
             }
         }

@@ -290,6 +290,8 @@ public class CompanyService : ICompanyService
                 doc.SaveAs(modifiedStream);
                 var docxBytes = modifiedStream.ToArray(); // bitii astia de docx sunt buni mai trebuie uitat peste conversie
 
+                // return docxBytes; // ca sa testezi ca bitii de docx sunt buni
+                
                 var fileName = Guid.NewGuid().ToString();
                 var tempFilePath = Path.Combine(Directory.GetCurrentDirectory(), fileName + ".docx");
                 await File.WriteAllBytesAsync(tempFilePath, docxBytes);

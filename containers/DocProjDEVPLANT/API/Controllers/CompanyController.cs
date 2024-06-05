@@ -151,7 +151,7 @@ public class CompanyController : ControllerBase
             return BadRequest("Sending email failed.");
         }
         
-        return File(pdfBytes, "application/docx", $"generated.docx");
+        return File(pdfBytes, "application/pdf", $"generated.pdf");
         // return Ok(pdfBytes);
     }
     

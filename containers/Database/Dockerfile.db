@@ -1,0 +1,10 @@
+FROM postgres:latest
+
+WORKDIR /recover
+
+COPY . .
+
+# RUN pg_restore -U postgres -d tango-malena -t -f ./testdb.tar -W
+
+# CMD pg_restore -U postgres -d tango-malena testdb.tar
+# CMD ./restore.sh

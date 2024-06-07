@@ -1,4 +1,5 @@
-﻿services:
+﻿name: docprojdevplant
+services:
   minio:
     image: minio/minio
     container_name: minio
@@ -13,7 +14,10 @@
     command: minio server /data
 
   db:
-    image: postgres:latest
+    #trebuie scris in terminalul din container ./restore.sh
+    build:
+      context: ./Database
+      dockerfile: Dockerfile.db
     container_name: db
     environment:
       - POSTGRES_USER=postgres
@@ -22,13 +26,19 @@
     restart: always
     ports:
       - "5432:5432"
-#trebuie adaugat ce a trimis mihai (testdb.tar) in home din db(docker)
-#si scris in terminal pg_restore -U postgres -d docprojdevplant testdb.tar
-#psql -U postgres -d docprojdevplant -W
+    # command: pg_restore -U postgres -d docprojdevplant testdb.tar
+
+  libreoffice:
+    build:
+      context: ./LibreOffice
+      dockerfile: Dockerfile.libre
+    container_name: libreoffice
+
+
   web:
     build:
-      dockerfile: Dockerfile
-      context: .
+      context: ./Backend
+      dockerfile: Dockerfile.backend
     depends_on:
       - "db"
     container_name: web-services

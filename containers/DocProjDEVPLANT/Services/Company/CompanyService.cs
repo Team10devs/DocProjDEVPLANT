@@ -7,6 +7,7 @@ using DocProjDEVPLANT.Domain.Entities.Templates;
 using DocProjDEVPLANT.Domain.Entities.User;
 using DocProjDEVPLANT.Repository.Company;
 using DocProjDEVPLANT.Repository.User;
+using DocProjDEVPLANT.Services.Minio;
 using DocProjDEVPLANT.Services.Scanner;
 using DocProjDEVPLANT.Services.Utils.ResultPattern;
 using Mammoth;
@@ -357,7 +358,8 @@ public class CompanyService : ICompanyService
                         throw new Exception(e.Message);
                     }
 
-                    
+                    var minioService = new MinioService();
+                    await minioService.UploadFileAsync("pdf-bucket", $"{fileName}.pdf", pdfFilePath);
                     
                     File.Delete(tempFilePath);
                     File.Delete(pdfFilePath);

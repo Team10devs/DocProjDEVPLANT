@@ -2,8 +2,12 @@ FROM ubuntu:18.04
 
 WORKDIR /api
 
+COPY . .
+
 RUN apt-get update
 
 RUN apt-get install -y libreoffice python3 python3-pip
 
-CMD tail -f /dev/null
+RUN pip3 install flask flask-cors
+
+CMD python3 api.py

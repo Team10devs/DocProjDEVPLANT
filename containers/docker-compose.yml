@@ -32,15 +32,17 @@ services:
     build:
       context: ./LibreOffice
       dockerfile: Dockerfile.libre
+    ports:
+      - "5000:5000"
     container_name: libreoffice
 
 
-  web:
-    build:
-      context: ./Backend
-      dockerfile: Dockerfile.backend
-    depends_on:
-      - "db"
-    container_name: web-services
-    ports:
-      - "8080:8080"
+  # web:
+  #   build:
+  #     context: ./Backend
+  #     dockerfile: Dockerfile.backend
+  #   depends_on:
+  #     - "db"
+  #   container_name: web-services
+  #   ports:
+  #     - "8080:8080"

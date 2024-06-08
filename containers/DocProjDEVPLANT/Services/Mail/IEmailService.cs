@@ -1,8 +1,10 @@
-﻿using DocProjDEVPLANT.Services.Utils.ResultPattern;
+﻿using DocProjDEVPLANT.Domain.Entities.Templates;
+using DocProjDEVPLANT.Domain.Entities.User;
+using DocProjDEVPLANT.Services.Utils.ResultPattern;
 
 namespace DocProjDEVPLANT.Services.Mail;
 
 public interface IEmailService
 {
-    Task<Result> SendEmailAsync(string userId,byte[] pdfBytes);
+    Task SendEmailAsync(UserModel user, TemplateModel templateModel, byte[] pdfBytes);
 }

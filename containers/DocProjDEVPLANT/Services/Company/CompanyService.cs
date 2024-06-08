@@ -84,11 +84,11 @@ public class CompanyService : ICompanyService
         return Result.Succes();
     }
 
-    public async Task<PdfModel> AddUserToPdf(string pdfId, string json)
+    public async Task<PdfModel> AddUserToPdf(string pdfId, string userEmail, string json)
     {
         try
         {
-            var pdf = await _companyRepository.AddUserToPdf(pdfId, json);
+            var pdf = await _companyRepository.AddUserToPdf(pdfId, userEmail, json);
             
             return pdf;
         }
@@ -96,23 +96,6 @@ public class CompanyService : ICompanyService
         {
             throw new Exception(e.Message);
         }
-    }
-    
-
-    private byte[] GenerateByteArray(IFormFile f)
-    {
-        byte[] fileByteArray = null;
-        
-        if (f != null)
-        {
-            using (var item = new MemoryStream())
-            {
-                f.CopyTo(item);
-                fileByteArray = item.ToArray();
-            }
-        }
-
-        return fileByteArray;
     }
     
     
@@ -237,14 +220,14 @@ public class CompanyService : ICompanyService
             jsonList.Add(JObject.Parse(json));
         }
         
-        var ocrText = _ocrService.ExtractTextFromImage(imagePath);
-        Console.WriteLine(ocrText);
-        var mrzData = _ocrService.ExtractMrzData(ocrText); 
-        
-        if (mrzData == null)
-        {
-            throw new Exception("Failed to extract MRZ data from the image.");
-        }
+        // var ocrText = _ocrService.ExtractTextFromImage(imagePath);
+        // Console.WriteLine(ocrText);
+        // var mrzData = _ocrService.ExtractMrzData(ocrText); 
+        //
+        // if (mrzData == null)
+        // {
+        //     throw new Exception("Failed to extract MRZ data from the image.");
+        // }
         
         using (var stream = new MemoryStream(templateDocxBytes))
         {
@@ -255,13 +238,13 @@ public class CompanyService : ICompanyService
 
                 foreach (var json in pdf.Jsons)
                 {
-                    var updatedJson = JObject.Parse(json);
-                    
-                    updatedJson["client"]["nume"] = mrzData.Nume;
-                    updatedJson["client"]["tara"] = mrzData.Country;
-                    updatedJson["client"]["cetatenie"] = mrzData.Cetatenie;
-                    updatedJson["client"]["cnp"] = mrzData.CNP;
-                    updatedJson["client"]["sex"] = mrzData.Sex;
+                    // var updatedJson = JObject.Parse(json);
+                    //
+                    // updatedJson["client"]["nume"] = mrzData.Nume;
+                    // updatedJson["client"]["tara"] = mrzData.Country;
+                    // updatedJson["client"]["cetatenie"] = mrzData.Cetatenie;
+                    // updatedJson["client"]["cnp"] = mrzData.CNP;
+                    // updatedJson["client"]["sex"] = mrzData.Sex;
 
                     foreach (var paragraph in doc.Paragraphs)
                     {
@@ -305,7 +288,7 @@ public class CompanyService : ICompanyService
                                     throw new Exception(
                                         $"The json {jsonObject} does not have the value for {primaryKey}, {secondaryKey}");
                                 }
-                                jsonList.Add(updatedJson);
+                                // jsonList.Add(updatedJson);
                             }
                         }
                     }
@@ -364,6 +347,15 @@ public class CompanyService : ICompanyService
                     File.Delete(tempFilePath);
                     File.Delete(pdfFilePath);
                     //File.Delete(imagePath);
+                    
+                    // Email sending Part
+                    foreach (var user in pdf.Users)
+                    {
+                        if (user.isEmail)
+                        {
+                            await _companyRepository.SendEmailToUsers(user, template, pdfBytes);
+                        }
+                    }
                     
                     return pdfBytes;
                     

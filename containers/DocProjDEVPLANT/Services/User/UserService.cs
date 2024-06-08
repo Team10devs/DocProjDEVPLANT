@@ -9,17 +9,27 @@ namespace DocProjDEVPLANT.Services.User;
 public class UserService : IUserService
 {
     private readonly IUserRepository _userRepository;
-    private readonly ICompanyRepository _companyRepository;
 
-    public UserService(IUserRepository repository, ICompanyRepository companyRepository)
+    public UserService(IUserRepository repository)
     {
         _userRepository = repository;
-        _companyRepository = companyRepository;
     }
 
     public async Task<Result<IEnumerable<UserModel>>> GetAllAsync()
     {
         return await _userRepository.GetAllUsersAsync();
+    }
+
+    public async Task<UserModel> GetUserByEmailAsync(string email)
+    {
+        try
+        {
+            return await _userRepository.FindByEmailAsync(email);
+        }
+        catch (Exception e)
+        {
+            throw new Exception(e.Message);
+        }
     }
 
     public async Task<Result<UserModel>> GetByIdAsync(string id)

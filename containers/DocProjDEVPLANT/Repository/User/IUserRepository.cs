@@ -6,6 +6,7 @@ public interface IUserRepository
 {
     public Task<List<UserModel>> GetAllUsersAsync();
     public Task<UserModel> FindByIdAsync(string id);
+    public Task<UserModel> FindByEmailAsync(string email);
     public Task CreateUserAsync(UserModel userModel);
     public Task DeleteUserAsync(UserModel userModel);
     Task<List<UserModel>> GetUsersByCompanyAsync(string companyName);

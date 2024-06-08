@@ -1,3 +1,5 @@
+using DocProjDEVPLANT.API.User;
+
 namespace DocProjDEVPLANT.Domain.Entities.Templates;
 
 public class PdfResponse
@@ -7,4 +9,5 @@ public class PdfResponse
     public string TemplateName { get; set; }
     public int CurrentNumberOfUsers { get; set; }
     public List<string> Jsons { get; set; }
+    public List<UserResponse> Users { get; set; }
 }

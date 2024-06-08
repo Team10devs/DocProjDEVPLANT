@@ -20,7 +20,19 @@ public class UserRepository :  IUserRepository
             .Include(u => u.Company)
             .ToListAsync();
     }
-    
+
+    public async Task<UserModel> FindByEmailAsync(string email)
+    {
+        var user = await _appDbContext.Users
+            .Include(u => u.Company)
+            .FirstOrDefaultAsync(u => u.Email == email);
+
+        if (user is null)
+            throw new Exception($"User with email {email} does not exist");
+
+        return user;
+    }
+
     public async Task CreateUserAsync(UserModel userModel)
     {
         _appDbContext.Add(userModel);

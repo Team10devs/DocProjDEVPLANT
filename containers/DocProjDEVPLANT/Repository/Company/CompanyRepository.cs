@@ -1,8 +1,13 @@
 ﻿using System.Text.Json;
+using System.Text.RegularExpressions;
 using DocProjDEVPLANT.Domain.Entities.Company;
 using DocProjDEVPLANT.Domain.Entities.Templates;
+using DocProjDEVPLANT.Domain.Entities.User;
 using DocProjDEVPLANT.Repository.Database;
+using DocProjDEVPLANT.Services.Mail;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace DocProjDEVPLANT.Repository.Company;
 
@@ -10,10 +15,11 @@ public class CompanyRepository :  ICompanyRepository
 {
     
     protected readonly AppDbContext _appDbContext;
-    
-    public CompanyRepository(AppDbContext appDbContext)
+    protected readonly IEmailService _emailService;
+    public CompanyRepository(AppDbContext appDbContext, IEmailService emailService)
     {
         _appDbContext = appDbContext;
+        _emailService = emailService;
     }
     public async Task<List<CompanyModel>> GetAllCompaniesAsync()
     {
@@ -109,10 +115,11 @@ public class CompanyRepository :  ICompanyRepository
         await _appDbContext.SaveChangesAsync();
     }
 
-    public async Task<PdfModel> AddUserToPdf(string pdfId, string json)
+    public async Task<PdfModel> AddUserToPdf(string pdfId, string userEmail, string json)
     {
         var pdf = await _appDbContext.Pdfs
             .Include(p=>p.Template)
+            .Include(p=>p.Users)
             .FirstOrDefaultAsync(p => p.Id == pdfId);
 
         if (pdf is null)
@@ -120,19 +127,47 @@ public class CompanyRepository :  ICompanyRepository
 
         if (string.IsNullOrWhiteSpace(json))
             throw new Exception($"The json file must not be null");
+        
+        if (!Regex.IsMatch(userEmail, @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(?:\.[a-zA-Z]{2,})?$"))
+            throw new Exception($"The email {userEmail} is not a valid email");
+        
+        var user = await _appDbContext.Users
+            .FirstOrDefaultAsync(u => u.Email == userEmail);
+
+        if (user is null)
+            throw new Exception($"User with email {userEmail} does not exist");
 
         try
         {
-            using (var jsonDoc = JsonDocument.Parse(json))
+            
+            pdf.CurrentNumberOfUsers++;
+            pdf.Jsons.Add(json);
+            pdf.Users.Add(user);
+
+            if (string.IsNullOrWhiteSpace(user.UserData))
             {
-                pdf.CurrentNumberOfUsers++;
-                pdf.Jsons.Add(json);
-                
-                _appDbContext.Pdfs.Update(pdf);
-                await _appDbContext.SaveChangesAsync();
-                
-                return pdf;
+                user.UserData = json;
             }
+            else
+            {
+                var originalUserData = JObject.Parse(user.UserData);
+                var newUserData = JObject.Parse(json);
+                
+                originalUserData.Merge(newUserData, new JsonMergeSettings
+                {
+                    MergeArrayHandling = MergeArrayHandling.Union
+                });
+
+                user.UserData = originalUserData.ToString(Formatting.None); // se poate modifica de aici formatarea
+            }
+            
+            _appDbContext.Pdfs.Update(pdf);
+            _appDbContext.Users.Update(user);
+            
+            await _appDbContext.SaveChangesAsync();
+            
+            return pdf;
+            
         }
         catch (Exception e)
         {
@@ -144,6 +179,7 @@ public class CompanyRepository :  ICompanyRepository
     {
         var pdf = await _appDbContext.Pdfs
             .Include(p=>p.Template)
+            .Include(p=>p.Users)
             .FirstOrDefaultAsync(p => p.Id == pdfId);
         
         if (pdf is null)
@@ -151,6 +187,7 @@ public class CompanyRepository :  ICompanyRepository
 
         var template = await _appDbContext.Templates
             .Include(t => t.GeneratedPdfs)
+            .Include(t=>t.Company)
             .FirstOrDefaultAsync(t => t.Id == templateId);
         
         if (template is null)
@@ -196,5 +233,10 @@ public class CompanyRepository :  ICompanyRepository
 
         _appDbContext.Templates.Add(template);
         await _appDbContext.SaveChangesAsync();
+    }
+
+    public async Task SendEmailToUsers(UserModel user, TemplateModel templateModel, byte[] pdf)
+    {
+        await _emailService.SendEmailAsync(user, templateModel, pdf);
     }
 }

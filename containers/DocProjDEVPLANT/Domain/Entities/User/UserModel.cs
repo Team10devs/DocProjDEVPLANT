@@ -15,8 +15,8 @@ public class UserModel : Entity
     public string CNP { get; set; }
     public RoleEnum Role { get; set; }
     public CompanyModel? Company { get; set; }
-
     public bool isEmail { get; set; } = false;
+    public string UserData { get; set; } // Json
     public UserModel()
     {
         
@@ -30,7 +30,7 @@ public class UserModel : Entity
         string fullname,
         string cnp,
         RoleEnum role)
-    {
+    { // aici mai trebuie logica sa puna in Json tot ce a primit din constructor + din buletin daca a introdus
         return new UserModel
         {
             UserName = username,
@@ -38,7 +38,8 @@ public class UserModel : Entity
             Address = adress,
             FullName = fullname,
             CNP = cnp,
-            Role = role
+            Role = role,
+            UserData = ""
         };
     }
 }

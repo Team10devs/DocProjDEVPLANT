@@ -1,5 +1,6 @@
 using DocProjDEVPLANT.API.Company;
 using DocProjDEVPLANT.API.DTOs.Template;
+using DocProjDEVPLANT.API.User;
 using DocProjDEVPLANT.Domain.Entities.Company;
 using DocProjDEVPLANT.Domain.Entities.Templates;
 using DocProjDEVPLANT.Domain.Entities.User;
@@ -16,13 +17,11 @@ namespace DocProjDEVPLANT.API.Controllers;
 public class CompanyController : ControllerBase
 {
     private readonly ICompanyService _companyService;
-    private readonly IEmailService _emailService;
     private readonly IUserService _userService;
     
-    public CompanyController(ICompanyService service,IUserService userService,IEmailService emailService )
+    public CompanyController(ICompanyService service,IUserService userService )
     {
         _companyService = service;
-        _emailService = emailService;
         _userService = userService;
     }
 
@@ -48,7 +47,7 @@ public class CompanyController : ControllerBase
                 CNP = u.CNP,
                 Role = u.Role
             }).ToList(),
-            Templates = c.Templates.Select(t=> new TemplateResponse(t.Id,t.Name/*t.DocxFile*/)).ToList()
+            Templates = c.Templates.Select(t=> new TemplateResponse(t.Id,t.Name, c.Name, t.TotalNumberOfUsers/*t.DocxFile*/)).ToList()
         }).ToList();
 
         return Ok(ceva);
@@ -123,44 +122,31 @@ public class CompanyController : ControllerBase
     }
 
     [HttpPost("api/pdf")]
-    public async Task<ActionResult> GenerateDocument(string userId,string pdfId, string templateId,string imagePath)
+    public async Task<ActionResult> GenerateDocument(string pdfId, string templateId, string imagePath)
     {
         
         Byte[] pdfBytes;
         try
         {
-            pdfBytes = await _companyService.GeneratePdf(pdfId, templateId,imagePath);
+            pdfBytes = await _companyService.GeneratePdf(pdfId, templateId, imagePath);
         }
         catch (Exception e)
         {
             return BadRequest(e.Message);
         }
-
-        var userResult = await _userService.GetByIdAsync(userId);
-        if (userResult is null || !userResult.Value.isEmail)
-        {
-            return Ok(new
-            {
-                Message = "User does not have an email adress, PDF generated but not sent through email. ", pdfBytes
-            });
-        }
-        
-        var emailResult = await _emailService.SendEmailAsync(userId,pdfBytes);
-        if (!emailResult.IsSucces)
-        {
-            return BadRequest("Sending email failed.");
-        }
         
         return File(pdfBytes, "application/pdf", $"generated.pdf");
-        // return Ok(pdfBytes);
     }
     
     [HttpPatch("api/addUserToPdf")]
-    public async Task<ActionResult<PdfResponse>> AddToPdf([FromQuery]string pdfId, [FromBody]string json)
+    public async Task<ActionResult<PdfResponse>> AddToPdf([FromQuery]string pdfId, string userEmail, [FromBody]string json)
     {
         try
         {
-            var pdf = await _companyService.AddUserToPdf(pdfId, json);
+            var pdf = await _companyService.AddUserToPdf(pdfId, userEmail, json);
+
+            var users = pdf.Users;
+            var userResponses = users.Select(MapUsers);
             
             var pdfResponse = new PdfResponse
             {
@@ -168,7 +154,8 @@ public class CompanyController : ControllerBase
                 TemplateId = pdf.Template.Id,
                 TemplateName = pdf.Template.Name,
                 CurrentNumberOfUsers = pdf.CurrentNumberOfUsers,
-                Jsons = pdf.Jsons
+                Jsons = pdf.Jsons,
+                Users = userResponses.ToList()
             };
 
             return Ok(pdfResponse);
@@ -180,7 +167,34 @@ public class CompanyController : ControllerBase
     }
         
     
-    
+    private UserResponse MapUsers(UserModel userModel)
+    {
+        if (userModel.Company != null)
+        {
+            // Dacă utilizatorul are o companie asociată, poți adăuga și informații despre companie în răspuns
+            return new UserResponse(
+                userModel.Id,
+                userModel.UserName,
+                userModel.FullName,
+                userModel.CNP,
+                userModel.Role,
+                userModel.UserData,
+                userModel.Company.Id // sau userModel.Company?.Id dacă Company poate fi null
+            );
+        }
+        else
+        {
+            // Dacă utilizatorul nu are o companie asociată, poți crea răspunsul fără informații despre companie
+            return new UserResponse(
+                userModel.Id,
+                userModel.UserName,
+                userModel.FullName,
+                userModel.CNP,
+                userModel.Role,
+                userModel.UserData
+            );
+        }
+    }
 
     /*private CompanyResponse Map(CompanyModel companyModel)
     {

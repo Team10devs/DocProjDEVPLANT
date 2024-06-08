@@ -47,6 +47,7 @@
 
     <ItemGroup>
       <Compile Remove="Repository\Repositories\**" />
+      <Compile Remove="Domain\Entities\User\UserResponse.cs" />
     </ItemGroup>
 
     <ItemGroup>

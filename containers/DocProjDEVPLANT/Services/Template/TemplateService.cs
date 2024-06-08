@@ -23,4 +23,37 @@ public class TemplateService : ITemplateService
 
         return templates;
     }
+
+    public async Task<TemplateModel> GetTemplatesByName(string name)
+    {
+        var template = await _context.Templates
+            .Include( c=> c.Company)
+            .FirstOrDefaultAsync(t => t.Name == name);
+        
+        if (template is null)
+            throw new Exception($"Template with name {name} does not exist");
+
+        return template;
+    }
+
+    public async Task DeleteTemplateAsync(string templateId)
+    {
+        var template = await _context.Templates
+            .Include(t=>t.GeneratedPdfs)
+            .Include( c=> c.Company)
+            .FirstOrDefaultAsync(t => t.Id == templateId);
+
+        if (template is null)
+            throw new Exception($"Template with id {templateId} does not exist");
+
+        if (template.GeneratedPdfs.Count == 0)
+        {
+            _context.Templates.Remove(template);
+            await _context.SaveChangesAsync();
+        }
+        else
+        {
+            throw new Exception($"Template with id {templateId} has some generated documents, cannot be removed");
+        }
+    }
 }

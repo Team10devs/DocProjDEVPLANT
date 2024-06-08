@@ -7,4 +7,6 @@ namespace DocProjDEVPLANT.Services.Template;
 public interface ITemplateService
 {
     Task<Result<IEnumerable<TemplateModel>>> GetTemplatesByCompanyId(string companyId);
+    Task<TemplateModel> GetTemplatesByName(string name);
+    Task DeleteTemplateAsync(string templateId);
 }

@@ -1,11 +1,9 @@
-﻿using DocProjDEVPLANT.Domain.Entities.User;
+﻿using DocProjDEVPLANT.Domain.Entities.Templates;
+using DocProjDEVPLANT.Domain.Entities.User;
 using DocProjDEVPLANT.Services.User;
-using DocProjDEVPLANT.Services.Utils.ResultPattern;
 using MailKit.Net.Smtp;
 using MailKit.Security;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.Options;
-using Microsoft.Identity.Client;
 using MimeKit;
 
 namespace DocProjDEVPLANT.Services.Mail;
@@ -29,24 +27,16 @@ public class EmailService : IEmailService
         _password = configuration.Value.EmailPassword;
     }
 
-    public async Task<Result> SendEmailAsync(string userId, byte[] pdfBytes)
+    public async Task SendEmailAsync(UserModel user, TemplateModel template, byte[] pdfBytes)
     {
-        var user = await _userService.GetByIdAsync(userId);
-
-        if (user is null)
+        if (user.isEmail)
         {
-            return Result.Failure<UserModel>(user.Error);
-        }
-
-        if (user.Value.isEmail is true)
-        {
-
-            var pdfFileName = "PDF";
+            var pdfFileName = $"{template.Name}_{user.FullName}.pdf";
 
             var email = new MimeMessage();
             email.From.Add(MailboxAddress.Parse(_from));
-            email.To.Add(MailboxAddress.Parse(user.Value.Email));
-            email.Subject = "Generated Pdf";
+            email.To.Add(MailboxAddress.Parse(user.Email));
+            email.Subject = "Generated Document";
 
             var pdfAttachment = new MimePart()
             {
@@ -56,7 +46,16 @@ public class EmailService : IEmailService
                 FileName = pdfFileName
             };
 
+            var emailTextBody =
+                $"Hello {user.FullName}, \n\nYour {template.Name} document for {template.Company.Name} has been issued. \n\nThanks for using our app";
+
+            var textPart = new TextPart("plain")
+            {
+                Text = emailTextBody
+            };
+
             var multipart = new Multipart("mixed");
+            multipart.Add(textPart);
             multipart.Add(pdfAttachment);
 
             email.Body = multipart;
@@ -76,15 +75,8 @@ public class EmailService : IEmailService
                     smtp.Dispose();
                 }
             }
-            return Result.Succes();
-        }
-        else
-        {
-            return Result.Failure<UserModel>(user.Error);
-        }
             
-
-
         }
-    
+    }
+
 }

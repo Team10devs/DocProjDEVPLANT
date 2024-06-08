@@ -7,6 +7,7 @@ namespace DocProjDEVPLANT.Services.User;
 public interface IUserService
 {
     Task<Result<IEnumerable<UserModel>>> GetAllAsync();
+    Task<UserModel> GetUserByEmailAsync(string email);
 
     Task<Result<UserModel>> CreateUserAsync(UserRequest request);
     Task<Result<UserModel>> GetByIdAsync(string id);

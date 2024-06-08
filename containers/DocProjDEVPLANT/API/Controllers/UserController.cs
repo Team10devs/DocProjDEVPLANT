@@ -24,6 +24,20 @@ public class UserController : ControllerBase
         return Ok(result.Value.Select(Map));
     }
 
+    [HttpGet("{email}")]
+    public async Task<ActionResult<UserModel>> GetUserByEmail(string email)
+    {
+        try
+        {
+            var user = await _userService.GetUserByEmailAsync(email);
+            return Ok(user);
+        }
+        catch (Exception e)
+        {
+            return BadRequest(e.Message);
+        }
+    }
+
     [HttpPost]
     public async Task<ActionResult<UserModel>> CreateUser([FromBody] UserRequest userRequest)
     {
@@ -50,7 +64,8 @@ public class UserController : ControllerBase
                 userModel.FullName,
                 userModel.CNP,
                 userModel.Role,
-                userModel.Company.Id // sau userModel.Company?.Id dacă Company poate fi null
+                userModel.UserData,
+                userModel.Company.Id// sau userModel.Company?.Id dacă Company poate fi null
             );
         }
         else
@@ -61,7 +76,8 @@ public class UserController : ControllerBase
                 userModel.UserName,
                 userModel.FullName,
                 userModel.CNP,
-                userModel.Role
+                userModel.Role,
+                userModel.UserData
             );
         }
     }

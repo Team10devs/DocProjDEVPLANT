@@ -122,13 +122,13 @@ public class CompanyController : ControllerBase
     }
 
     [HttpPost("api/pdf")]
-    public async Task<ActionResult> GenerateDocument(string pdfId, string templateId, string imagePath)
+    public async Task<ActionResult> GenerateDocument(string pdfId, string templateId)
     {
         
         Byte[] pdfBytes;
         try
         {
-            pdfBytes = await _companyService.GeneratePdf(pdfId, templateId, imagePath);
+            pdfBytes = await _companyService.GeneratePdf(pdfId, templateId);
         }
         catch (Exception e)
         {

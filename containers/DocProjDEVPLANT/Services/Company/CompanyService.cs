@@ -194,7 +194,7 @@ public class CompanyService : ICompanyService
     }
 
 
-    public async Task<Byte[]> GeneratePdf(string pdfId, string templateId,string imagePath)
+    public async Task<Byte[]> GeneratePdf(string pdfId, string templateId)
     {
         PdfModel pdf;
         TemplateModel template;
@@ -220,15 +220,6 @@ public class CompanyService : ICompanyService
             jsonList.Add(JObject.Parse(json));
         }
         
-        // var ocrText = _ocrService.ExtractTextFromImage(imagePath);
-        // Console.WriteLine(ocrText);
-        // var mrzData = _ocrService.ExtractMrzData(ocrText); 
-        //
-        // if (mrzData == null)
-        // {
-        //     throw new Exception("Failed to extract MRZ data from the image.");
-        // }
-        
         using (var stream = new MemoryStream(templateDocxBytes))
         {
             stream.Seek(0, SeekOrigin.Begin);
@@ -238,14 +229,6 @@ public class CompanyService : ICompanyService
 
                 foreach (var json in pdf.Jsons)
                 {
-                    // var updatedJson = JObject.Parse(json);
-                    //
-                    // updatedJson["client"]["nume"] = mrzData.Nume;
-                    // updatedJson["client"]["tara"] = mrzData.Country;
-                    // updatedJson["client"]["cetatenie"] = mrzData.Cetatenie;
-                    // updatedJson["client"]["cnp"] = mrzData.CNP;
-                    // updatedJson["client"]["sex"] = mrzData.Sex;
-
                     foreach (var paragraph in doc.Paragraphs)
                     {
                         MatchCollection matches = Regex.Matches(paragraph.Text, pattern);
@@ -288,7 +271,6 @@ public class CompanyService : ICompanyService
                                     throw new Exception(
                                         $"The json {jsonObject} does not have the value for {primaryKey}, {secondaryKey}");
                                 }
-                                // jsonList.Add(updatedJson);
                             }
                         }
                     }
@@ -346,7 +328,6 @@ public class CompanyService : ICompanyService
                     
                     File.Delete(tempFilePath);
                     File.Delete(pdfFilePath);
-                    //File.Delete(imagePath);
                     
                     // Email sending Part
                     foreach (var user in pdf.Users)
@@ -358,8 +339,6 @@ public class CompanyService : ICompanyService
                     }
                     
                     return pdfBytes;
-                    
-                  
                 }
             }
         }

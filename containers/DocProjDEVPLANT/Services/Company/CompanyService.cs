@@ -324,7 +324,7 @@ public class CompanyService : ICompanyService
                     }
 
                     var minioService = new MinioService();
-                    await minioService.UploadFileAsync("pdf-bucket", $"{fileName}.pdf", pdfFilePath);
+                    await minioService.UploadFileAsync("pdf-bucket", $"{pdfId}.pdf", pdfFilePath);
                     
                     File.Delete(tempFilePath);
                     File.Delete(pdfFilePath);

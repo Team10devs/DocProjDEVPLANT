@@ -4,10 +4,10 @@ using Minio.Exceptions;
 
 namespace DocProjDEVPLANT.Services.Minio;
 
-public class MinioService
+public class MinioService : IMinioService
 {
     private readonly MinioClient _minioClient;
-    
+
     public MinioService()
     {
         _minioClient = (MinioClient?)new MinioClient()
@@ -16,7 +16,7 @@ public class MinioService
             .WithSSL(false)
             .Build();
     }
-    
+
     public async Task UploadFileAsync(string bucketName, string objectName, string filePath)
     {
         try
@@ -50,4 +50,38 @@ public class MinioService
             Console.WriteLine($"Unexpected error: {e.Message}");
         }
     }
+
+    
+    public async Task<List<string>> ListFilesAsync(string bucketName)
+    {
+        var objects = new List<string>();
+
+        var args = new ListObjectsArgs()
+            .WithBucket(bucketName);
+
+        try
+        {
+            var observable = _minioClient.ListObjectsAsync(args);
+
+            await foreach (var item in observable.ToAsyncEnumerable())
+            {
+                string objectName = Path.GetFileNameWithoutExtension(item.Key);
+                objects.Add(objectName);
+                Console.WriteLine($"Found object: {objectName}");
+            }
+        }
+        catch (MinioException e)
+        {
+            Console.WriteLine($"Minio exception while listing files: {e.Message}");
+            throw;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"Unexpected error while listing files: {e.Message}");
+            throw;
+        }
+
+        return objects;
+    }
+    
 }

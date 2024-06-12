@@ -10,13 +10,13 @@ public class UserModel : Entity
 {
     public string UserName { get; set; }
     public string Email { get; set; } 
-    public string Address { get; set; }
-    public string FullName { get; set; }
-    public string Country { get; set; }
-    public string Cetatenie { get; set; }
-    public string Sex { get; set; }
-    public string Judet { get; set; }
-    public string CNP { get; set; }
+    public string? Address { get; set; }
+    public string? FullName { get; set; }
+    public string? Country { get; set; }
+    public string? Cetatenie { get; set; }
+    public string? Sex { get; set; }
+    public string? Judet { get; set; }
+    public string? CNP { get; set; }
     public RoleEnum Role { get; set; }
     public CompanyModel? Company { get; set; }
     public bool isEmail { get; set; } = false;
@@ -29,11 +29,13 @@ public class UserModel : Entity
     public static async Task<Result<UserModel>> CreateAsync(
         IUserRepository repo,
         string email,
+        string username,
         RoleEnum role)
     { // aici mai trebuie logica sa puna in Json tot ce a primit din constructor + din buletin daca a introdus
         return new UserModel
         {
             Email = email,
+            UserName = username,
             Role = role,
             UserData = ""
         };

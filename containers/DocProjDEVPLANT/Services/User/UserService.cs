@@ -53,7 +53,7 @@ public class UserService : IUserService
         
         var result = await UserModel.CreateAsync(
             _userRepository,
-
+request.username,
             request.email,
             request.role);
         

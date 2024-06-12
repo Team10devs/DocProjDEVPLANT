@@ -15,4 +15,8 @@ public interface IUserService
     Task<List<UserModel>> GetUsersByCompanyAsync(string companyName);
 
     Task<Result<UserModel>> ChangeIsEmailToTrue(string userId);
+
+    Task<Result> AddIdVariables(IFormFile image);
+
+    Task<Result<UserModel>> AddIdVariablesToUser(string userId, UserPersonalData personalDataDto);
 }

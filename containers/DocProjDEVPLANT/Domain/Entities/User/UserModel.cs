@@ -12,6 +12,10 @@ public class UserModel : Entity
     public string Email { get; set; } 
     public string Address { get; set; }
     public string FullName { get; set; }
+    public string Country { get; set; }
+    public string Cetatenie { get; set; }
+    public string Sex { get; set; }
+    public string Judet { get; set; }
     public string CNP { get; set; }
     public RoleEnum Role { get; set; }
     public CompanyModel? Company { get; set; }
@@ -24,20 +28,12 @@ public class UserModel : Entity
 
     public static async Task<Result<UserModel>> CreateAsync(
         IUserRepository repo,
-        string username,
         string email,
-        string adress,
-        string fullname,
-        string cnp,
         RoleEnum role)
     { // aici mai trebuie logica sa puna in Json tot ce a primit din constructor + din buletin daca a introdus
         return new UserModel
         {
-            UserName = username,
             Email = email,
-            Address = adress,
-            FullName = fullname,
-            CNP = cnp,
             Role = role,
             UserData = ""
         };

@@ -53,6 +53,20 @@ public class UserController : ControllerBase
         }
     }
     
+    [HttpPost("addIdVariables")]
+    public async Task<IActionResult> AddIdVariables(IFormFile image)
+    {
+        var result = await _userService.AddIdVariables(image);
+        if (result.IsSucces)
+        {
+            return Ok(result);
+        }
+        else
+        {
+            return BadRequest(result.Error);
+        }
+    }
+    
     private UserResponse Map(UserModel userModel)
     {
         if (userModel.Company != null)
@@ -107,4 +121,20 @@ public class UserController : ControllerBase
         return Ok(result.Value);
     }
     
+    [HttpPatch("updateUserPersonalData")]
+    public async Task<ActionResult<UserModel>> UpdateUserPersonalData(string userId, [FromBody] UserPersonalData personalDataDto)
+    {
+        if (string.IsNullOrEmpty(userId) || personalDataDto == null)
+        {
+            return BadRequest("Invalid userId or personalData");
+        }
+
+        var result = await _userService.AddIdVariablesToUser(userId,personalDataDto);
+        if (result.IsSucces)
+        {
+            return Ok(result.Value);
+        }
+
+        return BadRequest(result.Error);
+    }
 }

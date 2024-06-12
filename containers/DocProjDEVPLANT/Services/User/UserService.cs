@@ -2,6 +2,7 @@
 using DocProjDEVPLANT.Domain.Entities.User;
 using DocProjDEVPLANT.Repository.Company;
 using DocProjDEVPLANT.Repository.User;
+using DocProjDEVPLANT.Services.Scanner;
 using DocProjDEVPLANT.Services.Utils.ResultPattern;
 
 namespace DocProjDEVPLANT.Services.User;
@@ -9,10 +10,12 @@ namespace DocProjDEVPLANT.Services.User;
 public class UserService : IUserService
 {
     private readonly IUserRepository _userRepository;
+    private readonly IOcrService _ocrService;
 
-    public UserService(IUserRepository repository)
+    public UserService(IUserRepository repository,IOcrService ocrService)
     {
         _userRepository = repository;
+        _ocrService = ocrService;
     }
 
     public async Task<Result<IEnumerable<UserModel>>> GetAllAsync()
@@ -50,11 +53,8 @@ public class UserService : IUserService
         
         var result = await UserModel.CreateAsync(
             _userRepository,
-            request.username,
+
             request.email,
-            request.address,
-            request.fullname,
-            request.cnp,
             request.role);
         
         if (result.IsFailure)
@@ -82,5 +82,52 @@ public class UserService : IUserService
         user.isEmail = true;
         await _userRepository.UpdateUserAsync(user);
         return user;
+    }
+    
+    public async Task<Result> AddIdVariables(IFormFile image)
+    {
+        if (image == null || image.Length == 0)
+        {
+            return Result.Failure(new Error(ErrorType.NotFound, "Invalid image file"));
+        }
+        
+        var tempPath = Path.GetTempFileName();
+        
+        using (var stream = new FileStream(tempPath, FileMode.Create))
+        {
+            await image.CopyToAsync(stream);
+        }
+        
+        var ocrText = _ocrService.ExtractTextFromImage(tempPath);
+        var mrzData = _ocrService.ExtractMrzData(ocrText);
+        
+        if (mrzData == null)
+        {
+            return Result.Failure(new Error(ErrorType.None, "Failed to extract MRZ data from the image."));
+        }
+
+        return Result.Succes(mrzData);
+    }
+
+    public async Task<Result<UserModel>> AddIdVariablesToUser(string userId, UserPersonalData personalDataDto)
+    {
+        var user = await _userRepository.FindByIdAsync(userId);
+
+        if (user == null)
+        {
+            return Result.Failure<UserModel>(new Error(ErrorType.NotFound, "User not found"));
+        }
+
+        user.FullName = personalDataDto.Nume;
+        user.Cetatenie = personalDataDto.Cetatenie;
+        user.CNP = personalDataDto.CNP;
+        user.Sex = personalDataDto.Sex;
+        user.Judet = personalDataDto.Judet;
+        user.Country = personalDataDto.Country;
+        user.Address = personalDataDto.Address;
+
+        await _userRepository.UpdateUserAsync(user);
+
+        return Result.Succes(user);
     }
 }

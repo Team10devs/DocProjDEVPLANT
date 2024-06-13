@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using DocProjDEVPLANT.Repository.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DocProjDEVPLANT.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240612185854_variabile noi in userModel")]
+    partial class variabilenoiinuserModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -95,18 +98,22 @@ namespace DocProjDEVPLANT.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("Address")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("CNP")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Cetatenie")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("CompanyId")
                         .HasColumnType("text");
 
                     b.Property<string>("Country")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Email")
@@ -114,9 +121,11 @@ namespace DocProjDEVPLANT.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("FullName")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Judet")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("PdfModelId")
@@ -126,6 +135,7 @@ namespace DocProjDEVPLANT.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("Sex")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("UserData")

@@ -59,7 +59,25 @@ namespace DocProjDEVPLANT.Services.Scanner
                 var cnp = secondLine.Substring(28,1) +
                     secondLine.Substring(13, 6) + secondLine.Substring(29, 6);
                 var nume = ExtractNume(firstLine) + " " + ExtractPrenume(firstLine) + ExtractAlDoileaPrenume(firstLine);
-                var sex = secondLine.Substring(21, 1);
+
+                var sex = "";
+                var sex_ = secondLine.Substring(20, 1);
+                if (sex_ == "m")
+                {
+                    sex = "Barbat";
+                }
+                else if (sex_ == "f")
+                {
+                    sex = "Femeie";
+                }
+
+                var judet = "";
+                var judet_ = cnp.Substring(7, 2);
+                if (judet_ == "02")
+                {
+                    judet = "Arad";
+                }//am pus doar pentru Arad
+                
 
                 return new MrzData
                 {
@@ -67,7 +85,9 @@ namespace DocProjDEVPLANT.Services.Scanner
                     Country = country,
                     Nume = nume,
                     Cetatenie = cetatenie,
-                    CNP = cnp
+                    CNP = cnp,
+                    Sex=sex,
+                    Judet = judet
                 };
             }
             else

@@ -1,7 +1,9 @@
 ﻿using DocProjDEVPLANT.API.DTOs.Template;
 using DocProjDEVPLANT.Domain.Entities.Templates;
+using DocProjDEVPLANT.Services.Minio;
 using DocProjDEVPLANT.Services.Template;
 using Microsoft.AspNetCore.Mvc;
+using Minio;
 
 namespace DocProjDEVPLANT.API.Controllers;
 
@@ -11,10 +13,12 @@ namespace DocProjDEVPLANT.API.Controllers;
 public class TemplateController : ControllerBase
 {
     private readonly ITemplateService _templateService;
+    private readonly MinioClient _minioClient;
 
-    public TemplateController(ITemplateService templateService)
+    public TemplateController(ITemplateService templateService,MinioClient minioClient)
     {
         _templateService = templateService;
+        _minioClient = minioClient;
     }
     
     [HttpGet("ByCompanyId")]
@@ -56,7 +60,21 @@ public class TemplateController : ControllerBase
             return BadRequest(e.Message);
         }
     }
-    
+
+    [HttpGet("{templateId}/pdfs")]
+    public async Task<ActionResult<List<string>>> GetPdfsByTemplateId(string templateId)
+    {
+        try
+        {
+            var pdfs = await _templateService.GetPdfsByTemplateId(templateId);
+            return Ok(pdfs);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Internal server error: {ex.Message}");
+        }
+    }
+
     private TemplateResponse Map(TemplateModel templateModel)
     {
         return new TemplateResponse(

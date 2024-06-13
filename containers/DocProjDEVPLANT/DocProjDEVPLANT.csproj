@@ -30,6 +30,8 @@
         <PackageReference Include="Newtonsoft.Json.Schema" Version="3.0.15" />
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.2" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+        <PackageReference Include="System.Interactive.Async" Version="6.0.1" />
+        <PackageReference Include="System.Interactive.Async.Providers" Version="6.0.1" />
         <PackageReference Include="Tesseract" Version="5.2.0" />
         <PackageReference Include="Tesseract.Net.SDK" Version="4.6.411" />
     </ItemGroup>

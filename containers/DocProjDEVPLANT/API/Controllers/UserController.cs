@@ -91,7 +91,8 @@ public class UserController : ControllerBase
                 userModel.FullName,
                 userModel.CNP,
                 userModel.Role,
-                userModel.UserData
+                userModel.UserData,
+                userModel.Email
             );
         }
     }

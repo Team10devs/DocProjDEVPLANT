@@ -1,7 +1,10 @@
-﻿namespace DocProjDEVPLANT.Services.Minio;
+﻿using Minio.DataModel.Tags;
+
+namespace DocProjDEVPLANT.Services.Minio;
 
 public interface IMinioService
 {
-    Task UploadFileAsync(string bucketName, string objectName, string filePath);
+    Task UploadFileAsync(string bucketName, string objectName, string filePath,string templateName);
     Task<List<string>> ListFilesAsync(string bucketName);
+    Task<Tagging> GetObjectTagsAsync(string bucketName, string objectName);
 }

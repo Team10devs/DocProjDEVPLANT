@@ -1,5 +1,6 @@
 ﻿using Minio;
 using Minio.DataModel.Args;
+using Minio.DataModel.Tags;
 using Minio.Exceptions;
 
 namespace DocProjDEVPLANT.Services.Minio;
@@ -17,7 +18,7 @@ public class MinioService : IMinioService
             .Build();
     }
 
-    public async Task UploadFileAsync(string bucketName, string objectName, string filePath)
+    public async Task UploadFileAsync(string bucketName, string objectName, string filePath,string templateName)
     {
         try
         {
@@ -28,6 +29,11 @@ public class MinioService : IMinioService
                 await _minioClient.MakeBucketAsync(new MakeBucketArgs().WithBucket(bucketName));
             }
 
+            var tags = new Dictionary<string, string>
+            {
+                { "TemplateName", templateName }
+            };
+            
             // save in MinIo
             using (var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
             {
@@ -36,9 +42,10 @@ public class MinioService : IMinioService
                     .WithObject(objectName)
                     .WithStreamData(fileStream)
                     .WithObjectSize(fileStream.Length)
+                    .WithTagging(Tagging.GetObjectTags(tags))
                     .WithContentType("application/octet-stream"));
             }
-
+            
             Console.WriteLine($"Successfully uploaded {objectName} to {bucketName}");
         }
         catch (MinioException e)
@@ -65,7 +72,7 @@ public class MinioService : IMinioService
 
             await foreach (var item in observable.ToAsyncEnumerable())
             {
-                string objectName = Path.GetFileNameWithoutExtension(item.Key);
+                string objectName = Path.GetFileName(item.Key); //GetFileNameWithoutExtension
                 objects.Add(objectName);
                 Console.WriteLine($"Found object: {objectName}");
             }
@@ -82,6 +89,23 @@ public class MinioService : IMinioService
         }
 
         return objects;
+    }
+    
+    public async Task<Tagging> GetObjectTagsAsync(string bucketName, string objectName)
+    {
+        try
+        {
+            var args = new GetObjectTagsArgs()
+                .WithBucket(bucketName)
+                .WithObject(objectName);
+
+            return await _minioClient.GetObjectTagsAsync(args);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error getting tags for object {objectName} in bucket {bucketName}: {ex.Message}");
+            throw;
+        }
     }
     
 }

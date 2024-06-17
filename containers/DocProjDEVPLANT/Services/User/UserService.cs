@@ -4,6 +4,7 @@ using DocProjDEVPLANT.Repository.Company;
 using DocProjDEVPLANT.Repository.User;
 using DocProjDEVPLANT.Services.Scanner;
 using DocProjDEVPLANT.Services.Utils.ResultPattern;
+using Newtonsoft.Json;
 
 namespace DocProjDEVPLANT.Services.User;
 
@@ -125,6 +126,10 @@ public class UserService : IUserService
         user.Judet = personalDataDto.Judet;
         user.Country = personalDataDto.Country;
         user.Address = personalDataDto.Address;
+        
+        /*var userDataJson = JsonConvert.SerializeObject(new { doc = personalDataDto }); 
+        user.UserData = userDataJson; */
+        //cred ca e useless asta 
 
         await _userRepository.UpdateUserAsync(user);
 

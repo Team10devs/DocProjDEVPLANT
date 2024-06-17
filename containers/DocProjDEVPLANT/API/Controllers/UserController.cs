@@ -79,6 +79,7 @@ public class UserController : ControllerBase
                 userModel.CNP,
                 userModel.Role,
                 userModel.UserData,
+                userModel.Email,
                 userModel.Company.Id// sau userModel.Company?.Id dacă Company poate fi null
             );
         }

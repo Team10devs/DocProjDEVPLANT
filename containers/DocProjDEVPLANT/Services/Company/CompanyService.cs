@@ -11,6 +11,7 @@ using DocProjDEVPLANT.Services.Minio;
 using DocProjDEVPLANT.Services.Scanner;
 using DocProjDEVPLANT.Services.Utils.ResultPattern;
 using Mammoth;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Xceed.Words.NET;
 
@@ -162,17 +163,18 @@ public class CompanyService : ICompanyService
                 nestedJson[primaryKey][secondaryKey] = "";
             }
         }
+
+        var jsonContent = nestedJson.ToString();
         
         try
         {
-            await _companyRepository.AddTemplate(companyId, templateName, fileContent, totalNumberOfUsers);
+            await _companyRepository.AddTemplate(companyId, templateName, fileContent, totalNumberOfUsers,jsonContent);
         }
         catch (Exception e)
         {
             throw new Exception(e.Message);
         }
         
-        var jsonContent = nestedJson.ToString();
         var byteArray =  Encoding.UTF8.GetBytes(jsonContent);
         
         return byteArray;

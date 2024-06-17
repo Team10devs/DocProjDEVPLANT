@@ -1,3 +1,5 @@
-﻿namespace DocProjDEVPLANT.API.DTOs.Template;
+﻿using Newtonsoft.Json.Linq;
 
-public record TemplateResponse(string Id,string TemplateName, string CompanyName, int TotalNumberOfUsers/*byte[] docxfile (e imens)*/);
+namespace DocProjDEVPLANT.API.DTOs.Template;
+
+public record TemplateResponse(string Id,string TemplateName, string CompanyName, int TotalNumberOfUsers,string? jsonContent = null/*byte[] docxfile (e imens)*/);

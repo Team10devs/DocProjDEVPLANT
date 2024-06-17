@@ -18,6 +18,6 @@ public interface ICompanyRepository
     Task<PdfModel> AddUserToPdf(string pdfId, string userEmail, string json);
     Task<(PdfModel, TemplateModel)> VerifyNumberOfUsers(string pdfId, string templateId);
     Task AddContentToPdf(string pdfId, byte[] byteArray);
-    Task AddTemplate(string companyId, string templateName, byte[] fileContent, int totalNumberOfUsers);
+    Task AddTemplate(string companyId, string templateName, byte[] fileContent, int totalNumberOfUsers,string jsonContent);
     Task SendEmailToUsers(UserModel user, TemplateModel templateModel, byte[] pdf);
 }

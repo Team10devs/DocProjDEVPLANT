@@ -219,7 +219,7 @@ public class CompanyRepository :  ICompanyRepository
         await _appDbContext.SaveChangesAsync();
     }
     
-    public async Task AddTemplate (string companyId, string templateName, byte[] fileContent, int totalNumberOfUsers)
+    public async Task AddTemplate (string companyId, string templateName, byte[] fileContent, int totalNumberOfUsers,string jsonContent)
     {
         var company = await _appDbContext.Companies.Include(c => c.Templates)
             .FirstOrDefaultAsync(c => c.Id == companyId);
@@ -227,7 +227,7 @@ public class CompanyRepository :  ICompanyRepository
         if (company is null)
             throw new Exception( $"Company with id {companyId} does not exist.");
 
-        var template = new TemplateModel(templateName, fileContent, company, totalNumberOfUsers);
+        var template = new TemplateModel(templateName, fileContent, company, totalNumberOfUsers,jsonContent);
         
         company.Templates.Add(template);
 

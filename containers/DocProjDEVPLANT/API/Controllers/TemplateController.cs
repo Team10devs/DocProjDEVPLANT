@@ -4,6 +4,7 @@ using DocProjDEVPLANT.Services.Minio;
 using DocProjDEVPLANT.Services.Template;
 using Microsoft.AspNetCore.Mvc;
 using Minio;
+using Newtonsoft.Json.Linq;
 
 namespace DocProjDEVPLANT.API.Controllers;
 
@@ -81,7 +82,8 @@ public class TemplateController : ControllerBase
             templateModel.Id,
             templateModel.Name,
             templateModel.Company.Name,
-            templateModel.TotalNumberOfUsers
+            templateModel.TotalNumberOfUsers,
+            templateModel.JsonContent
         );
     }
 }

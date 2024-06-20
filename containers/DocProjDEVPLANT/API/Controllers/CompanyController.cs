@@ -10,6 +10,7 @@ using DocProjDEVPLANT.Services.Template;
 using DocProjDEVPLANT.Services.User;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using PdfResponse = DocProjDEVPLANT.Domain.Entities.Templates.PdfResponse;
 
 
 namespace DocProjDEVPLANT.API.Controllers;
@@ -142,15 +143,15 @@ public class CompanyController : ControllerBase
     }
     
     [HttpPatch("api/addUserToPdf")]
-    public async Task<ActionResult<PdfResponse>> AddToPdf([FromQuery]string pdfId, string userEmail,[FromBody]string json)
+    public async Task<ActionResult<PdfResponse>> AddToPdf([FromQuery]string pdfId, string userEmail, [FromBody]string json, [FromQuery]string token = null)
     {
         try
         {
-            var pdf = await _companyService.AddUserToPdf(pdfId, userEmail, json);
+            var pdf = await _companyService.AddUserToPdf(pdfId, userEmail, json, token);
 
             var users = pdf.Users;
             var userResponses = users.Select(MapUsers);
-            
+        
             var pdfResponse = new PdfResponse
             {
                 Id = pdf.Id,
@@ -162,6 +163,10 @@ public class CompanyController : ControllerBase
             };
 
             return Ok(pdfResponse);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Unauthorized("Invalid or expired token.");
         }
         catch (Exception e)
         {

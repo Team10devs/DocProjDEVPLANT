@@ -7,6 +7,7 @@ using DocProjDEVPLANT.Domain.Entities.Templates;
 using DocProjDEVPLANT.Domain.Entities.User;
 using DocProjDEVPLANT.Repository.Company;
 using DocProjDEVPLANT.Repository.User;
+using DocProjDEVPLANT.Services.InviteLinkToken;
 using DocProjDEVPLANT.Services.Minio;
 using DocProjDEVPLANT.Services.Scanner;
 using DocProjDEVPLANT.Services.Utils.ResultPattern;
@@ -22,12 +23,14 @@ public class CompanyService : ICompanyService
     private readonly ICompanyRepository _companyRepository;
     private readonly IUserRepository _userRepository;
     private readonly IOcrService _ocrService;
+    private readonly ITokenService _tokenService;
 
-    public CompanyService(ICompanyRepository repository,IUserRepository userRepository,IOcrService ocrService)
+    public CompanyService(ICompanyRepository repository,IUserRepository userRepository,IOcrService ocrService,ITokenService tokenService)
     {
         _companyRepository = repository;
         _userRepository = userRepository;
         _ocrService = ocrService;
+        _tokenService = tokenService;
     }
 
     public async Task<Result<IEnumerable<CompanyModel>>> GetAllAsync()
@@ -85,12 +88,26 @@ public class CompanyService : ICompanyService
         return Result.Succes();
     }
 
-    public async Task<PdfModel> AddUserToPdf(string pdfId, string userEmail, string json)
+    public async Task<PdfModel> AddUserToPdf(string pdfId, string userEmail, string json, string? token = null)
     {
         try
         {
+            if (!string.IsNullOrEmpty(token))
+            {
+                var isValid = await _tokenService.ValidateTokenAsync(token, pdfId, userEmail);  //daca e valid token
+                if (!isValid)
+                {
+                    throw new UnauthorizedAccessException("Invalid or expired token.");
+                }
+            }
+
             var pdf = await _companyRepository.AddUserToPdf(pdfId, userEmail, json);
-            
+
+            if (!string.IsNullOrEmpty(token))
+            {
+                await _tokenService.InvalidateTokenAsync(token); // a dat save userul => invalidate token
+            }
+
             return pdf;
         }
         catch (Exception e)
@@ -199,6 +216,7 @@ public class CompanyService : ICompanyService
     {
         PdfModel pdf;
         TemplateModel template;
+        
         try
         {
             (pdf, template) = await _companyRepository.VerifyNumberOfUsers(pdfId, templateId);

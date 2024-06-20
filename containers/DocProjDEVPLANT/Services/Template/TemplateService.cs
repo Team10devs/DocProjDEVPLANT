@@ -46,7 +46,7 @@ public class TemplateService : ITemplateService
         return templates;
     }
 
-    public async Task<TemplateModel> GetTemplatesByName(string name, string token)
+    public async Task<TemplateModel> GetTemplatesByName(string name)//, string token)
     {
         // var isValid = await _tokenService.ValidateTokenAsync(token, null, null); 
 
@@ -91,7 +91,7 @@ public class TemplateService : ITemplateService
         }
     }
 
-    public async Task<List<string>> GetPdfsByTemplateId(string templateId)
+    public async Task<List<PdfResponseMinio>> GetPdfsByTemplateId(string templateId)
     {
         var bucketName = "pdf-bucket";
         var template = await _context.Templates.FirstOrDefaultAsync(t => t.Id == templateId);
@@ -100,7 +100,7 @@ public class TemplateService : ITemplateService
             throw new Exception($"Template with id '{templateId}' does not exist.");
         }
 
-        var pdfsForTemplate = new List<string>();
+        var pdfsForTemplate = new List<PdfResponseMinio>();
 
         try
         {
@@ -109,11 +109,15 @@ public class TemplateService : ITemplateService
             foreach (var pdfFile in pdfFiles)
             {
                 //get tags
+                var pdfFileWithoutExtension = pdfFile.Replace(".pdf", "");
                 var tags = await _minioService.GetObjectTagsAsync(bucketName, pdfFile);
                 
                 if (tags != null && tags.Tags != null && tags.Tags.ContainsKey("TemplateName") && tags.Tags["TemplateName"] == template.Name)
                 {
-                    pdfsForTemplate.Add(pdfFile);
+                    var pdfBytes = await _minioService.GetFileAsync(bucketName,pdfFile);
+
+                    var pdfResponse = new PdfResponseMinio(pdfFileWithoutExtension, pdfBytes);
+                    pdfsForTemplate.Add(pdfResponse);
                 }
             }
         }

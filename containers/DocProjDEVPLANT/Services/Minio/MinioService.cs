@@ -31,7 +31,9 @@ public class MinioService : IMinioService
 
             var tags = new Dictionary<string, string>
             {
-                { "TemplateName", templateName }
+                {
+                    "TemplateName", templateName
+                }
             };
             
             // save in MinIo
@@ -106,6 +108,18 @@ public class MinioService : IMinioService
             Console.WriteLine($"Error getting tags for object {objectName} in bucket {bucketName}: {ex.Message}");
             throw;
         }
+    }
+    
+    public async Task<byte[]> GetFileAsync(string bucketName, string objectName)
+    {
+        using var memoryStream = new MemoryStream();
+        var getObjectArgs = new GetObjectArgs()
+            .WithBucket(bucketName)
+            .WithObject(objectName)
+            .WithCallbackStream(stream => stream.CopyTo(memoryStream));
+
+        await _minioClient.GetObjectAsync(getObjectArgs);
+        return memoryStream.ToArray();
     }
     
 }

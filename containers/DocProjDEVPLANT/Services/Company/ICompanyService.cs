@@ -14,5 +14,5 @@ public interface ICompanyService
     Task<byte[]> ConvertDocxToJson(string companyId, string templateName, IFormFile file);
     Task<PdfModel> GenerateEmptyPdf(string companyId, string templateId);
     Task<Result> AddUserToCompanyAsync(string companyId, string userId);
-    Task<PdfModel> AddUserToPdf(string pdfId, string userEmail, string json);
+    Task<PdfModel> AddUserToPdf(string pdfId, string userEmail, string json,string? token = null);
 }

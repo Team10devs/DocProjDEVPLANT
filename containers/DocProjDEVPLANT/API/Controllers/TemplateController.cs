@@ -35,11 +35,11 @@ public class TemplateController : ControllerBase
     }
     
     [HttpGet("ByName")]
-    public async Task<ActionResult<TemplateResponse>> GetTemplatesByName(string templateName)
+    public async Task<ActionResult<TemplateResponse>> GetTemplatesByName(string templateName,string token)
     {
         try
         {
-            var template = await _templateService.GetTemplatesByName(templateName);
+            var template = await _templateService.GetTemplatesByName(templateName,token);
             return Ok(Map(template));
         }
         catch (Exception e)

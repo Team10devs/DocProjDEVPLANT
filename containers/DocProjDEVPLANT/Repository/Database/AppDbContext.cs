@@ -1,4 +1,5 @@
 using DocProjDEVPLANT.Domain.Entities.Company;
+using DocProjDEVPLANT.Domain.Entities.Invite;
 using DocProjDEVPLANT.Domain.Entities.Templates;
 using DocProjDEVPLANT.Domain.Entities.User;
 using Microsoft.EntityFrameworkCore;
@@ -16,4 +17,5 @@ public class AppDbContext : DbContext
     public DbSet<CompanyModel> Companies { get; set; }
     public DbSet<TemplateModel> Templates { get; set; }
     public DbSet<PdfModel> Pdfs { get; set; }
+    public DbSet<InviteJWToken> Tokens { get; set; }
 }

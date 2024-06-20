@@ -1,6 +1,7 @@
 ﻿using System.Reactive.Linq;
 using DocProjDEVPLANT.Domain.Entities.Templates;
 using DocProjDEVPLANT.Repository.Database;
+using DocProjDEVPLANT.Services.InviteLinkToken;
 using DocProjDEVPLANT.Services.Minio;
 using DocProjDEVPLANT.Services.Utils.ResultPattern;
 using Microsoft.EntityFrameworkCore;
@@ -14,11 +15,13 @@ public class TemplateService : ITemplateService
 {
     private readonly AppDbContext _context;
     private readonly IMinioService _minioService;
+    private readonly ITokenService _tokenService;
 
-    public TemplateService(AppDbContext context, IMinioService minioService)
+    public TemplateService(AppDbContext context, IMinioService minioService,ITokenService tokenService)
     {
         _context = context;
         _minioService = minioService;
+        _tokenService = tokenService;
     }
 
     public async Task<Result<IEnumerable<TemplateModel>>> GetTemplatesByCompanyId(string companyId)
@@ -31,14 +34,26 @@ public class TemplateService : ITemplateService
         return templates;
     }
 
-    public async Task<TemplateModel> GetTemplatesByName(string name)
+    public async Task<TemplateModel> GetTemplatesByName(string name, string token)
     {
+        // var isValid = await _tokenService.ValidateTokenAsync(token, null, null); 
+
+        /*if (!isValid)
+        {
+            throw new UnauthorizedAccessException("Invalid or expired token.");
+        }
+        asta ar fi pentru guest (daca token e ok ii dau voie) , sau sa vad daca este autentificat(inca nu avem),
+        cautand dupe email sau something
+        */
+        
         var template = await _context.Templates
             .Include(c => c.Company)
             .FirstOrDefaultAsync(t => t.Name == name);
 
-        if (template is null)
-            throw new Exception($"Template with name {name} does not exist");
+        if (template == null)
+        {
+            throw new KeyNotFoundException($"Template with name {name} does not exist");
+        }
 
         return template;
     }

@@ -1,5 +1,7 @@
 using DocProjDEVPLANT.API.User;
 using DocProjDEVPLANT.Domain.Entities.User;
+using DocProjDEVPLANT.Services.InviteLinkToken;
+using DocProjDEVPLANT.Services.Mail;
 using DocProjDEVPLANT.Services.User;
 using DocProjDEVPLANT.Services.Utils.ResultPattern;
 using Microsoft.AspNetCore.Mvc;
@@ -10,10 +12,14 @@ namespace DocProjDEVPLANT.API.Controllers;
 public class UserController : ControllerBase
 {
     private readonly IUserService _userService;
+    private readonly ITokenService _tokenService;
+    private readonly IEmailService _emailService;
 
-    public UserController(IUserService _service)
+    public UserController(IUserService _service,ITokenService tokenService,IEmailService emailService)
     {
         _userService = _service;
+        _tokenService = tokenService;
+        _emailService = emailService;
     }
 
     [HttpGet(Name = "GetAllUsers")]
@@ -67,38 +73,6 @@ public class UserController : ControllerBase
         }
     }
     
-    private UserResponse Map(UserModel userModel)
-    {
-        if (userModel.Company != null)
-        {
-            // Dacă utilizatorul are o companie asociată, poți adăuga și informații despre companie în răspuns
-            return new UserResponse(
-                userModel.Id,
-                userModel.UserName,
-                userModel.FullName,
-                userModel.CNP,
-                userModel.Role,
-                userModel.UserData,
-                userModel.Email,
-                userModel.Company.Id// sau userModel.Company?.Id dacă Company poate fi null
-            );
-        }
-        else
-        {
-            // Dacă utilizatorul nu are o companie asociată, poți crea răspunsul fără informații despre companie
-            return new UserResponse(
-                userModel.Id,
-                userModel.UserName,
-                userModel.FullName,
-                userModel.CNP,
-                userModel.Role,
-                userModel.UserData,
-                userModel.Email
-            );
-        }
-    }
-
-    
     [HttpGet("company/{companyName}")]
     public async Task<ActionResult<List<UserModel>>> GetUsersByCompany(string companyName)
     {
@@ -139,5 +113,37 @@ public class UserController : ControllerBase
 
         return BadRequest(result.Error);
     }
+     
+    private UserResponse Map(UserModel userModel)
+    {
+        if (userModel.Company != null)
+        {
+            // Dacă utilizatorul are o companie asociată, poți adăuga și informații despre companie în răspuns
+            return new UserResponse(
+                userModel.Id,
+                userModel.UserName,
+                userModel.FullName,
+                userModel.CNP,
+                userModel.Role,
+                userModel.UserData,
+                userModel.Email,
+                userModel.Company.Id// sau userModel.Company?.Id dacă Company poate fi null
+            );
+        }
+        else
+        {
+            // Dacă utilizatorul nu are o companie asociată, poți crea răspunsul fără informații despre companie
+            return new UserResponse(
+                userModel.Id,
+                userModel.UserName,
+                userModel.FullName,
+                userModel.CNP,
+                userModel.Role,
+                userModel.UserData,
+                userModel.Email
+            );
+        }
+    }
+
     
 }

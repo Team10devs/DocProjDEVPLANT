@@ -139,7 +139,7 @@ public class CompanyController : ControllerBase
     }
     
     [HttpPatch("api/addUserToPdf")]
-    public async Task<ActionResult<PdfResponse>> AddToPdf([FromQuery]string pdfId, string userEmail, [FromBody]string json)
+    public async Task<ActionResult<PdfResponse>> AddToPdf([FromQuery]string pdfId, string userEmail,[FromBody]string json)
     {
         try
         {

@@ -4,6 +4,7 @@ using DocProjDEVPLANT.Repository.Database;
 using DocProjDEVPLANT.Repository.User;
 using DocProjDEVPLANT.Services;
 using DocProjDEVPLANT.Services.Company;
+using DocProjDEVPLANT.Services.InviteLinkToken;
 using DocProjDEVPLANT.Services.Mail;
 using DocProjDEVPLANT.Services.Minio;
 using DocProjDEVPLANT.Services.Scanner;
@@ -36,6 +37,9 @@ public static class DependencyInjection
         services.AddScoped<IOcrService, OcrService>();
         services.AddScoped<IMinioService, MinioService>();
         services.AddScoped<MinioClient>();
+        
+        services.AddScoped<ITokenService, TokenService>();
+        
         return services;
     }
 }

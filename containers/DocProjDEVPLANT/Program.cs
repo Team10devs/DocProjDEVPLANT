@@ -1,6 +1,7 @@
 
 using DocProjDEVPLANT;
 using DocProjDEVPLANT.Repository;
+using DocProjDEVPLANT.Services.InviteLinkToken;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);

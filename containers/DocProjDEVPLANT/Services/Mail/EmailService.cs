@@ -161,5 +161,39 @@ public class EmailService : IEmailService
             
         }
     }
+    
+    public async Task SendInviteEmailAsync(string email, string inviteLink)
+    {
+        var emailMessage = new MimeMessage();
+        emailMessage.From.Add(MailboxAddress.Parse(_from));
+        emailMessage.To.Add(MailboxAddress.Parse(email));
+        emailMessage.Subject = "Document Completion Invitation";
+
+        var emailHtmlBody = $@"
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Document Completion Invitation</title>
+            </head>
+            <body>
+                <p>Hello,</p>
+                <p>You are invited to complete your document. Please click the link below to proceed:</p>
+                <p><a href='{inviteLink}'>Complete your document</a></p>
+                <p>Best regards,<br>Your Company Team</p>
+            </body>
+            </html>";
+
+        var bodyBuilder = new BodyBuilder { HtmlBody = emailHtmlBody };
+        emailMessage.Body = bodyBuilder.ToMessageBody();
+
+        using (var smtp = new SmtpClient())
+        {
+            await smtp.ConnectAsync(_smtpServer, _port, SecureSocketOptions.StartTls);
+            smtp.AuthenticationMechanisms.Remove("XOAUTH2");
+            await smtp.AuthenticateAsync(_username, _password);
+            await smtp.SendAsync(emailMessage);
+            await smtp.DisconnectAsync(true);
+        }
+    }
 
 }

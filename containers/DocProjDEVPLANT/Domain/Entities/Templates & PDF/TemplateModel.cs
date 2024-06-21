@@ -11,8 +11,6 @@ public class TemplateModel : Entity
     public int TotalNumberOfUsers { get; set; }
     public string JsonContent { get; set; }
     
-
-    
     private TemplateModel() {}
     public TemplateModel(string name, byte[] docxFile, CompanyModel companyModel, int totalNumberOfUsers,string jsonContent)
     {

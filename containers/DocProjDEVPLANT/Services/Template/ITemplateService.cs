@@ -13,5 +13,5 @@ public interface ITemplateService
     Task<TemplateModel> GetTemplatesByName(string name);//,string token);
     Task DeleteTemplateAsync(string templateId);
     Task<List<PdfResponseMinio>> GetPdfsByTemplateId(string templateId);
-    Task<bool> EditTemplate(string id,string name, byte[] docx, int nrUsers);
+    Task<byte[]> PatchTemplate(string id, string newName, IFormFile file);
 }

@@ -98,8 +98,7 @@ public class TemplateController : ControllerBase
     }
     
     [HttpPatch("{templateId}/Template/docx/nrUsers")]
-    public async Task<ActionResult> PatchTemplate(string templateId, string templateName,
-        IFormFile docx,int nrUsers)
+    public async Task<ActionResult> PatchTemplate(string templateId, string newName, IFormFile docx)
     {
         try
         {
@@ -108,12 +107,8 @@ public class TemplateController : ControllerBase
             if (template.IsFailure)
                 return NotFound($"template with id {templateId}");
 
-            var companyId = template.Value.Company.Id;
-            var oldName = template.Value.Name;
-            
-            byte[] byteArray = await _companyService.ConvertDocxToJson(companyId, oldName, docx);
-            bool edited = await _templateService.EditTemplate(templateId,templateName, byteArray, nrUsers);
-            return Ok(edited);
+            byte[] byteArray = await _templateService.PatchTemplate(templateId, newName, docx);
+            return Ok(template.Value.JsonContent);
         }
         catch (Exception e)
         {

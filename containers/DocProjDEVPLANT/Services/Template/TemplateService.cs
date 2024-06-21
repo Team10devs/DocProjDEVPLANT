@@ -1,13 +1,17 @@
 using System.Reactive.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
 using DocProjDEVPLANT.Domain.Entities.Templates;
 using DocProjDEVPLANT.Repository.Database;
 using DocProjDEVPLANT.Services.InviteLinkToken;
 using DocProjDEVPLANT.Services.Minio;
 using DocProjDEVPLANT.Services.Utils.ResultPattern;
+using Mammoth;
 using Microsoft.EntityFrameworkCore;
 using Minio;
 using Minio.DataModel;
 using Minio.DataModel.Args;
+using Newtonsoft.Json.Linq;
 
 namespace DocProjDEVPLANT.Services.Template;
 
@@ -130,7 +134,7 @@ public class TemplateService : ITemplateService
         return pdfsForTemplate;
     }
     
-    public async Task<bool> EditTemplate(string id,string name, byte[] docx, int nrUsers )
+    private async Task EditTemplate(string id,string name, byte[] docx, int nrUsers,string jsonContent )
     {
 
         try
@@ -140,25 +144,106 @@ public class TemplateService : ITemplateService
 
             if (template == null)
             {
-                throw new Exception($"Template with name '{name}' does not exist.");
+                throw new Exception($"Template with id '{id}' does not exist.");
             }
 
             if (template.GeneratedPdfs.Count() != 0)
             {
-                throw new Exception($"Template with name {name} still has filled out documents and cannot be edited!");
+                throw new Exception($"Template with id {id} still has filled out documents and cannot be edited!");
             }
 
             template.Name = name;
             template.DocxFile = docx;
             template.TotalNumberOfUsers = nrUsers;
+            template.JsonContent = jsonContent;
 
             _context.Templates.Update(template);
             await _context.SaveChangesAsync();
-            return true;
         }
         catch (Exception e)
         {
             throw new Exception(e.Message);
         }
     }
+    
+    public async Task<byte[]> PatchTemplate( string id, string newName, IFormFile file )
+    {
+        
+        if (file is null)
+            throw new Exception("File is null!");
+
+        if (!file.FileName.Contains(".docx"))
+        {
+            throw new Exception($"Not a docx file.");
+        }
+        
+        byte[] fileContent;
+        using (var memoryStream = new MemoryStream())
+        {
+            await file.CopyToAsync(memoryStream);
+            fileContent = memoryStream.ToArray();
+        }
+
+        string htmlContent;
+        using (var stream = new MemoryStream(fileContent))
+        {
+            var converter = new DocumentConverter();
+            var result = converter.ConvertToHtml(stream);
+            htmlContent = result.Value;
+        }
+
+        // Search for specific words in the HTML content
+        var matches = Regex.Matches(htmlContent, @"\{\{.*?\}\}");
+        var nestedJson = new JObject();
+
+        var totalNumberOfUsers = 1;
+        foreach (Match match in matches)
+        {
+            var cleanedWord = match.Value.TrimStart('{').TrimEnd('}');
+            var parts = cleanedWord.Split('.');
+            
+            if (parts.Length == 2)
+            {
+                var primaryKey = parts[0].TrimStart();
+                var secondaryKey = parts[1].TrimEnd();
+                
+                // searches for numbers at the end of primarykey
+                var numberPart = Regex.Match(primaryKey, @"\d+$");
+                if (numberPart.Success)
+                {
+                    var number = int.Parse(numberPart.Value);
+
+                    if (number > totalNumberOfUsers)
+                    {
+                        totalNumberOfUsers = number;
+                    }
+                    primaryKey = Regex.Replace(primaryKey, @"\d+$", "");
+                }
+                
+                if (nestedJson[primaryKey] == null)
+                {
+                    nestedJson[primaryKey] = new JObject();
+                }
+                
+                // Add secondary key to the nested JObject with an empty value
+                nestedJson[primaryKey][secondaryKey] = "";
+            }
+        }
+
+        var jsonContent = nestedJson.ToString();
+        
+        try
+        {
+            await EditTemplate(id, newName, fileContent, totalNumberOfUsers, jsonContent);
+        }
+        catch (Exception e)
+        {
+            throw new Exception(e.Message);
+        }
+        
+        var byteArray =  Encoding.UTF8.GetBytes(jsonContent);
+        
+        return byteArray;
+    }
+    
 }

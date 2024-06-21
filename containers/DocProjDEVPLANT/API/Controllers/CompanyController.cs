@@ -6,7 +6,9 @@ using DocProjDEVPLANT.Domain.Entities.Templates;
 using DocProjDEVPLANT.Domain.Entities.User;
 using DocProjDEVPLANT.Services.Company;
 using DocProjDEVPLANT.Services.Mail;
+using DocProjDEVPLANT.Services.Template;
 using DocProjDEVPLANT.Services.User;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 
@@ -23,6 +25,7 @@ public class CompanyController : ControllerBase
     {
         _companyService = service;
         _userService = userService;
+        
     }
 
     [HttpGet(Name = "GetAllCompanies")]

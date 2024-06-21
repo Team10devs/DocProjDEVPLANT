@@ -1,4 +1,4 @@
-﻿using System.Reactive.Linq;
+using System.Reactive.Linq;
 using DocProjDEVPLANT.Domain.Entities.Templates;
 using DocProjDEVPLANT.Repository.Database;
 using DocProjDEVPLANT.Services.Minio;
@@ -21,6 +21,18 @@ public class TemplateService : ITemplateService
         _minioService = minioService;
     }
 
+    public async Task<Result<TemplateModel>> GetTemplateById(string templateId)
+    {
+        var template = await _context.Templates.Include( p => p.GeneratedPdfs )
+            .Include(c => c.Company)
+            .FirstOrDefaultAsync(t => t.Id == templateId );
+
+        if (template is null)
+            return Result.Failure<TemplateModel>(new Error(ErrorType.NotFound, $"Template id {templateId}"));
+
+        return template;
+    }
+    
     public async Task<Result<IEnumerable<TemplateModel>>> GetTemplatesByCompanyId(string companyId)
     {
         var templates = await _context.Templates
@@ -97,5 +109,37 @@ public class TemplateService : ITemplateService
         }
 
         return pdfsForTemplate;
+    }
+    
+    public async Task<bool> EditTemplate(string id,string name, byte[] docx, int nrUsers )
+    {
+
+        try
+        {
+            var template = await _context.Templates.Include(t => t.GeneratedPdfs)
+                .FirstOrDefaultAsync(t => t.Id == id);
+
+            if (template == null)
+            {
+                throw new Exception($"Template with name '{name}' does not exist.");
+            }
+
+            if (template.GeneratedPdfs.Count() != 0)
+            {
+                throw new Exception($"Template with name {name} still has filled out documents and cannot be edited!");
+            }
+
+            template.Name = name;
+            template.DocxFile = docx;
+            template.TotalNumberOfUsers = nrUsers;
+
+            _context.Templates.Update(template);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception e)
+        {
+            throw new Exception(e.Message);
+        }
     }
 }

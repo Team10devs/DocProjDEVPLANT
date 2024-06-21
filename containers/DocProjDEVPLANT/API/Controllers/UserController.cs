@@ -1,5 +1,6 @@
 using DocProjDEVPLANT.API.User;
 using DocProjDEVPLANT.Domain.Entities.User;
+using DocProjDEVPLANT.Services.Firebase;
 using DocProjDEVPLANT.Services.InviteLinkToken;
 using DocProjDEVPLANT.Services.Mail;
 using DocProjDEVPLANT.Services.User;
@@ -14,12 +15,15 @@ public class UserController : ControllerBase
     private readonly IUserService _userService;
     private readonly ITokenService _tokenService;
     private readonly IEmailService _emailService;
+    private readonly IFirebaseService _firebaseService;
 
-    public UserController(IUserService _service,ITokenService tokenService,IEmailService emailService)
+    public UserController(IUserService _service,ITokenService tokenService,IEmailService emailService,
+        IFirebaseService firebaseService)
     {
         _userService = _service;
         _tokenService = tokenService;
         _emailService = emailService;
+        _firebaseService = firebaseService;
     }
 
     [HttpGet(Name = "GetAllUsers")]
@@ -45,17 +49,33 @@ public class UserController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<UserModel>> CreateUser([FromBody] UserRequest userRequest)
+    public async Task<ActionResult<UserModel>> CreateUser([FromBody] UserRequest userRequest, [FromHeader] string authorization)
     {
-        var result = await _userService.CreateUserAsync(userRequest);
-
-        if (result.IsSucces)
+        if (string.IsNullOrEmpty(authorization) || !authorization.StartsWith("Bearer "))
         {
-            return Ok(Map(result.Value)); 
+            return Unauthorized("Authorization header is missing or invalid.");
         }
-        else
+
+        string idToken = authorization.Substring("Bearer ".Length).Trim();
+
+        try
         {
-            return BadRequest(result.Error);
+            var decodedToken = await _firebaseService.VerifyIdTokenAsync(idToken);
+
+            var result = await _userService.CreateUserAsync(userRequest);
+
+            if (result.IsSucces)
+            {
+                return Ok(Map(result.Value));
+            }
+            else
+            {
+                return BadRequest(result.Error);
+            }
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Unauthorized(ex.Message);
         }
     }
     

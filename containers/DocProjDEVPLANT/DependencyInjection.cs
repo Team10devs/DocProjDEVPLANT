@@ -1,17 +1,23 @@
+using System.Configuration;
 using DocProjDEVPLANT.Repository;
 using DocProjDEVPLANT.Repository.Company;
 using DocProjDEVPLANT.Repository.Database;
 using DocProjDEVPLANT.Repository.User;
 using DocProjDEVPLANT.Services;
 using DocProjDEVPLANT.Services.Company;
+using DocProjDEVPLANT.Services.Firebase;
 using DocProjDEVPLANT.Services.InviteLinkToken;
 using DocProjDEVPLANT.Services.Mail;
 using DocProjDEVPLANT.Services.Minio;
 using DocProjDEVPLANT.Services.Scanner;
 using DocProjDEVPLANT.Services.Template;
 using DocProjDEVPLANT.Services.User;
+using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Minio;
+using Newtonsoft.Json;
 
 namespace DocProjDEVPLANT;
 
@@ -23,7 +29,16 @@ public static class DependencyInjection
         {
             options.UseNpgsql(configuration.GetConnectionString("Default"));
         });
+
+        string firebaseJsonPath = Path.Combine(AppContext.BaseDirectory, "firebase.json");
+        var credential = GoogleCredential.FromFile(firebaseJsonPath);
+        var firebaseApp = FirebaseApp.Create(new AppOptions()
+        {
+            Credential = credential
+        });
+        services.AddSingleton(firebaseApp);
         
+        services.AddScoped<IFirebaseService, FirebaseService>();
         
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IUserService, UserService>();

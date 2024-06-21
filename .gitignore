@@ -1,6 +1,6 @@
 
 containers/.idea/
-
+/containers/DocProjDEVPLANT/firebase.json
 .idea/
 
 .DS_Store

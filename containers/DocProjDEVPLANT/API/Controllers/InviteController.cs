@@ -18,7 +18,7 @@ public class InviteController : ControllerBase
         _emailService = emailService;
     }
     
-    [HttpPost("generate-invite")]
+    [HttpPost("send-invite-email")]
     public async Task<IActionResult> GenerateInvite([FromBody] InviteRequest request)
     {
         var token = await _tokenService.GenerateTokenAsync(request.PdfId, request.Email);
@@ -26,6 +26,16 @@ public class InviteController : ControllerBase
         //inca nu am unde sa il trimit pe user 
         await _emailService.SendInviteEmailAsync(request.Email, inviteLink);
         return Ok(new { InviteLink = inviteLink });
+    }
+    
+    [HttpPost("send-register-email")] //cand a dat user pe save form se trimite mail-ul acesta
+    public async Task<IActionResult> SendConfirmationEmail([FromBody] RegisterLinkRequest request)
+    {
+        var inviteLink = $"http://localhost:3000/register?token={request.token}";
+
+        await _emailService.SendRegisterEmailAsync(request.email, inviteLink);
+
+        return Ok(new { Message = "Email de confirmare trimis cu succes." });
     }
     
     [HttpGet("validate")]

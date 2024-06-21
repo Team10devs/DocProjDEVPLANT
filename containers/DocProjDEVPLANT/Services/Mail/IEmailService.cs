@@ -8,4 +8,5 @@ public interface IEmailService
 {
     Task SendEmailAsync(UserModel user, TemplateModel templateModel, byte[] pdfBytes);
     Task SendInviteEmailAsync(string email, string inviteLink);
+    Task SendRegisterEmailAsync(string email, string registerLink);
 }

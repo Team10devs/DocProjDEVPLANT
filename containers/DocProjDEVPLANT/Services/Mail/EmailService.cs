@@ -196,4 +196,38 @@ public class EmailService : IEmailService
         }
     }
 
+    public async Task SendRegisterEmailAsync(string email, string registerLink)
+    {
+        var emailMessage = new MimeMessage();
+        emailMessage.From.Add(MailboxAddress.Parse(_from));
+        emailMessage.To.Add(MailboxAddress.Parse(email));
+        emailMessage.Subject = "Account Confirmation";
+
+        var emailHtmlBody = $@"
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Account Confirmation</title>
+            </head>
+            <body>
+                <p>Hello,</p>
+                <p>Thank you for completing your document. Please click the link below to register:</p>
+                <p><a href='{registerLink}'>Confirm your account</a></p>
+                <p>Best regards,<br>Your Company Team</p>
+            </body>
+            </html>";
+
+        var bodyBuilder = new BodyBuilder { HtmlBody = emailHtmlBody };
+        emailMessage.Body = bodyBuilder.ToMessageBody();
+
+        using (var smtp = new SmtpClient())
+        {
+            await smtp.ConnectAsync(_smtpServer, _port, MailKit.Security.SecureSocketOptions.StartTls);
+            smtp.AuthenticationMechanisms.Remove("XOAUTH2");
+            await smtp.AuthenticateAsync(_username, _password);
+            await smtp.SendAsync(emailMessage);
+            await smtp.DisconnectAsync(true);
+        }
+    }
+    
 }

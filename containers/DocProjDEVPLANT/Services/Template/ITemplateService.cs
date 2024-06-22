@@ -12,4 +12,5 @@ public interface ITemplateService
     Task<TemplateModel> GetTemplatesByName(string name);//,string token);
     Task DeleteTemplateAsync(string templateId);
     Task<List<PdfResponseMinio>> GetPdfsByTemplateId(string templateId);
+    Task<TemplateModel> GetTemplateByPdfId(string pdfId);
 }

@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using System.Text.RegularExpressions;
 using DocProjDEVPLANT.Domain.Entities.Company;
+using DocProjDEVPLANT.Domain.Entities.Enums;
 using DocProjDEVPLANT.Domain.Entities.Templates;
 using DocProjDEVPLANT.Domain.Entities.User;
 using DocProjDEVPLANT.Repository.Database;
@@ -114,6 +115,62 @@ public class CompanyRepository :  ICompanyRepository
         template.GeneratedPdfs.Add(pdfModel);
         await _appDbContext.SaveChangesAsync();
     }
+    
+    public static bool ValidateJson(string templateJson, string pdfDataJson)
+    {
+        JObject templateObj = JObject.Parse(templateJson);
+        JObject pdfDataObj = JObject.Parse(pdfDataJson);
+        
+        foreach (var property in templateObj.Properties())
+        {
+            if (!ValidateProperty(property, pdfDataObj))
+            {
+                return false;
+            }
+        }
+        
+        return true;
+    }
+
+    private static bool ValidateProperty(JProperty property, JObject pdfDataObj)
+    {
+        JToken pdfDataToken;
+        if (!pdfDataObj.TryGetValue(property.Name, out pdfDataToken))
+        {
+            // Key not found in pdfData
+            return false;
+        }
+
+        if (property.Value.Type == JTokenType.Object)
+        {
+            if (pdfDataToken.Type != JTokenType.Object)
+            {
+                // Types do not match
+                return false;
+            }
+
+            // Iterate over nested object properties
+            foreach (var nestedProperty in ((JObject)property.Value).Properties())
+            {
+                if (!ValidateProperty(nestedProperty, (JObject)pdfDataToken))
+                {
+                    return false;
+                }
+            }
+        }
+        else
+        {
+            // Check if value is not empty (null, empty string, etc.)
+            if (pdfDataToken.Type == JTokenType.Null || 
+                (pdfDataToken.Type == JTokenType.String && string.IsNullOrEmpty((string)pdfDataToken)))
+            {
+                // Value is empty
+                return false;
+            }
+        }
+
+        return true;
+    }
 
     public async Task<PdfModel> AddUserToPdf(string pdfId, string userEmail, string json)
     {
@@ -134,9 +191,32 @@ public class CompanyRepository :  ICompanyRepository
         var user = await _appDbContext.Users
             .FirstOrDefaultAsync(u => u.Email == userEmail);
 
+        var templateJson = pdf.Template.JsonContent;
+        
+        //verifica daca e ok json ul
+        if (!ValidateJson(templateJson, json))
+        {
+            throw new Exception($"The json is not valid");
+        }
+        
         if (user is null)
-            throw new Exception($"User with email {userEmail} does not exist");
+        {
+            var result = await UserModel.CreateAsync(
+                userEmail,
+                userEmail,
+                RoleEnum.OrdinaryUser);
 
+            if (result.IsFailure)
+                throw new Exception(result.Error.ToString());
+            
+            user = result.Value;
+            
+            _appDbContext.Add(user);
+            await _appDbContext.SaveChangesAsync();
+            
+            // trimite mail cu creeare de parola
+        }
+        
         try
         {
             

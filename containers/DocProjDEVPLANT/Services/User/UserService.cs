@@ -53,7 +53,6 @@ public class UserService : IUserService
         //    return Result.Failure<UserModel>(new Error(ErrorType.NotFound, "Company"));
         
         var result = await UserModel.CreateAsync(
-            _userRepository,
             request.email,
             request.username,
             request.role);

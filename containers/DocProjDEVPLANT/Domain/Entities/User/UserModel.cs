@@ -27,7 +27,6 @@ public class UserModel : Entity
     }
 
     public static async Task<Result<UserModel>> CreateAsync(
-        IUserRepository repo,
         string email,
         string username,
         RoleEnum role)

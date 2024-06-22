@@ -117,4 +117,16 @@ public class TemplateService : ITemplateService
 
         return pdfsForTemplate;
     }
+
+    public async Task<TemplateModel> GetTemplateByPdfId(string pdfId)
+    {
+        var pdf = await _context.Pdfs.Include(p => p.Template)
+            .Include(p=>p.Template.Company)
+            .FirstOrDefaultAsync(p => p.Id == pdfId);
+
+        if (pdf is null)
+            throw new Exception($"Pdf with id {pdfId} does not exist");
+        
+        return pdf.Template;
+    }
 }

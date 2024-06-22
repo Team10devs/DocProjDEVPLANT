@@ -116,7 +116,6 @@ public class CompanyService : ICompanyService
         }
     }
     
-    
     public async Task<byte[]> ConvertDocxToJson(string companyId, string templateName,IFormFile file)
     {
         
@@ -239,7 +238,7 @@ public class CompanyService : ICompanyService
         {
             jsonList.Add(JObject.Parse(json));
         }
-        
+
         using (var stream = new MemoryStream(templateDocxBytes))
         {
             stream.Seek(0, SeekOrigin.Begin);
@@ -298,10 +297,11 @@ public class CompanyService : ICompanyService
 
                 var modifiedStream = new MemoryStream();
                 doc.SaveAs(modifiedStream);
-                var docxBytes = modifiedStream.ToArray(); // bitii astia de docx sunt buni mai trebuie uitat peste conversie
+                var docxBytes =
+                    modifiedStream.ToArray(); // bitii astia de docx sunt buni mai trebuie uitat peste conversie
 
                 // return docxBytes; // ca sa testezi ca bitii de docx sunt buni
-                
+
                 var fileName = Guid.NewGuid().ToString();
                 var tempFilePath = Path.Combine(Directory.GetCurrentDirectory(), fileName + ".docx");
                 await File.WriteAllBytesAsync(tempFilePath, docxBytes);
@@ -348,7 +348,7 @@ public class CompanyService : ICompanyService
                     
                     File.Delete(tempFilePath);
                     File.Delete(pdfFilePath);
-                    
+
                     // Email sending Part
                     foreach (var user in pdf.Users)
                     {
@@ -357,7 +357,7 @@ public class CompanyService : ICompanyService
                             await _companyRepository.SendEmailToUsers(user, template, pdfBytes);
                         }
                     }
-                    
+
                     return pdfBytes;
                 }
             }
@@ -365,6 +365,6 @@ public class CompanyService : ICompanyService
 
     }
 
-        
+
 
 }

@@ -1,4 +1,4 @@
-﻿using DocProjDEVPLANT.API.User;
+using DocProjDEVPLANT.API.User;
 using DocProjDEVPLANT.Domain.Entities.Templates;
 using DocProjDEVPLANT.Services.InviteLinkToken;
 using DocProjDEVPLANT.Services.Mail;

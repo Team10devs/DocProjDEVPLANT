@@ -1,5 +1,6 @@
 ﻿using DocProjDEVPLANT.API.DTOs.Template;
 using DocProjDEVPLANT.Domain.Entities.Templates;
+using DocProjDEVPLANT.Services.Company;
 using DocProjDEVPLANT.Services.Minio;
 using DocProjDEVPLANT.Services.Template;
 using Microsoft.AspNetCore.Mvc;
@@ -14,12 +15,32 @@ namespace DocProjDEVPLANT.API.Controllers;
 public class TemplateController : ControllerBase
 {
     private readonly ITemplateService _templateService;
+    private readonly ICompanyService _companyService;
     private readonly MinioClient _minioClient;
 
-    public TemplateController(ITemplateService templateService,MinioClient minioClient)
+    public TemplateController(ITemplateService templateService, ICompanyService companyService,MinioClient minioClient)
     {
         _templateService = templateService;
         _minioClient = minioClient;
+        _companyService = companyService;
+    }
+
+    [HttpGet("ById")]
+    public async Task<ActionResult<TemplateResponse>> GetTemplateById(string templateId)
+    {
+        try
+        {
+            var template = await _templateService.GetTemplateById(templateId);
+
+            if (template.IsFailure)
+                return NotFound($"Template with id {templateId}");
+            
+            return Ok(Map(template.Value));
+        }
+        catch (Exception e)
+        {
+            return NotFound(e.Message);
+        }
     }
     
     [HttpGet("ByCompanyId")]
@@ -73,6 +94,25 @@ public class TemplateController : ControllerBase
         catch (Exception ex)
         {
             return StatusCode(500, $"Internal server error: {ex.Message}");
+        }
+    }
+    
+    [HttpPatch("{templateId}/Template/docx/nrUsers")]
+    public async Task<ActionResult> PatchTemplate(string templateId, string newName, IFormFile docx)
+    {
+        try
+        {
+            var template = await _templateService.GetTemplateById(templateId);
+
+            if (template.IsFailure)
+                return NotFound($"template with id {templateId}");
+
+            byte[] byteArray = await _templateService.PatchTemplate(templateId, newName, docx);
+            return Ok(template.Value.JsonContent);
+        }
+        catch (Exception e)
+        {
+            return BadRequest(e.Message);
         }
     }
 

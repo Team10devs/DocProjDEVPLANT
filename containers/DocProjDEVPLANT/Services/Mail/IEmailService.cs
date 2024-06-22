@@ -1,4 +1,4 @@
-﻿using DocProjDEVPLANT.Domain.Entities.Templates;
+using DocProjDEVPLANT.Domain.Entities.Templates;
 using DocProjDEVPLANT.Domain.Entities.User;
 using DocProjDEVPLANT.Services.Utils.ResultPattern;
 

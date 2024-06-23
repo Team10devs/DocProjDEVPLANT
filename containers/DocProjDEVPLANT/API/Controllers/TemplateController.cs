@@ -114,6 +114,20 @@ public class TemplateController : ControllerBase
         }
     }
 
+    [HttpPatch("{pdfId}/PDF/Complete")]
+    public async Task<ActionResult> PatchPdfStatus(string pdfId, bool isCompleted)
+    {
+        try
+        {
+           var pdf = await _templateService.ChangeCompletionPdf(pdfId, isCompleted);
+           return Ok(pdf.Status);
+        }
+        catch (Exception e)
+        {
+            return BadRequest(e.Message);
+        }
+    }
+
     private TemplateResponse Map(TemplateModel templateModel)
     {
         return new TemplateResponse(

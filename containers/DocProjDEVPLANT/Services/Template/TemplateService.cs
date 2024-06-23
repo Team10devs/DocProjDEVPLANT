@@ -1,6 +1,7 @@
 using System.Reactive.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using DocProjDEVPLANT.Domain.Entities.Enums;
 using DocProjDEVPLANT.Domain.Entities.Templates;
 using DocProjDEVPLANT.Repository.Database;
 using DocProjDEVPLANT.Services.InviteLinkToken;
@@ -257,5 +258,22 @@ public class TemplateService : ITemplateService
         
         return byteArray;
     }
-    
+
+    public async Task<PdfModel> ChangeCompletionPdf(string pdfId, bool isCompleted)
+    {
+        var pdf = await _context.Pdfs
+            .Include( p => p.Template)
+            .FirstOrDefaultAsync(p => p.Id == pdfId);
+
+        if (pdf is null)
+            throw new Exception($"PDF with id {pdfId} does not exist!");
+        if (pdf.Status == PdfStatus.Empty && isCompleted)
+            throw new Exception("An empty PDF cannot be marked as completed!");
+        if (pdf.Template.TotalNumberOfUsers != pdf.CurrentNumberOfUsers)
+            throw new Exception("This PDF might not have been completed correctly!");
+
+        pdf.Status = isCompleted ? PdfStatus.Completed : PdfStatus.InCompletion;
+
+        return pdf;
+    }
 }

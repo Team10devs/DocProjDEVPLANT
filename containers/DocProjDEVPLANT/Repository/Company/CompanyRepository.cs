@@ -203,7 +203,6 @@ public class CompanyRepository :  ICompanyRepository
         {
             var result = await UserModel.CreateAsync(
                 userEmail,
-                userEmail,
                 RoleEnum.OrdinaryUser);
 
             if (result.IsFailure)

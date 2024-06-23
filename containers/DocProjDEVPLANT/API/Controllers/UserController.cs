@@ -141,7 +141,6 @@ public class UserController : ControllerBase
             // Dacă utilizatorul are o companie asociată, poți adăuga și informații despre companie în răspuns
             return new UserResponse(
                 userModel.Id,
-                userModel.UserName,
                 userModel.FullName,
                 userModel.CNP,
                 userModel.Role,
@@ -155,7 +154,6 @@ public class UserController : ControllerBase
             // Dacă utilizatorul nu are o companie asociată, poți crea răspunsul fără informații despre companie
             return new UserResponse(
                 userModel.Id,
-                userModel.UserName,
                 userModel.FullName,
                 userModel.CNP,
                 userModel.Role,

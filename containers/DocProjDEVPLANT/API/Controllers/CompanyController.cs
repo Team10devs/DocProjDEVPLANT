@@ -46,7 +46,6 @@ public class CompanyController : ControllerBase
             Users = c.Users.Select(u => new UserModel
             {
                 Id = u.Id,
-                UserName = u.UserName,
                 FullName = u.FullName,
                 CNP = u.CNP,
                 Role = u.Role
@@ -182,7 +181,6 @@ public class CompanyController : ControllerBase
             // Dacă utilizatorul are o companie asociată, poți adăuga și informații despre companie în răspuns
             return new UserResponse(
                 userModel.Id,
-                userModel.UserName,
                 userModel.FullName,
                 userModel.CNP,
                 userModel.Role,
@@ -195,7 +193,6 @@ public class CompanyController : ControllerBase
             // Dacă utilizatorul nu are o companie asociată, poți crea răspunsul fără informații despre companie
             return new UserResponse(
                 userModel.Id,
-                userModel.UserName,
                 userModel.FullName,
                 userModel.CNP,
                 userModel.Role,

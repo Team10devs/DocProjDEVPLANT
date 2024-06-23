@@ -128,7 +128,7 @@ public class EmailService : IEmailService
             </html>";
             
             // Replace placeholders with actual values
-            emailHtmlBody = emailHtmlBody.Replace("{firstName}", user.UserName)
+            emailHtmlBody = emailHtmlBody.Replace("{firstName}", user.Email)
                 .Replace("{documentName}", template.Name)
                 .Replace("{companyName}", template.Company.Name);
             

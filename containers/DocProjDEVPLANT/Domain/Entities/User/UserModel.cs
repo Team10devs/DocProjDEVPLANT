@@ -19,7 +19,7 @@ public class UserModel : Entity
     public string? CNP { get; set; }
     public RoleEnum Role { get; set; }
     public CompanyModel? Company { get; set; }
-    public bool isEmail { get; set; } = false;
+    public bool isEmail { get; set; } = true;
     public string UserData { get; set; } // Json
     public UserModel()
     {

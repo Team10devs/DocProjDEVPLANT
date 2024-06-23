@@ -212,21 +212,21 @@ public class CompanyService : ICompanyService
     }
 
 
-    public async Task<Byte[]> GeneratePdf(string pdfId, string templateId)
+    public async Task<Byte[]> GeneratePdf(string pdfId)
     {
         PdfModel pdf;
         TemplateModel template;
         
         try
         {
-            (pdf, template) = await _companyRepository.VerifyNumberOfUsers(pdfId, templateId);
+            pdf = await _companyRepository.CheckPDF(pdfId);
         }
         catch (Exception e)
         {
             throw new Exception(e.Message);
         }
 
-        var templateDocxBytes = template.DocxFile;
+        var templateDocxBytes = pdf.Template.DocxFile;
 
         if (templateDocxBytes == null || templateDocxBytes.Length == 0)
         {
@@ -344,7 +344,7 @@ public class CompanyService : ICompanyService
                     }
 
                     var minioService = new MinioService();
-                    await minioService.UploadFileAsync("pdf-bucket", $"{pdfId}.pdf", pdfFilePath,template.Name);
+                    await minioService.UploadFileAsync("pdf-bucket", $"{pdfId}.pdf", pdfFilePath,pdf.Template.Name);
                     
                     File.Delete(tempFilePath);
                     File.Delete(pdfFilePath);
@@ -354,7 +354,7 @@ public class CompanyService : ICompanyService
                     {
                         if (user.isEmail)
                         {
-                            await _companyRepository.SendEmailToUsers(user, template, pdfBytes);
+                            await _companyRepository.SendEmailToUsers(user, pdf.Template, pdfBytes);
                         }
                     }
 

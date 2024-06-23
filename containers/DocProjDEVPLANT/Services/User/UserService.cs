@@ -133,4 +133,9 @@ public class UserService : IUserService
 
         return Result.Succes(user);
     }
+
+    public async Task UpdateUserAsync(UserModel user)
+    {
+        await _userRepository.UpdateUserAsync(user);
+    }
 }

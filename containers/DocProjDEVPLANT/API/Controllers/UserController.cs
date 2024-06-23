@@ -1,4 +1,5 @@
 using DocProjDEVPLANT.API.User;
+using DocProjDEVPLANT.Domain.Entities.Enums;
 using DocProjDEVPLANT.Domain.Entities.User;
 using DocProjDEVPLANT.Services.Firebase;
 using DocProjDEVPLANT.Services.InviteLinkToken;
@@ -49,42 +50,55 @@ public class UserController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<UserModel>> CreateUser([FromBody] UserRequest userRequest)//, [FromHeader] string authorization)
+    public async Task<ActionResult<UserModel>> CreateUser([FromBody] UserRequest userRequest, [FromHeader] string authorization)
     {
-       /* if (string.IsNullOrEmpty(authorization) || !authorization.StartsWith("Bearer "))
+        if (string.IsNullOrEmpty(authorization) || !authorization.StartsWith("Bearer "))
         {
             return Unauthorized("Authorization header is missing or invalid.");
         }
 
         string idToken = authorization.Substring("Bearer ".Length).Trim();
-*/
+
         try
         {
-           /* var decodedToken = await _firebaseService.VerifyIdTokenAsync(idToken);
-
+            var decodedToken = await _firebaseService.VerifyIdTokenAsync(idToken);
             string userEmail = decodedToken.Claims["email"].ToString();
             string userId = decodedToken.Uid;
+           //string userEmail = "davidstana1@gmail.com";
             
             var existingUser = await _userService.GetUserByEmailAsync(userEmail);
-            if (existingUser != null)
-            {
-                return BadRequest($"User with email '{userEmail}' already exists.");
-            }*/
-            
-            var result = await _userService.CreateUserAsync(userRequest);
 
-            if (result.IsSucces)
+            if (existingUser != null && existingUser.Role == RoleEnum.UnregisteredUser)
             {
-                return Ok(Map(result.Value));
+                //daca exista un utilizator neinregistrat
+                existingUser.Role = RoleEnum.OrdinaryUser;
+                
+                await _userService.UpdateUserAsync(existingUser);
+
+                return Ok(existingUser);
             }
             else
             {
-                return BadRequest(result.Error);
+                // daca nu exista , facem unul nou
+                var result = await _userService.CreateUserAsync(userRequest);
+
+                if (result.IsSucces)
+                {
+                    return Ok(Map(result.Value));
+                }
+                else
+                {
+                    return BadRequest(result.Error);
+                }
             }
         }
         catch (UnauthorizedAccessException ex)
         {
             return Unauthorized(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest("Failed to register");
         }
     }
     

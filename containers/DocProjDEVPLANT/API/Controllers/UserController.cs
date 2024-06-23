@@ -49,8 +49,10 @@ public class UserController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<UserModel>> CreateUser([FromBody] UserRequest userRequest, [FromHeader] string authorization)
+    public async Task<ActionResult<UserModel>>
+        CreateUser([FromBody] UserRequest userRequest, [FromHeader] string authorization)
     {
+        
         if (string.IsNullOrEmpty(authorization) || !authorization.StartsWith("Bearer "))
         {
             return Unauthorized("Authorization header is missing or invalid.");
@@ -77,8 +79,12 @@ public class UserController : ControllerBase
         {
             return Unauthorized(ex.Message);
         }
+        catch (Exception e)
+        {
+            return BadRequest(e.Message);
+        }
     }
-    
+
     [HttpPost("addIdVariables")]
     public async Task<IActionResult> AddIdVariables(IFormFile image)
     {

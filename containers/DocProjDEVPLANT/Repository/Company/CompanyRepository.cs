@@ -71,6 +71,7 @@ public class CompanyRepository :  ICompanyRepository
         }
         
         var pdf = new PdfModel(template);
+        pdf.Status = PdfStatus.Empty;
 
         await _appDbContext.Pdfs.AddAsync(pdf);
         await _appDbContext.SaveChangesAsync();
@@ -92,7 +93,7 @@ public class CompanyRepository :  ICompanyRepository
     {
         await _appDbContext.SaveChangesAsync();
     }
-    
+
     public async Task<bool> UpdateAsync(CompanyModel company)
     {
         _appDbContext.Companies.Update(company);
@@ -111,7 +112,7 @@ public class CompanyRepository :  ICompanyRepository
 
         var pdfModel = new PdfModel(template);
         pdfModel.Content = document;
-        
+
         template.GeneratedPdfs.Add(pdfModel);
         await _appDbContext.SaveChangesAsync();
     }
@@ -295,6 +296,8 @@ public class CompanyRepository :  ICompanyRepository
             throw new Exception($"Pdf with id {pdfId} does not exist");
         
         pdf.Content = byteArray;
+        pdf.Status = PdfStatus.Completed;
+        
         _appDbContext.Pdfs.Update(pdf);
         await _appDbContext.SaveChangesAsync();
     }

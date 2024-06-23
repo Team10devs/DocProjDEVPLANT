@@ -1,4 +1,5 @@
 using DocProjDEVPLANT.Domain.Entities.Company;
+using DocProjDEVPLANT.Domain.Entities.Enums;
 
 namespace DocProjDEVPLANT.Domain.Entities.Templates;
 
@@ -19,5 +20,16 @@ public class TemplateModel : Entity
         Company = companyModel;
         TotalNumberOfUsers = totalNumberOfUsers;
         JsonContent = jsonContent;
+    }
+
+    public bool HasFilledPdfs()
+    {
+        foreach ( PdfModel pdf in GeneratedPdfs )
+        {
+            if (pdf.Status == PdfStatus.Completed)
+                return true;
+        }
+
+        return false;
     }
 }

@@ -84,7 +84,7 @@ public class TemplateService : ITemplateService
         if (template is null)
             throw new Exception($"Template with id {templateId} does not exist");
 
-        if (template.GeneratedPdfs.Count == 0)
+        if (template.GeneratedPdfs.Count == 0 && template.HasFilledPdfs() == false )
         {
             _context.Templates.Remove(template);
             await _context.SaveChangesAsync();
@@ -159,7 +159,7 @@ public class TemplateService : ITemplateService
                 throw new Exception($"Template with id '{id}' does not exist.");
             }
 
-            if (template.GeneratedPdfs.Count() != 0)
+            if  ( template.HasFilledPdfs() )
             {
                 throw new Exception($"Template with id {id} still has filled out documents and cannot be edited!");
             }

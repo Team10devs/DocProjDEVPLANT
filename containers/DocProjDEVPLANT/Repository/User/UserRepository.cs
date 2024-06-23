@@ -32,7 +32,12 @@ public class UserRepository :  IUserRepository
 
         return user;
     }
-
+    
+    public async Task<bool> IsEmailUnique(string email)
+    {
+        return !await _appDbContext.Users.AnyAsync(u => u.Email == email);
+    }
+    
     public async Task CreateUserAsync(UserModel userModel)
     {
         _appDbContext.Add(userModel);

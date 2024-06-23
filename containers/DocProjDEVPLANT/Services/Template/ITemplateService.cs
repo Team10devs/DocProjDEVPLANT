@@ -1,8 +1,6 @@
 
-using DocProjDEVPLANT.API.DTOs.Template;
 using DocProjDEVPLANT.Domain.Entities.Templates;
 using DocProjDEVPLANT.Services.Utils.ResultPattern;
-using PdfResponse = DocProjDEVPLANT.Domain.Entities.Templates.PdfResponse;
 
 namespace DocProjDEVPLANT.Services.Template;
 

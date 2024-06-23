@@ -357,7 +357,7 @@ public class EmailService : IEmailService
         }
     }
 
-    public async Task SendRegisterEmailAsync(string email, TemplateModel template, string registerLink)
+    public async Task SendRegisterEmailAsync(string email, string registerLink)
     {
         var emailMessage = new MimeMessage();
         emailMessage.From.Add(MailboxAddress.Parse(_from));
@@ -485,7 +485,7 @@ public class EmailService : IEmailService
 																		<td class=""pad"" style=""padding-bottom:0px;padding-left:40px;padding-right:40px;padding-top:10px;"">
 																			<div style=""color:#6f7376;direction:ltr;font-family:Helvetica Neue, Helvetica, Arial, sans-serif;font-size:18px;font-weight:400;letter-spacing:0px;line-height:150%;text-align:left;mso-line-height-alt:27px;"">
 																				<p style=""margin: 0; margin-bottom: 16px;"">Dear Sir/Madam,</p>
-																				<p style=""margin: 0; margin-bottom: 16px;"">Thank you for completing the {formName} for {companyName}. We are excited to have you on board!</p>
+																				<p style=""margin: 0; margin-bottom: 16px;"">Thank you for completing the {formName}. We are excited to have you on board!</p>
 																				<p style=""margin: 0;""></p>To enhance your experience and make future interactions with us even smoother, we invite you to create an account on our platform. By registering, you can save your information, track your activities, and enjoy a personalized experience tailored just for you.</p>
 																			</div>
 																		</td>
@@ -533,8 +533,7 @@ public class EmailService : IEmailService
 			
 			</html>";
         
-        emailHtmlBody = emailHtmlBody.Replace("{formName}", template.Name)
-	        .Replace("{companyName}", template.Company.Name)
+        emailHtmlBody = emailHtmlBody.Replace("{formName}", "form")
 	        .Replace("{registerLink}", registerLink);
 
         var bodyBuilder = new BodyBuilder { HtmlBody = emailHtmlBody };

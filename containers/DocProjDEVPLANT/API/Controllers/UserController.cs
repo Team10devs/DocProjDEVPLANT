@@ -49,19 +49,28 @@ public class UserController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<UserModel>> CreateUser([FromBody] UserRequest userRequest, [FromHeader] string authorization)
+    public async Task<ActionResult<UserModel>> CreateUser([FromBody] UserRequest userRequest)//, [FromHeader] string authorization)
     {
-        if (string.IsNullOrEmpty(authorization) || !authorization.StartsWith("Bearer "))
+       /* if (string.IsNullOrEmpty(authorization) || !authorization.StartsWith("Bearer "))
         {
             return Unauthorized("Authorization header is missing or invalid.");
         }
 
         string idToken = authorization.Substring("Bearer ".Length).Trim();
-
+*/
         try
         {
-            var decodedToken = await _firebaseService.VerifyIdTokenAsync(idToken);
+           /* var decodedToken = await _firebaseService.VerifyIdTokenAsync(idToken);
 
+            string userEmail = decodedToken.Claims["email"].ToString();
+            string userId = decodedToken.Uid;
+            
+            var existingUser = await _userService.GetUserByEmailAsync(userEmail);
+            if (existingUser != null)
+            {
+                return BadRequest($"User with email '{userEmail}' already exists.");
+            }*/
+            
             var result = await _userService.CreateUserAsync(userRequest);
 
             if (result.IsSucces)

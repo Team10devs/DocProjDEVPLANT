@@ -201,9 +201,11 @@ public class CompanyRepository :  ICompanyRepository
         
         if (user is null)
         {
+            var registerLink = $"http://localhost:3000/register";
+            
             var result = await UserModel.CreateAsync(
                 userEmail,
-                RoleEnum.OrdinaryUser);
+                RoleEnum.UnregisteredUser);
 
             if (result.IsFailure)
                 throw new Exception(result.Error.ToString());
@@ -212,8 +214,8 @@ public class CompanyRepository :  ICompanyRepository
             
             _appDbContext.Add(user);
             await _appDbContext.SaveChangesAsync();
-            
-            // trimite mail cu creeare de parola
+
+            await _emailService.SendRegisterEmailAsync(user.Email, registerLink);
         }
         
         try
@@ -223,6 +225,19 @@ public class CompanyRepository :  ICompanyRepository
             pdf.Jsons.Add(json);
             pdf.Users.Add(user);
 
+            if (user.Role == RoleEnum.UnregisteredUser)
+            {
+                JObject userDataObject = JObject.Parse(user.UserData);
+                    
+                user.Address = (string?)userDataObject["client"]["adresa"];
+                user.FullName = (string?)userDataObject["client"]["nume"];
+                user.Country = (string?)userDataObject["client"]["tara"];
+                user.Cetatenie = (string?)userDataObject["client"]["cetatenie"];
+                user.Sex = (string?)userDataObject["client"]["sex"];
+                user.Judet = (string?)userDataObject["client"]["localitate"];
+                user.CNP = (string?)userDataObject["client"]["cnp"];
+            }
+            
             if (string.IsNullOrWhiteSpace(user.UserData))
             {
                 user.UserData = json;
@@ -239,7 +254,7 @@ public class CompanyRepository :  ICompanyRepository
 
                 user.UserData = originalUserData.ToString(Formatting.None); // se poate modifica de aici formatarea
             }
-            
+
             _appDbContext.Pdfs.Update(pdf);
             _appDbContext.Users.Update(user);
             

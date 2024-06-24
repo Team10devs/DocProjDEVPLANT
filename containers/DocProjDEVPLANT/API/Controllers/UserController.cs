@@ -50,56 +50,56 @@ public class UserController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<UserModel>> CreateUser([FromBody] UserRequest userRequest, [FromHeader] string authorization)
+    public async Task<ActionResult<UserModel>> CreateUser([FromBody] UserRequest userRequest/*, [FromHeader] string authorization*/)
     {
-        if (string.IsNullOrEmpty(authorization) || !authorization.StartsWith("Bearer "))
-        {
-            return Unauthorized("Authorization header is missing or invalid.");
-        }
+        // if (string.IsNullOrEmpty(authorization) || !authorization.StartsWith("Bearer "))
+        // {
+        //     return Unauthorized("Authorization header is missing or invalid.");
+        // }
 
-        string idToken = authorization.Substring("Bearer ".Length).Trim();
+        // string idToken = authorization.Substring("Bearer ".Length).Trim();
 
-        try
-        {
-            var decodedToken = await _firebaseService.VerifyIdTokenAsync(idToken);
-            string userEmail = decodedToken.Claims["email"].ToString();
-            string userId = decodedToken.Uid;
+        // try
+        // {
+        //     var decodedToken = await _firebaseService.VerifyIdTokenAsync(idToken);
+        //     string userEmail = decodedToken.Claims["email"].ToString();
+        //     string userId = decodedToken.Uid;
            //string userEmail = "davidstana1@gmail.com";
             
-            var existingUser = await _userService.GetUserByEmailAsync(userEmail);
+            // var existingUser = await _userService.GetUserByEmailAsync(userRequest.email);
 
-            if (existingUser != null && existingUser.Role == RoleEnum.UnregisteredUser)
-            {
-                //daca exista un utilizator neinregistrat
-                existingUser.Role = RoleEnum.OrdinaryUser;
-                
-                await _userService.UpdateUserAsync(existingUser);
-
-                return Ok(existingUser);
-            }
-            else
-            {
+            // if (existingUser != null && existingUser.Role == RoleEnum.UnregisteredUser)
+            // {
+            //     //daca exista un utilizator neinregistrat
+            //     existingUser.Role = RoleEnum.OrdinaryUser;
+            //     
+            //     await _userService.UpdateUserAsync(existingUser);
+            //
+            //     return Ok(existingUser);
+            // }
+            // else
+            // {
                 // daca nu exista , facem unul nou
-                var result = await _userService.CreateUserAsync(userRequest);
-
-                if (result.IsSucces)
+                try
                 {
-                    return Ok(Map(result.Value));
+                    var user = await _userService.CreateUserAsync(userRequest);
+                    return Ok(Map(user));
                 }
-                else
+                catch (Exception e)
                 {
-                    return BadRequest(result.Error);
+                    return BadRequest(e.Message);
                 }
-            }
-        }
-        catch (UnauthorizedAccessException ex)
-        {
-            return Unauthorized(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest("Failed to register");
-        }
+                
+            // }
+        // }
+        // catch (UnauthorizedAccessException ex)
+        // {
+        //     return Unauthorized(ex.Message);
+        // }
+        // catch (Exception ex)
+        // {
+        //     return BadRequest("Failed to register");
+        // }
     }
     
     [HttpPost("addIdVariables")]

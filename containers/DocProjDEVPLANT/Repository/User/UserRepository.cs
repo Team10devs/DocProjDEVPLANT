@@ -1,4 +1,5 @@
-﻿using DocProjDEVPLANT.Domain.Entities.User;
+﻿using System.Text.RegularExpressions;
+using DocProjDEVPLANT.Domain.Entities.User;
 using DocProjDEVPLANT.Repository.Database;
 using DocProjDEVPLANT.Services.Utils.ResultPattern;
 using Microsoft.EntityFrameworkCore;
@@ -35,6 +36,9 @@ public class UserRepository :  IUserRepository
 
     public async Task CreateUserAsync(UserModel userModel)
     {
+        if (!Regex.IsMatch(userModel.Email, @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(?:\.[a-zA-Z]{2,})?$"))
+            throw new Exception($"The email {userModel.Email} is not a valid email");
+        
         _appDbContext.Add(userModel);
         await _appDbContext.SaveChangesAsync();
     }

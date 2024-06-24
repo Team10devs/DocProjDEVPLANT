@@ -45,7 +45,7 @@ public class UserService : IUserService
         
         return user;
     } 
-    public async Task<Result<UserModel>> CreateUserAsync(UserRequest request)
+    public async Task<UserModel> CreateUserAsync(UserRequest request)
     {
         //var company = await _companyRepository.FindByIdAsync(request.companyId);
 
@@ -55,11 +55,18 @@ public class UserService : IUserService
         var result = await UserModel.CreateAsync(
             request.email,
             request.role);
-        
-        if (result.IsFailure)
-            return Result.Failure<UserModel>(result.Error);
 
-        await _userRepository.CreateUserAsync(result.Value);
+        if (result.IsFailure)
+            throw new Exception(result.Error.ToString());
+
+        try
+        {
+            await _userRepository.CreateUserAsync(result.Value);
+        }
+        catch (Exception e)
+        {
+            throw new Exception(e.Message);
+        }
 
         return result.Value;
     }

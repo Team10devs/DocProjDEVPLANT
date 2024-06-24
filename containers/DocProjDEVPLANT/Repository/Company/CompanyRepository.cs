@@ -215,6 +215,7 @@ public class CompanyRepository :  ICompanyRepository
             
             var result = await UserModel.CreateAsync(
                 userEmail,
+                userEmail,
                 RoleEnum.UnregisteredUser);
 
             if (result.IsFailure)
@@ -225,7 +226,7 @@ public class CompanyRepository :  ICompanyRepository
             _appDbContext.Add(user);
             await _appDbContext.SaveChangesAsync();
 
-            await _emailService.SendRegisterEmailAsync(user.Email, registerLink);
+            await _emailService.SendRegisterEmailAsync(user.Email,pdf.Template, registerLink);
         }
         
         try

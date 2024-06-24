@@ -6,8 +6,9 @@ using DocProjDEVPLANT.Services.Utils.ResultPattern;
 
 namespace DocProjDEVPLANT.Domain.Entities.User;
 
-public class UserModel : Entity 
+public class UserModel : Entity
 {
+    public string UserName { get; set; }
     public string Email { get; set; } 
     public string? Address { get; set; }
     public string? FullName { get; set; }
@@ -27,11 +28,13 @@ public class UserModel : Entity
 
     public static async Task<Result<UserModel>> CreateAsync(
         string email,
+        string username,
         RoleEnum role)
     { 
         return new UserModel
         {
             Email = email,
+            UserName = username,
             Role = role,
             UserData = ""
         };

@@ -54,6 +54,7 @@ public class UserService : IUserService
         
         var result = await UserModel.CreateAsync(
             request.email,
+            request.username,
             request.role);
 
         if (result.IsFailure)

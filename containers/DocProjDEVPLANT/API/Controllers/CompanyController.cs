@@ -138,7 +138,8 @@ public class CompanyController : ControllerBase
             return BadRequest(e.Message);
         }
         
-        return File(pdfBytes, "application/pdf", $"generated.pdf");
+        // return File(pdfBytes, "application/pdf", $"generated.pdf");
+        return Ok();
     }
     
     [HttpPatch("api/addUserToPdf")]

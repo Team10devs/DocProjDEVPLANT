@@ -28,7 +28,7 @@ public class UserModel : Entity
     public static async Task<Result<UserModel>> CreateAsync(
         string email,
         RoleEnum role)
-    { // aici mai trebuie logica sa puna in Json tot ce a primit din constructor + din buletin daca a introdus
+    { 
         return new UserModel
         {
             Email = email,

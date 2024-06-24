@@ -118,8 +118,18 @@ public class CompanyRepository :  ICompanyRepository
     
     public static bool ValidateJson(string templateJson, string pdfDataJson)
     {
-        JObject templateObj = JObject.Parse(templateJson);
-        JObject pdfDataObj = JObject.Parse(pdfDataJson);
+        JObject templateObj;
+        JObject pdfDataObj;
+        try
+        {
+            templateObj = JObject.Parse(templateJson);
+            pdfDataObj = JObject.Parse(pdfDataJson);
+        }
+        catch (Exception e)
+        {
+            throw new Exception($"Not a valid json format.");
+        }
+        
         
         foreach (var property in templateObj.Properties())
         {
@@ -193,11 +203,11 @@ public class CompanyRepository :  ICompanyRepository
 
         var templateJson = pdf.Template.JsonContent;
         
-        //verifica daca e ok json ul
-        if (!ValidateJson(templateJson, json))
-        {
-            throw new Exception($"The json is not valid");
-        }
+        // verifica daca e ok json ul
+         if (!ValidateJson(templateJson, json))
+         {
+             throw new Exception($"The json is not valid");
+         }
         
         if (user is null)
         {
@@ -224,19 +234,6 @@ public class CompanyRepository :  ICompanyRepository
             pdf.CurrentNumberOfUsers++;
             pdf.Jsons.Add(json);
             pdf.Users.Add(user);
-
-            if (user.Role == RoleEnum.UnregisteredUser)
-            {
-                JObject userDataObject = JObject.Parse(user.UserData);
-                    
-                user.Address = (string?)userDataObject["client"]["adresa"];
-                user.FullName = (string?)userDataObject["client"]["nume"];
-                user.Country = (string?)userDataObject["client"]["tara"];
-                user.Cetatenie = (string?)userDataObject["client"]["cetatenie"];
-                user.Sex = (string?)userDataObject["client"]["sex"];
-                user.Judet = (string?)userDataObject["client"]["localitate"];
-                user.CNP = (string?)userDataObject["client"]["cnp"];
-            }
             
             if (string.IsNullOrWhiteSpace(user.UserData))
             {
@@ -253,6 +250,19 @@ public class CompanyRepository :  ICompanyRepository
                 });
 
                 user.UserData = originalUserData.ToString(Formatting.None); // se poate modifica de aici formatarea
+            }
+            
+            if (user.Role == RoleEnum.UnregisteredUser)
+            {
+                JObject userDataObject = JObject.Parse(user.UserData);
+                    
+                user.Address = (string?)userDataObject["client"]["adresa"];
+                user.FullName = (string?)userDataObject["client"]["nume"];
+                user.Country = (string?)userDataObject["client"]["tara"];
+                user.Cetatenie = (string?)userDataObject["client"]["cetatenie"];
+                user.Sex = (string?)userDataObject["client"]["sex"];
+                user.Judet = (string?)userDataObject["client"]["localitate"];
+                user.CNP = (string?)userDataObject["client"]["cnp"];
             }
 
             _appDbContext.Pdfs.Update(pdf);

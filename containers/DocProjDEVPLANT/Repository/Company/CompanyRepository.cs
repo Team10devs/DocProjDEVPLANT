@@ -252,19 +252,6 @@ public class CompanyRepository :  ICompanyRepository
 
                 user.UserData = originalUserData.ToString(Formatting.None); // se poate modifica de aici formatarea
             }
-            
-            if (user.Role == RoleEnum.UnregisteredUser)
-            {
-                JObject userDataObject = JObject.Parse(user.UserData);
-                    
-                user.Address = (string?)userDataObject["client"]["adresa"];
-                user.FullName = (string?)userDataObject["client"]["nume"];
-                user.Country = (string?)userDataObject["client"]["tara"];
-                user.Cetatenie = (string?)userDataObject["client"]["cetatenie"];
-                user.Sex = (string?)userDataObject["client"]["sex"];
-                user.Judet = (string?)userDataObject["client"]["localitate"];
-                user.CNP = (string?)userDataObject["client"]["cnp"];
-            }
 
             _appDbContext.Pdfs.Update(pdf);
             _appDbContext.Users.Update(user);

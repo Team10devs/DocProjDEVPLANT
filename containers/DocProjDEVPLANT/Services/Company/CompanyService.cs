@@ -352,10 +352,7 @@ public class CompanyService : ICompanyService
                     // Email sending Part
                     foreach (var user in pdf.Users)
                     {
-                        if (user.isEmail)
-                        {
                             await _companyRepository.SendEmailToUsers(user, template, pdfBytes);
-                        }
                     }
 
                     return pdfBytes;

@@ -5,6 +5,7 @@ using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.Extensions.Options;
 using MimeKit;
+using Newtonsoft.Json;
 
 namespace DocProjDEVPLANT.Services.Mail;
 
@@ -29,9 +30,10 @@ public class EmailService : IEmailService
 
     public async Task SendEmailAsync(UserModel user, TemplateModel template, byte[] pdfBytes)
     {
-        if (user.isEmail)
-        {
-            var pdfFileName = $"{template.Name}_{user.FullName}.pdf";
+	    dynamic userData = JsonConvert.DeserializeObject<dynamic>(user.UserData);
+	    string fullName = userData.client?.nume;
+	    
+            var pdfFileName = $"{template.Name}_{fullName}.pdf";
 
             var email = new MimeMessage();
             email.From.Add(MailboxAddress.Parse(_from));
@@ -159,7 +161,6 @@ public class EmailService : IEmailService
                 }
             }
             
-        }
     }
     
     public async Task SendInviteEmailAsync(string email, TemplateModel template, string inviteLink)

@@ -1,4 +1,5 @@
-﻿using DocProjDEVPLANT.API.User;
+﻿using System.Dynamic;
+using DocProjDEVPLANT.API.User;
 using DocProjDEVPLANT.Domain.Entities.User;
 using DocProjDEVPLANT.Repository.Company;
 using DocProjDEVPLANT.Repository.User;
@@ -76,20 +77,6 @@ public class UserService : IUserService
     {
         return await _userRepository.GetUsersByCompanyAsync(companyName);
     }
-
-    public async Task<Result<UserModel>> ChangeIsEmailToTrue(string userId)
-    {
-        var user = await _userRepository.FindByIdAsync(userId);
-
-        if (user is null)
-        {
-            return Result.Failure<UserModel>(new Error(ErrorType.NotFound, "User"));
-        }
-
-        user.isEmail = true;
-        await _userRepository.UpdateUserAsync(user);
-        return user;
-    }
     
     public async Task<Result> AddIdVariables(IFormFile image)
     {
@@ -124,14 +111,18 @@ public class UserService : IUserService
         {
             return Result.Failure<UserModel>(new Error(ErrorType.NotFound, "User not found"));
         }
+        
+        dynamic userData = JsonConvert.DeserializeObject<dynamic>(user.UserData) ?? new ExpandoObject();
+        userData.client = userData.client ?? new ExpandoObject();
+        
+        userData.client.nume = personalDataDto.Nume;
+        userData.client.cetatenie = personalDataDto.Cetatenie;
+        userData.client.cnp = personalDataDto.CNP;
+        userData.client.localitate = personalDataDto.Judet;
+        userData.client.adresa = personalDataDto.Address;
+        userData.client.tara = personalDataDto.Country;
 
-        user.FullName = personalDataDto.Nume;
-        user.Cetatenie = personalDataDto.Cetatenie;
-        user.CNP = personalDataDto.CNP;
-        user.Sex = personalDataDto.Sex;
-        user.Judet = personalDataDto.Judet;
-        user.Country = personalDataDto.Country;
-        user.Address = personalDataDto.Address;
+        user.UserData = JsonConvert.SerializeObject(userData);
         
         /*var userDataJson = JsonConvert.SerializeObject(new { doc = personalDataDto }); 
         user.UserData = userDataJson; */

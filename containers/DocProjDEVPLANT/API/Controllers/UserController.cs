@@ -126,19 +126,6 @@ public class UserController : ControllerBase
         }
         return Ok(users);
     }
-
-    [HttpPatch("ChangeEmailState")]
-    public async Task<ActionResult<UserModel>> ChangeIsEmail(string userId)
-    {
-        var result = await _userService.ChangeIsEmailToTrue(userId);
-
-        if (result.IsFailure)
-        {
-            return NotFound(result.Error);
-        }
-
-        return Ok(result.Value);
-    }
     
     [HttpPatch("updateUserPersonalData")]
     public async Task<ActionResult<UserModel>> UpdateUserPersonalData(string userId, [FromBody] UserPersonalData personalDataDto)
@@ -165,8 +152,6 @@ public class UserController : ControllerBase
             return new UserResponse(
                 userModel.Id,
                 userModel.UserName,
-                userModel.FullName,
-                userModel.CNP,
                 userModel.Role,
                 userModel.UserData,
                 userModel.Email,
@@ -179,8 +164,6 @@ public class UserController : ControllerBase
             return new UserResponse(
                 userModel.Id,
                 userModel.UserName,
-                userModel.FullName,
-                userModel.CNP,
                 userModel.Role,
                 userModel.UserData,
                 userModel.Email

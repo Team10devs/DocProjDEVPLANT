@@ -10,16 +10,8 @@ public class UserModel : Entity
 {
     public string UserName { get; set; }
     public string Email { get; set; } 
-    public string? Address { get; set; }
-    public string? FullName { get; set; }
-    public string? Country { get; set; }
-    public string? Cetatenie { get; set; }
-    public string? Sex { get; set; }
-    public string? Judet { get; set; }
-    public string? CNP { get; set; }
     public RoleEnum Role { get; set; }
-    public CompanyModel? Company { get; set; }
-    public bool isEmail { get; set; } = false;
+    public CompanyModel? Company { get; set; }  
     public string UserData { get; set; } // Json
     public UserModel()
     {

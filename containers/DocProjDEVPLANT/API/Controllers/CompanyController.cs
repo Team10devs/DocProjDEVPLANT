@@ -47,8 +47,6 @@ public class CompanyController : ControllerBase
             {
                 Id = u.Id,
                 UserName = u.UserName,
-                FullName = u.FullName,
-                CNP = u.CNP,
                 Role = u.Role
             }).ToList(),
             Templates = c.Templates.Select(t=> new TemplateResponse(t.Id,t.Name, c.Name, t.TotalNumberOfUsers/*t.DocxFile*/)).ToList()
@@ -184,8 +182,6 @@ public class CompanyController : ControllerBase
             return new UserResponse(
                 userModel.Id,
                 userModel.UserName,
-                userModel.FullName,
-                userModel.CNP,
                 userModel.Role,
                 userModel.UserData,
                 userModel.Company.Id // sau userModel.Company?.Id dacă Company poate fi null
@@ -197,8 +193,6 @@ public class CompanyController : ControllerBase
             return new UserResponse(
                 userModel.Id,
                 userModel.UserName,
-                userModel.FullName,
-                userModel.CNP,
                 userModel.Role,
                 userModel.UserData,
                 userModel.Email

@@ -108,19 +108,20 @@ public class TemplateService : ITemplateService
 
         try
         {
+            var pdfs = await _context.Pdfs
+                .Where(p => p.Template.Id == templateId)
+                .ToListAsync();
+
+            // files din minio
             var pdfFiles = await _minioService.ListFilesAsync(bucketName);
 
-            foreach (var pdfFile in pdfFiles)
+            foreach (var pdf in pdfs)
             {
-                //get tags
-                var pdfFileWithoutExtension = pdfFile.Replace(".pdf", "");
-                var tags = await _minioService.GetObjectTagsAsync(bucketName, pdfFile);
-                
-                if (tags != null && tags.Tags != null && tags.Tags.ContainsKey("TemplateName") && tags.Tags["TemplateName"] == template.Name)
+                var pdfFile = pdfFiles.FirstOrDefault(f => f.Replace(".pdf", "") == pdf.Id);
+                if (pdfFile != null)
                 {
-                    var pdfBytes = await _minioService.GetFileAsync(bucketName,pdfFile);
-
-                    var pdfResponse = new PdfResponseMinio(pdfFileWithoutExtension, pdfBytes);
+                    var pdfBytes = await _minioService.GetFileAsync(bucketName, pdfFile);
+                    var pdfResponse = new PdfResponseMinio(pdfFile, pdfBytes, pdf.Jsons);
                     pdfsForTemplate.Add(pdfResponse);
                 }
             }
@@ -133,6 +134,7 @@ public class TemplateService : ITemplateService
 
         return pdfsForTemplate;
     }
+
 
     public async Task<TemplateModel> GetTemplateByPdfId(string pdfId)
     {

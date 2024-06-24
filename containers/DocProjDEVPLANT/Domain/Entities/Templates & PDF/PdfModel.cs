@@ -8,7 +8,6 @@ public class PdfModel : Entity
     {
         CurrentNumberOfUsers = 0;
         Template = template;
-        Content = [];
         Jsons = new List<string>();
         Users = new List<UserModel>();
     }
@@ -16,8 +15,7 @@ public class PdfModel : Entity
     private PdfModel()
     {
     }
-
-    public byte[] Content { get; set; }
+    
     public int CurrentNumberOfUsers { get; set; }
     public TemplateModel Template { get; set; }
     public List<string> Jsons { get; set; }

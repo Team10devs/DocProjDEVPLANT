@@ -334,14 +334,14 @@ public class CompanyService : ICompanyService
 
                     var pdfBytes = await File.ReadAllBytesAsync(pdfFilePath);
 
-                    try
+                    /*try
                     {
                         await _companyRepository.AddContentToPdf(pdfId, pdfBytes);
                     }
                     catch (Exception e)
                     {
                         throw new Exception(e.Message);
-                    }
+                    }*/
 
                     var minioService = new MinioService();
                     await minioService.UploadFileAsync("pdf-bucket", $"{pdfId}.pdf", pdfFilePath,template.Name);

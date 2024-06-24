@@ -100,7 +100,7 @@ public class CompanyRepository :  ICompanyRepository
         return affectedRows > 0;
     }
 
-    public async Task UploadDocument(string companyId, string templateId, byte[]? document)
+    /*public async Task UploadDocument(string companyId, string templateId, byte[]? document)
     {
         var template = await _appDbContext.Templates
             .Include(t=>t.GeneratedPdfs)
@@ -114,7 +114,7 @@ public class CompanyRepository :  ICompanyRepository
         
         template.GeneratedPdfs.Add(pdfModel);
         await _appDbContext.SaveChangesAsync();
-    }
+    } nu era folosita nici unde metoda asta*/
     
     public static bool ValidateJson(string templateJson, string pdfDataJson)
     {
@@ -308,20 +308,6 @@ public class CompanyRepository :  ICompanyRepository
             throw new Exception($"More users than required have completed their forms");
         
         return (pdf, template);
-    }
-
-    public async Task AddContentToPdf(string pdfId, byte[] byteArray)
-    {
-        var pdf = await _appDbContext.Pdfs
-            .Include(p=>p.Template)
-            .FirstOrDefaultAsync(p => p.Id == pdfId);
-
-        if (pdf is null)
-            throw new Exception($"Pdf with id {pdfId} does not exist");
-        
-        pdf.Content = byteArray;
-        _appDbContext.Pdfs.Update(pdf);
-        await _appDbContext.SaveChangesAsync();
     }
     
     public async Task AddTemplate (string companyId, string templateName, byte[] fileContent, int totalNumberOfUsers,string jsonContent)

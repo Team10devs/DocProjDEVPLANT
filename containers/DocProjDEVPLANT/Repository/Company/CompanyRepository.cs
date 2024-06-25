@@ -29,6 +29,10 @@ public class CompanyRepository :  ICompanyRepository
             .Include(t=>t.Templates)
             .ToListAsync();
     }
+    public async Task<CompanyModel> GetByNameAsync(string companyName)
+    {
+        return await _appDbContext.Companies.FirstOrDefaultAsync(c => c.Name == companyName);
+    }
 
     public async Task CreateCompanyAsync(CompanyModel companyModel)
     {
@@ -211,7 +215,7 @@ public class CompanyRepository :  ICompanyRepository
         
         if (user is null)
         {
-            var registerLink = $"http://localhost:3000/register";
+            var registerLink = $"http://localhost:4200/register";
             
             var result = await UserModel.CreateAsync(
                 userEmail,

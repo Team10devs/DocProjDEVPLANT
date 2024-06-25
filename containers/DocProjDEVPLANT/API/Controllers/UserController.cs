@@ -1,6 +1,9 @@
+using DocProjDEVPLANT.API.Company;
 using DocProjDEVPLANT.API.User;
+using DocProjDEVPLANT.Domain.Entities.Company;
 using DocProjDEVPLANT.Domain.Entities.Enums;
 using DocProjDEVPLANT.Domain.Entities.User;
+using DocProjDEVPLANT.Services.Company;
 using DocProjDEVPLANT.Services.Firebase;
 using DocProjDEVPLANT.Services.InviteLinkToken;
 using DocProjDEVPLANT.Services.Mail;
@@ -17,14 +20,16 @@ public class UserController : ControllerBase
     private readonly ITokenService _tokenService;
     private readonly IEmailService _emailService;
     private readonly IFirebaseService _firebaseService;
+    private readonly ICompanyService _companyService;
 
     public UserController(IUserService _service,ITokenService tokenService,IEmailService emailService,
-        IFirebaseService firebaseService)
+        IFirebaseService firebaseService,ICompanyService companyService)
     {
         _userService = _service;
         _tokenService = tokenService;
         _emailService = emailService;
         _firebaseService = firebaseService;
+        _companyService = companyService;
     }
 
     [HttpGet(Name = "GetAllUsers")]
@@ -50,7 +55,8 @@ public class UserController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<UserModel>> CreateUser([FromBody] UserRequest userRequest/*, [FromHeader] string authorization*/)
+    public async Task<ActionResult<UserModel>> CreateUser(
+        [FromBody] UserRequest userRequest /*, [FromHeader] string authorization*/)
     {
         // if (string.IsNullOrEmpty(authorization) || !authorization.StartsWith("Bearer "))
         // {
@@ -64,33 +70,79 @@ public class UserController : ControllerBase
         //     var decodedToken = await _firebaseService.VerifyIdTokenAsync(idToken);
         //     string userEmail = decodedToken.Claims["email"].ToString();
         //     string userId = decodedToken.Uid;
-           //string userEmail = "davidstana1@gmail.com";
-            
-            // var existingUser = await _userService.GetUserByEmailAsync(userRequest.email);
+        //string userEmail = "davidstana1@gmail.com";
 
-            // if (existingUser != null && existingUser.Role == RoleEnum.UnregisteredUser)
-            // {
-            //     //daca exista un utilizator neinregistrat
-            //     existingUser.Role = RoleEnum.OrdinaryUser;
-            //     
-            //     await _userService.UpdateUserAsync(existingUser);
-            //
-            //     return Ok(existingUser);
-            // }
-            // else
-            // {
-                // daca nu exista , facem unul nou
-                try
+        // var existingUser = await _userService.GetUserByEmailAsync(userRequest.email);
+
+        // if (existingUser != null && existingUser.Role == RoleEnum.UnregisteredUser)
+        // {
+        //     //daca exista un utilizator neinregistrat
+        //     existingUser.Role = RoleEnum.OrdinaryUser;
+        //     
+        //     await _userService.UpdateUserAsync(existingUser);
+        //
+        //     return Ok(existingUser);
+        // }
+        // else
+        // {
+        // daca nu exista , facem unul nou
+        try
+        {
+            CompanyModel company = null;
+
+            if (!string.IsNullOrEmpty(userRequest.companyName))
+            {
+                company = await _companyService.GetCompanyByNameAsync(userRequest.companyName);
+
+                if (company == null)
                 {
-                    var user = await _userService.CreateUserAsync(userRequest);
-                    return Ok(Map(user));
+                    //companie noua si setare rol ca superUser 
+                    try
+                    {
+                        var newCompanyRequest = new CompanyRequest(userRequest.companyName);
+                        var newCompany = await _companyService.CreateCompanyAsync(newCompanyRequest);
+                        if (newCompany == null)
+                        {
+                            return BadRequest($"Failed to create company.");
+                        }
+
+                        company = newCompany;
+
+                        userRequest = userRequest with { role = RoleEnum.SuperUser };
+                    }
+                    catch (Exception ex)
+                    {
+                        return BadRequest($"Failed to create company: {ex.Message}");
+                    }
                 }
-                catch (Exception e)
+                else
                 {
-                    return BadRequest(e.Message);
+                    // daca compania exista il facem user normal
+                    userRequest = userRequest with { role = RoleEnum.OrdinaryUser };
                 }
-                
-            // }
+            }
+
+            var createdUser = await _userService.CreateUserAsync(userRequest);
+
+            //dupa ce userul ii creat, il adaugam la companie
+            if (company != null)
+            {
+                var addUserToCompanyResult = await _companyService.AddUserToCompanyAsync(company.Id, createdUser.Id);
+                if (addUserToCompanyResult.IsFailure)
+                {
+                    return BadRequest($"Failed to add user to company.");
+                }
+            }
+
+            return Ok(Map(createdUser));
+        }
+        catch (Exception e)
+        {
+            return BadRequest(e.Message);
+        }
+    
+
+    // }
         // }
         // catch (UnauthorizedAccessException ex)
         // {

@@ -8,7 +8,8 @@ namespace DocProjDEVPLANT.Services.Company;
 public interface ICompanyService
 {
     Task<Result<IEnumerable<CompanyModel>>> GetAllAsync();
-    Task<Result<CompanyModel>> CreateCompanyAsync(CompanyRequest request);
+    Task<CompanyModel> GetCompanyByNameAsync(string companyName);
+    Task<CompanyModel> CreateCompanyAsync(CompanyRequest request);
     Task<Result<CompanyModel>> GetByIdAsync(string companyId);
     Task<Byte[]> GeneratePdf(string pdfId, string templateId);
     Task<byte[]> ConvertDocxToJson(string companyId, string templateName, IFormFile file);

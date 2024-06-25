@@ -38,20 +38,30 @@ public class CompanyService : ICompanyService
          return await _companyRepository.GetAllCompaniesAsync();
     }
 
-    public async Task<Result<CompanyModel>> CreateCompanyAsync(CompanyRequest request)
+    public async Task<CompanyModel> GetCompanyByNameAsync(string companyName)
     {
+        return await _companyRepository.GetByNameAsync(companyName);
+    }
+    
+    public async Task<CompanyModel> CreateCompanyAsync(CompanyRequest request)
+    {
+        try
+        {
+            var existingCompany = await _companyRepository.GetByNameAsync(request.name);
+            if (existingCompany != null)
+            {
+                throw new Exception("Company already exists.");
+            }
 
-        var result = await CompanyModel.CreateAsync(
-            _companyRepository,
-            request.name
-        );
+            var newCompany = new CompanyModel(request.name, new List<UserModel>());
+            await _companyRepository.CreateCompanyAsync(newCompany);
 
-        if (result.IsFailure)
-            return Result.Failure<CompanyModel>(result.Error);
-
-        await _companyRepository.CreateCompanyAsync(result.Value);
-
-        return result.Value;
+            return newCompany;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"Failed to create company: {ex.Message}");
+        }
     }
 
     public async Task<Result<CompanyModel>> GetByIdAsync(string id)

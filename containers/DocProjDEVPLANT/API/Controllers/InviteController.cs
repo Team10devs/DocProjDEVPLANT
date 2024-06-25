@@ -42,7 +42,7 @@ public class InviteController : ControllerBase
             throw new Exception(e.Message);
         }
         
-        var inviteLink = $"http://localhost:3000/invite?token={token}"; 
+        var inviteLink = $"http://localhost:4200/invite?token={token}"; 
         //inca nu am unde sa il trimit pe user 
         await _emailService.SendInviteEmailAsync(request.Email, template, inviteLink);
         return Ok(new { InviteLink = inviteLink });

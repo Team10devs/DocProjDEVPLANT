@@ -1,4 +1,4 @@
-﻿using System.Dynamic;
+using System.Dynamic;
 using DocProjDEVPLANT.API.User;
 using DocProjDEVPLANT.Domain.Entities.User;
 using DocProjDEVPLANT.Repository.Company;
@@ -52,25 +52,28 @@ public class UserService : IUserService
 
       //  if (company is null)
         //    return Result.Failure<UserModel>(new Error(ErrorType.NotFound, "Company"));
+
         
-        var result = await UserModel.CreateAsync(
-            request.email,
-            request.username,
-            request.role);
+            var isEmailUnique = _userRepository.IsEmailUnique(request.email);
 
-        if (result.IsFailure)
-            throw new Exception(result.Error.ToString());
+            if ( isEmailUnique.Result )
+            {
 
-        try
-        {
-            await _userRepository.CreateUserAsync(result.Value);
-        }
-        catch (Exception e)
-        {
-            throw new Exception(e.Message);
-        }
+                var result = await UserModel.CreateAsync(
+                    request.email,
+                    request.username,
+                    request.role);
 
-        return result.Value;
+                if (result.IsFailure)
+                    return Result.Failure<UserModel>(result.Error);
+
+                await _userRepository.CreateUserAsync(result.Value);
+
+                return result.Value;
+            }
+            
+            throw new Exception($"An user is already registered with email: {request.email}");
+
     }
     
     public async Task<List<UserModel>> GetUsersByCompanyAsync(string companyName)

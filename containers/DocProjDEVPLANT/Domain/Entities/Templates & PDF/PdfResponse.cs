@@ -1,4 +1,5 @@
 using DocProjDEVPLANT.API.User;
+using DocProjDEVPLANT.Domain.Entities.Enums;
 
 namespace DocProjDEVPLANT.Domain.Entities.Templates;
 
@@ -10,4 +11,5 @@ public class PdfResponse
     public int CurrentNumberOfUsers { get; set; }
     public List<string> Jsons { get; set; }
     public List<UserResponse> Users { get; set; }
+    public PdfStatus Status { get; set; }
 }

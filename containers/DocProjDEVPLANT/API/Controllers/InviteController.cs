@@ -61,4 +61,24 @@ public class InviteController : ControllerBase
             return BadRequest("Invalid Token.");
         }
     }
+
+    [HttpGet("getTokenById")]
+    public async Task<IActionResult> GetTokenById([FromQuery] string tokenId)
+    {
+        try
+        {
+            var token = await _tokenService.GetTokenByTokenIdAsync(tokenId);
+
+            if (token == null)
+            {
+                return NotFound($"Token with ID '{tokenId}' not found.");
+            }
+
+            return Ok(token);
+        }
+        catch (Exception e)
+        {
+            return BadRequest($"Failed to retrieve token: {e.Message}");
+        }
+    }
 }

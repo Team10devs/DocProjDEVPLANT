@@ -41,7 +41,7 @@ public class UserController : ControllerBase
         try
         {
             var user = await _userService.GetUserByEmailAsync(email);
-            return Ok(user);
+            return Ok(Map(user));
         }
         catch (Exception e)
         {

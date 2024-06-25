@@ -11,6 +11,7 @@ public interface ICompanyService
     Task<Result<CompanyModel>> CreateCompanyAsync(CompanyRequest request);
     Task<Result<CompanyModel>> GetByIdAsync(string companyId);
     Task<Byte[]> GeneratePdf(string pdfId);
+    Task<Byte[]> PreviewPdf(string pdfId, List<string> jsons);
     Task<byte[]> ConvertDocxToJson(string companyId, string templateName, IFormFile file);
     Task<PdfModel> GenerateEmptyPdf(string companyId, string templateId);
     Task<Result> AddUserToCompanyAsync(string companyId, string userId);

@@ -291,9 +291,6 @@ public class CompanyRepository :  ICompanyRepository
         if (pdf.CurrentNumberOfUsers > pdf.Template.TotalNumberOfUsers)
             throw new Exception($"More users than required have completed their forms");
 
-        // if (pdf.Status == PdfStatus.Completed)
-        //     throw new Exception("This document has already been marked as completed!");
-
         return pdf;
     }
     

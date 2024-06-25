@@ -141,6 +141,23 @@ public class CompanyController : ControllerBase
         return Ok();
     }
     
+    [HttpPost("PreviewPdf")]
+    public async Task<ActionResult> PreviewDocument(string pdfId, List<string> jsons)
+    {
+        
+        Byte[] pdfBytes;
+        try
+        {
+            pdfBytes = await _companyService.PreviewPdf(pdfId, jsons);
+        }
+        catch (Exception e)
+        {
+            return BadRequest(e.Message);
+        }
+        
+        // return File(pdfBytes, "application/pdf", $"generated.pdf");
+        return Ok(pdfBytes);
+    }
     [HttpPatch("api/addUserToPdf")]
     public async Task<ActionResult<PdfResponse>> AddToPdf([FromQuery]string pdfId, string userEmail, [FromBody]string json, [FromQuery]string token = null)
     {

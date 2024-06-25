@@ -279,6 +279,7 @@ public class CompanyRepository :  ICompanyRepository
         var pdf = await _appDbContext.Pdfs
             .Include(p=>p.Template)
             .Include(p=>p.Users)
+            .Include(p=>p.Template.Company)
             .FirstOrDefaultAsync(p => p.Id == pdfId);
         
         if (pdf is null)
@@ -290,26 +291,10 @@ public class CompanyRepository :  ICompanyRepository
         if (pdf.CurrentNumberOfUsers > pdf.Template.TotalNumberOfUsers)
             throw new Exception($"More users than required have completed their forms");
 
-        if (pdf.Status == PdfStatus.Completed)
-            throw new Exception("This document has already been marked as completed!");
+        // if (pdf.Status == PdfStatus.Completed)
+        //     throw new Exception("This document has already been marked as completed!");
 
         return pdf;
-    }
-
-    public async Task AddContentToPdf(string pdfId, byte[] byteArray)
-    {
-        var pdf = await _appDbContext.Pdfs
-            .Include(p=>p.Template)
-            .FirstOrDefaultAsync(p => p.Id == pdfId);
-
-        if (pdf is null)
-            throw new Exception($"Pdf with id {pdfId} does not exist");
-        
-        pdf.Content = byteArray;
-        pdf.Status = PdfStatus.Completed;
-        
-        _appDbContext.Pdfs.Update(pdf);
-        await _appDbContext.SaveChangesAsync();
     }
     
     public async Task AddTemplate (string companyId, string templateName, byte[] fileContent, int totalNumberOfUsers,string jsonContent)

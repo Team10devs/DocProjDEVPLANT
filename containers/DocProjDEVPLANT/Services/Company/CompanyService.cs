@@ -159,8 +159,9 @@ public class CompanyService : ICompanyService
         // Search for specific words in the HTML content
         var matches = Regex.Matches(htmlContent, @"\{\{.*?\}\}");
         var nestedJson = new JObject();
-
-        var totalNumberOfUsers = 1;
+        
+        var wordCount = new Dictionary<string, int>();
+        var addedKeys = new HashSet<string>();
         foreach (Match match in matches)
         {
             var cleanedWord = match.Value.TrimStart('{').TrimEnd('}');
@@ -175,13 +176,23 @@ public class CompanyService : ICompanyService
                 var numberPart = Regex.Match(primaryKey, @"\d+$");
                 if (numberPart.Success)
                 {
-                    var number = int.Parse(numberPart.Value);
-
-                    if (number > totalNumberOfUsers)
-                    {
-                        totalNumberOfUsers = number;
-                    }
                     primaryKey = Regex.Replace(primaryKey, @"\d+$", "");
+                    primaryKey.TrimEnd();
+                }
+                
+                var cleanKey = $"{primaryKey}.{secondaryKey}"; // asta e fara numar
+
+                if (!addedKeys.Contains(cleanedWord)) // verifica sa nu fie de mai multe ori aceeasi cheie
+                {
+                    addedKeys.Add(cleanedWord);
+                    if (wordCount.ContainsKey(cleanKey))
+                    {
+                        wordCount[cleanKey]++;
+                    }
+                    else
+                    {
+                        wordCount[cleanKey] = 1;
+                    }   
                 }
                 
                 if (nestedJson[primaryKey] == null)
@@ -194,6 +205,17 @@ public class CompanyService : ICompanyService
             }
         }
 
+        int maxCount = 0;
+        foreach (var entry in wordCount)
+        {
+            if (entry.Value > maxCount)
+            {
+                maxCount = entry.Value;
+            }
+        }
+        
+        var totalNumberOfUsers = maxCount;
+        
         var jsonContent = nestedJson.ToString();
         
         try
@@ -259,7 +281,8 @@ public class CompanyService : ICompanyService
             using (var doc = DocX.Load(stream))
             {
                 string pattern = @"\{\{([^{}]+)\}\}";
-
+                var replacedValues = new Dictionary<string, string>();
+                
                 foreach (var json in pdf.Jsons)
                 {
                     foreach (var paragraph in doc.Paragraphs)
@@ -276,33 +299,64 @@ public class CompanyService : ICompanyService
                                 var primaryKey = parts[0].TrimStart();
                                 var secondaryKey = parts[1].TrimEnd();
 
+                                string replacedValue;
+                                if (replacedValues.ContainsKey(cleanedWord))
+                                {
+                                    replacedValue = replacedValues[cleanedWord];
+                                    
+                                    paragraph.ReplaceText(match.Value, replacedValue);
+                                    continue; // Skip to next match
+                                }
+
+                                
                                 // searches for numbers at the end of primarykey
                                 var numberPart = Regex.Match(primaryKey, @"\d+$");
-                                JObject jsonObject;
+                                JObject jsonObject = null;
                                 if (numberPart.Success)
                                 {
                                     primaryKey = Regex.Replace(primaryKey, @"\d+$", "");
                                     primaryKey.TrimEnd();
 
                                     var number = int.Parse(numberPart.Value);
-                                    jsonObject = jsonList[number - 1];
+                                    if (number > 0 && number <= pdf.CurrentNumberOfUsers)
+                                    {
+                                        jsonObject = jsonList[number - 1];
+                                    }
                                 }
-                                else
+                                
+                                if (jsonObject == null)
                                 {
-                                    jsonObject = jsonList[^1];
+                                    // Find the first non-null entry for this primary key starting from the end
+                                    for (int i = pdf.CurrentNumberOfUsers - 1; i >= 0; i--)
+                                    {
+                                        var jsonListObject = jsonList[i];
+                                        if (jsonListObject.TryGetValue(primaryKey, out JToken primaryToken1) &&
+                                            primaryToken1 is JObject primaryObject1 &&
+                                            primaryObject1.TryGetValue(secondaryKey, out JToken secondaryToken1) &&
+                                            secondaryToken1.Type != JTokenType.Null)
+                                        {
+                                            jsonObject = jsonListObject;
+                                            break;
+                                        }
+                                    }
                                 }
-
-                                if (jsonObject.TryGetValue(primaryKey, out JToken primaryToken) &&
+                                
+                                if (jsonObject != null && jsonObject.TryGetValue(primaryKey, out JToken primaryToken) &&
                                     primaryToken is JObject primaryObject &&
-                                    primaryObject.TryGetValue(secondaryKey, out JToken secondaryToken) &&
+                                    primaryObject.TryGetValue(secondaryKey, out JToken secondaryToken) && 
                                     secondaryToken.Type != JTokenType.Null)
                                 {
                                     paragraph.ReplaceText(match.Value, secondaryToken.ToString());
+                                    replacedValues[cleanedWord] = secondaryToken.ToString();
+                                    
+                                    // Mark the value as used
+                                    primaryObject[secondaryKey] = null;
+
                                 }
                                 else
                                 {
                                     throw new Exception(
-                                        $"The json {jsonObject} does not have the value for {primaryKey}, {secondaryKey}");
+                                        $"The json {jsonObject} does not have the value for {primaryKey}.{secondaryKey}");
                                 }
                             }
                         }
@@ -347,7 +401,7 @@ public class CompanyService : ICompanyService
                     }
 
                     var pdfBytes = await File.ReadAllBytesAsync(pdfFilePath);
-
+                    
                     /*try
                     {
                         await _companyRepository.AddContentToPdf(pdfId, pdfBytes);
@@ -366,10 +420,7 @@ public class CompanyService : ICompanyService
                     // Email sending Part
                     foreach (var user in pdf.Users)
                     {
-                        if (user.isEmail)
-                        {
                             await _companyRepository.SendEmailToUsers(user, pdf.Template, pdfBytes);
-                        }
                     }
 
                     return pdfBytes;

@@ -65,7 +65,7 @@ public class UserService : IUserService
                     request.role);
 
                 if (result.IsFailure)
-                    return Result.Failure<UserModel>(result.Error);
+                    throw new Exception(result.Error.ToString());
 
                 await _userRepository.CreateUserAsync(result.Value);
 

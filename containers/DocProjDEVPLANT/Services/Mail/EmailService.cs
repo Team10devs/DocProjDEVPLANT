@@ -535,6 +535,7 @@ public class EmailService : IEmailService
 			</html>";
         
         emailHtmlBody = emailHtmlBody.Replace("{formName}", template.Name)
+	        .Replace("{companyName}", template.Company.Name)
 	        .Replace("{registerLink}", registerLink);
 
         var bodyBuilder = new BodyBuilder { HtmlBody = emailHtmlBody };

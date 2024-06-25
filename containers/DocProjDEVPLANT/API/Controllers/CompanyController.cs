@@ -15,21 +15,18 @@ using PdfResponse = DocProjDEVPLANT.Domain.Entities.Templates.PdfResponse;
 
 namespace DocProjDEVPLANT.API.Controllers;
 
-[Route("Company")]
+[Route("api/Company")]
 [ApiController]
 public class CompanyController : ControllerBase
 {
     private readonly ICompanyService _companyService;
-    private readonly IUserService _userService;
     
-    public CompanyController(ICompanyService service,IUserService userService )
+    public CompanyController(ICompanyService service)
     {
         _companyService = service;
-        _userService = userService;
-        
     }
 
-    [HttpGet(Name = "GetAllCompanies")]
+    [HttpGet("GetAll")]
     public async Task<ActionResult<IEnumerable<CompanyResponse>>> GetAllCompanies()
     {
         var companies = await _companyService.GetAllAsync();
@@ -55,7 +52,7 @@ public class CompanyController : ControllerBase
         return Ok(ceva);
     }
 
-    [HttpPost]
+    [HttpPost("Create")]
     public async Task<ActionResult<CompanyModel>> CreateCompany([FromBody] CompanyRequest companyRequest)
     {
         var company = _companyService.CreateCompanyAsync(companyRequest);
@@ -77,12 +74,10 @@ public class CompanyController : ControllerBase
         if( result.IsSucces)
             return Ok(result);
         else 
-        {
             return BadRequest(result);
-        }
     }
 
-    [HttpPost("api/generateEmptyPdf")]
+    [HttpPost("GenerateEmptyPdf")]
     public async Task<ActionResult<PdfResponse>> GenerateEmptyPdf(string companyId, string templateId)
     {
         PdfModel pdf;
@@ -107,7 +102,7 @@ public class CompanyController : ControllerBase
         return pdfResponse;
     }
     
-    [HttpPost("api/docx")]
+    [HttpPost("UploadDocx")]
     public async Task<ActionResult> ConvertDocxToJson(string companyId, string templateName, IFormFile file)
     {
         byte[] byteArray;
@@ -123,7 +118,7 @@ public class CompanyController : ControllerBase
         return File(byteArray, "application/json", $"{templateName}.json");
     }
 
-    [HttpPost("api/pdf")]
+    [HttpPost("GenerateCompletedPdf")]
     public async Task<ActionResult> GenerateDocument(string pdfId)
     {
         
@@ -141,7 +136,7 @@ public class CompanyController : ControllerBase
         return Ok();
     }
     
-    [HttpPatch("api/addUserToPdf")]
+    [HttpPatch("AddUserToPdf")]
     public async Task<ActionResult<PdfResponse>> AddToPdf([FromQuery]string pdfId, string userEmail, [FromBody]string json, [FromQuery]string token = null)
     {
         try

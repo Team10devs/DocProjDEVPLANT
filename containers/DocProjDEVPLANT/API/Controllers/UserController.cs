@@ -9,25 +9,20 @@ using DocProjDEVPLANT.Services.Utils.ResultPattern;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DocProjDEVPLANT.API.Controllers;
-[Route("User")]
+[Route("api/User")]
 [ApiController]
 public class UserController : ControllerBase
 {
     private readonly IUserService _userService;
-    private readonly ITokenService _tokenService;
-    private readonly IEmailService _emailService;
     private readonly IFirebaseService _firebaseService;
 
-    public UserController(IUserService _service,ITokenService tokenService,IEmailService emailService,
-        IFirebaseService firebaseService)
-    {
-        _userService = _service;
-        _tokenService = tokenService;
-        _emailService = emailService;
+    public UserController(IUserService userService, IFirebaseService firebaseService)
+    { 
+        _userService = userService;
         _firebaseService = firebaseService;
     }
 
-    [HttpGet(Name = "GetAllUsers")]
+    [HttpGet("GetAll")]
     public async Task<ActionResult<IEnumerable<UserResponse>>> GetAllUsers()
     {
         Result<IEnumerable<UserModel>> result = await _userService.GetAllAsync();
@@ -35,7 +30,7 @@ public class UserController : ControllerBase
         return Ok(result.Value.Select(Map));
     }
 
-    [HttpGet("{email}")]
+    [HttpGet("ByEmail/{email}")]
     public async Task<ActionResult<UserModel>> GetUserByEmail(string email)
     {
         try
@@ -49,7 +44,7 @@ public class UserController : ControllerBase
         }
     }
 
-    [HttpPost]
+    [HttpPost("Create")]
     public async Task<ActionResult<UserModel>> CreateUser([FromBody] UserRequest userRequest/*, [FromHeader] string authorization*/)
     {
         // if (string.IsNullOrEmpty(authorization) || !authorization.StartsWith("Bearer "))
@@ -102,7 +97,7 @@ public class UserController : ControllerBase
         // }
     }
 
-    [HttpPost("addIdVariables")]
+    [HttpPost("AddIdVariables")]
     public async Task<IActionResult> AddIdVariables(IFormFile image)
     {
         var result = await _userService.AddIdVariables(image);
@@ -116,7 +111,7 @@ public class UserController : ControllerBase
         }
     }
     
-    [HttpGet("company/{companyName}")]
+    [HttpGet("ByCompanyName/{companyName}")]
     public async Task<ActionResult<List<UserModel>>> GetUsersByCompany(string companyName)
     {
         var users = await _userService.GetUsersByCompanyAsync(companyName);
@@ -127,7 +122,7 @@ public class UserController : ControllerBase
         return Ok(users);
     }
     
-    [HttpPatch("updateUserPersonalData")]
+    [HttpPatch("UpdateUserPersonalData")]
     public async Task<ActionResult<UserModel>> UpdateUserPersonalData(string userId, [FromBody] UserPersonalData personalDataDto)
     {
         if (string.IsNullOrEmpty(userId) || personalDataDto == null)

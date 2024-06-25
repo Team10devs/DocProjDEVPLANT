@@ -10,24 +10,22 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DocProjDEVPLANT.API.Controllers;
 
-[Route("Invite")]
+[Route("api/Invite")]
 [ApiController]
 public class InviteController : ControllerBase
 {
     private readonly ITokenService _tokenService;
     private readonly IEmailService _emailService;
     private readonly ITemplateService _templateService;
-    private readonly IUserService _userService;
 
-    public InviteController(ITokenService tokenService,IEmailService emailService, ITemplateService templateService,IUserService userService)
+    public InviteController(ITokenService tokenService,IEmailService emailService, ITemplateService templateService)
     {
         _tokenService = tokenService;
         _emailService = emailService;
         _templateService = templateService;
-        _userService = userService;
     }
     
-    [HttpPost("sendInviteEmail")]
+    [HttpPost("SendInviteEmail")]
     public async Task<IActionResult> GenerateInvite([FromBody] InviteRequest request)
     {
         var token = await _tokenService.GenerateTokenAsync(request.PdfId, request.Email);
@@ -48,7 +46,7 @@ public class InviteController : ControllerBase
         return Ok(new { InviteLink = inviteLink });
     }
     
-    [HttpGet("validate")]
+    [HttpGet("Validate")]
     public async Task<IActionResult> ValidateInviteToken([FromQuery] string token, [FromQuery] string pdfId, [FromQuery] string email)
     {
         var isValid = await _tokenService.ValidateTokenAsync(token, pdfId, email);

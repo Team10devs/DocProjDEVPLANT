@@ -1,6 +1,7 @@
 ﻿using DocProjDEVPLANT.API.DTOs.Template;
 using DocProjDEVPLANT.Domain.Entities.Templates;
 using DocProjDEVPLANT.Services.Company;
+using DocProjDEVPLANT.Services.Minio;
 using DocProjDEVPLANT.Services.Template;
 using Microsoft.AspNetCore.Mvc;
 using Minio;
@@ -8,22 +9,17 @@ using Minio;
 namespace DocProjDEVPLANT.API.Controllers;
 
 
-[Route("Template")]
+[Route("api/Template")]
 [ApiController]
 public class TemplateController : ControllerBase
 {
     private readonly ITemplateService _templateService;
-    private readonly ICompanyService _companyService;
-    private readonly MinioClient _minioClient;
-
-    public TemplateController(ITemplateService templateService, ICompanyService companyService,MinioClient minioClient)
+    public TemplateController(ITemplateService templateService)
     {
         _templateService = templateService;
-        _minioClient = minioClient;
-        _companyService = companyService;
     }
 
-    [HttpGet("ById")]
+    [HttpGet("ByTemplateId/{templateId}")]
     public async Task<ActionResult<TemplateResponse>> GetTemplateById(string templateId)
     {
         try
@@ -41,7 +37,7 @@ public class TemplateController : ControllerBase
         }
     }
     
-    [HttpGet("ByCompanyId")]
+    [HttpGet("ByCompanyId/{companyId}")]
     public async Task<ActionResult<IEnumerable<TemplateResponse>>> GetTemplatesByCompany(string companyId)
     {
         var templates = 
@@ -53,7 +49,7 @@ public class TemplateController : ControllerBase
         return Ok(templates.Value.Select(Map));
     }
     
-    [HttpGet("ByName")]
+    [HttpGet("ByTemplateName/{templateName}")]
     public async Task<ActionResult<TemplateResponse>> GetTemplatesByName(string templateName)//,string token)
     {
         try
@@ -81,7 +77,7 @@ public class TemplateController : ControllerBase
         }
     }
 
-    [HttpGet("{templateId}/pdfs")]
+    [HttpGet("PdfsBy/{templateId}")]
     public async Task<ActionResult<List<string>>> GetPdfsByTemplateId(string templateId)
     {
         try
@@ -95,7 +91,7 @@ public class TemplateController : ControllerBase
         }
     }
     
-    [HttpPatch("{templateId}/Template/docx/nrUsers")]
+    [HttpPatch("{templateId}")]
     public async Task<ActionResult> PatchTemplate(string templateId, string newName, IFormFile docx)
     {
         try
@@ -114,7 +110,7 @@ public class TemplateController : ControllerBase
         }
     }
 
-    [HttpPatch("{pdfId}/PDF/Complete")]
+    [HttpPatch("PDF/Complete/{pdfId}")]
     public async Task<ActionResult> PatchPdfStatus(string pdfId, bool isCompleted)
     {
         try

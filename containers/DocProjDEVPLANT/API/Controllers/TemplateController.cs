@@ -97,6 +97,20 @@ public class TemplateController : ControllerBase
         }
     }
     
+    [HttpGet("getPdfById/{pdfId}")]
+    public async Task<IActionResult> GetPdfById(string pdfId)
+    {
+        try
+        {
+            var pdfResponse = await _templateService.GetPdfById(pdfId);
+            return Ok(pdfResponse);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest($"Failed to get PDF: {ex.Message}");
+        }
+    }
+    
     [HttpPatch("{templateId}/Template/docx/nrUsers")]
     public async Task<ActionResult> PatchTemplate(string templateId, string newName, IFormFile docx)
     {

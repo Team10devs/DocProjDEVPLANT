@@ -172,6 +172,34 @@ public class CompanyController : ControllerBase
             return BadRequest(e.Message);
         }
     }
+
+    [HttpPatch("UpdatePdfJsons")]
+    public async Task<ActionResult<PdfResponse>> UpdateJsonsPdf([FromQuery] string pdfId, [FromBody] List<string> jsons)
+    {
+        try
+        {
+            var pdf = await _companyService.PatchPdfJsons(pdfId, jsons);
+            
+            var users = pdf.Users;
+            var userResponses = users.Select(MapUsers);
+        
+            var pdfResponse = new PdfResponse
+            {
+                Id = pdf.Id,
+                TemplateId = pdf.Template.Id,
+                TemplateName = pdf.Template.Name,
+                CurrentNumberOfUsers = pdf.CurrentNumberOfUsers,
+                Jsons = pdf.Jsons,
+                Users = userResponses.ToList()
+            };
+
+            return Ok(pdfResponse);
+        }
+        catch (Exception e)
+        {
+            return BadRequest(e.Message);
+        }
+    }
         
     
     private UserResponse MapUsers(UserModel userModel)

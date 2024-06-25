@@ -19,4 +19,5 @@ public interface ICompanyRepository
     Task<(PdfModel, TemplateModel)> VerifyNumberOfUsers(string pdfId, string templateId);
     Task AddTemplate(string companyId, string templateName, byte[] fileContent, int totalNumberOfUsers,string jsonContent);
     Task SendEmailToUsers(UserModel user, TemplateModel templateModel, byte[] pdf);
+    Task<PdfModel> UpdatePdfJsons(string pdfId, List<string> jsons);
 }

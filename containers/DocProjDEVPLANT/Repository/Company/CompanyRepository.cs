@@ -317,4 +317,35 @@ public class CompanyRepository :  ICompanyRepository
     {
         await _emailService.SendEmailAsync(user, templateModel, pdf);
     }
+
+    public async Task<PdfModel> UpdatePdfJsons(string pdfId, List<string> jsons)
+    {
+        var pdf = await _appDbContext.Pdfs
+            .Include(p=>p.Template)
+            .Include(p=>p.Users)
+            .FirstOrDefaultAsync(p => p.Id == pdfId);
+        
+        if (pdf is null)
+            throw new Exception($"Pdf with id {pdfId} does not exist");
+
+        if (pdf.CurrentNumberOfUsers != jsons.Count)
+            throw new Exception($"The number of json strings given is not correct");
+        
+        var templateJson = pdf.Template.JsonContent;
+        
+        // verifica daca e ok json ul
+        foreach (var json in jsons)
+        {
+            if (!ValidateJson(templateJson, json))
+            {
+                throw new Exception($"The json {json} is not valid for template {templateJson}");
+            }   
+        }
+
+        pdf.Jsons = jsons;
+        _appDbContext.Pdfs.Update(pdf);
+        await _appDbContext.SaveChangesAsync();
+
+        return pdf;
+    }
 }

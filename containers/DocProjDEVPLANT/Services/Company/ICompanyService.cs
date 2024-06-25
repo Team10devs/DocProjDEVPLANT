@@ -15,4 +15,5 @@ public interface ICompanyService
     Task<PdfModel> GenerateEmptyPdf(string companyId, string templateId);
     Task<Result> AddUserToCompanyAsync(string companyId, string userId);
     Task<PdfModel> AddUserToPdf(string pdfId, string userEmail, string json,string? token = null);
+    Task<PdfModel> PatchPdfJsons(string pdfId, List<string> jsons);
 }

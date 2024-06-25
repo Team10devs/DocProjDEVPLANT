@@ -115,7 +115,21 @@ public class CompanyService : ICompanyService
             throw new Exception(e.Message);
         }
     }
-    
+
+    public async Task<PdfModel> PatchPdfJsons(string pdfId, List<string> jsons)
+    {
+        try
+        {
+            var pdf = await _companyRepository.UpdatePdfJsons(pdfId, jsons);
+
+            return pdf;
+        }
+        catch (Exception e)
+        {
+            throw new Exception(e.Message);
+        }
+    }
+
     public async Task<byte[]> ConvertDocxToJson(string companyId, string templateName,IFormFile file)
     {
         

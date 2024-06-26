@@ -48,4 +48,15 @@ public class TokenService : ITokenService
             await _dbContext.SaveChangesAsync();
         }
     }
+    
+    public async Task<TokenDto> GetTokenByTokenIdAsync(string tokenId)
+    {
+        var token = await _dbContext.Tokens
+            .FirstOrDefaultAsync(t => t.Id == tokenId && t.Status == "valid");
+
+        if (token == null)
+            return null;
+
+        return new TokenDto(token.PdfId, token.Email);
+    }
 }

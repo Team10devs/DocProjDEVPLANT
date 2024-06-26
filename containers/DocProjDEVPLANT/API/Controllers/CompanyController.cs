@@ -55,7 +55,7 @@ public class CompanyController : ControllerBase
         return Ok(ceva);
     }
 
-    [HttpPost]
+   /* [HttpPost]
     public async Task<ActionResult<CompanyModel>> CreateCompany([FromBody] CompanyRequest companyRequest)
     {
         var company = _companyService.CreateCompanyAsync(companyRequest);
@@ -66,7 +66,7 @@ public class CompanyController : ControllerBase
         }
 
         return Ok(company.Result);
-    }
+    }*/
 
     [HttpPatch("AddUserToCompany")]
     public async Task<ActionResult<CompanyModel>> AddCompanyUser(string companyId, [FromBody] string userId)

@@ -7,6 +7,7 @@ namespace DocProjDEVPLANT.Repository.Company;
 public interface ICompanyRepository
 {
     public Task<List<CompanyModel>> GetAllCompaniesAsync();
+    public Task<CompanyModel> GetByNameAsync(string companyName);
     public Task CreateCompanyAsync(CompanyModel companyModel);
     public Task<CompanyModel> FindByIdAsync(string id);
     public Task<TemplateModel> FindByIdWithTemplateAsync(string id, string templateId);

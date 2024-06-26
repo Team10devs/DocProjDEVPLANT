@@ -14,4 +14,5 @@ public interface ITemplateService
     Task<TemplateModel> GetTemplateByPdfId(string pdfId);
     Task<byte[]> PatchTemplate(string id, string newName, IFormFile file);
     Task<PdfModel> ChangeCompletionPdf(string pdfId, bool isCompleted);
+    Task<PdfResponse> GetPdfById(string pdfId);
 }

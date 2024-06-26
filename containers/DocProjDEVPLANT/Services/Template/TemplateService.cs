@@ -260,6 +260,38 @@ public class TemplateService : ITemplateService
         
         return byteArray;
     }
+    
+    public async Task<PdfResponse> GetPdfById(string pdfId)
+    {
+        try
+        {
+            var pdf = await _context.Pdfs
+                .Include(t=>t.Template)
+                .Where(p => p.Id == pdfId)
+                .FirstOrDefaultAsync();
+
+            if (pdf == null)
+            {
+                throw new Exception($"PDF with ID '{pdfId}' not found.");
+            }
+            
+            var pdfResponse = new PdfResponse
+            {
+                Id = pdf.Id.ToString(),
+                TemplateId = pdf.Template.Id,
+                TemplateName = pdf.Template.Name,
+                CurrentNumberOfUsers = pdf.CurrentNumberOfUsers,
+                Jsons = pdf.Jsons
+            };
+
+            return pdfResponse;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"Failed to get PDF: {ex.Message}");
+        }
+    }
+    
 
     public async Task<PdfModel> ChangeCompletionPdf(string pdfId, bool isCompleted)
     {

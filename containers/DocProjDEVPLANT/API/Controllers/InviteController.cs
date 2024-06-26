@@ -42,7 +42,7 @@ public class InviteController : ControllerBase
             throw new Exception(e.Message);
         }
         
-        var inviteLink = $"http://localhost:3000/invite?token={token}"; 
+        var inviteLink = $"http://localhost:4200/invite?token={token}"; 
         //inca nu am unde sa il trimit pe user 
         await _emailService.SendInviteEmailAsync(request.Email, template, inviteLink);
         return Ok(new { InviteLink = inviteLink });
@@ -59,6 +59,26 @@ public class InviteController : ControllerBase
         else
         {
             return BadRequest("Invalid Token.");
+        }
+    }
+
+    [HttpGet("getTokenById")]
+    public async Task<IActionResult> GetTokenById([FromQuery] string tokenId)
+    {
+        try
+        {
+            var token = await _tokenService.GetTokenByTokenIdAsync(tokenId);
+
+            if (token == null)
+            {
+                return NotFound($"Token with ID '{tokenId}' not found.");
+            }
+
+            return Ok(token);
+        }
+        catch (Exception e)
+        {
+            return BadRequest($"Failed to retrieve token: {e.Message}");
         }
     }
 }

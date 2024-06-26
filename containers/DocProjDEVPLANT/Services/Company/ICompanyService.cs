@@ -9,6 +9,7 @@ public interface ICompanyService
 {
     Task<Result<IEnumerable<CompanyModel>>> GetAllAsync();
     Task<CompanyModel> GetCompanyByNameAsync(string companyName);
+    Task<CompanyModel> GetCompanyByUserEmail(string userEmail);
     Task<CompanyModel> CreateCompanyAsync(CompanyRequest request);
     Task<Result<CompanyModel>> GetByIdAsync(string companyId);
     Task<Byte[]> GeneratePdf(string pdfId);

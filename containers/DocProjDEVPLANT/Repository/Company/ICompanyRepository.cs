@@ -8,6 +8,7 @@ public interface ICompanyRepository
 {
     public Task<List<CompanyModel>> GetAllCompaniesAsync();
     public Task<CompanyModel> GetByNameAsync(string companyName);
+    public Task<CompanyModel> GetByUserEmail(string userEmail);
     public Task CreateCompanyAsync(CompanyModel companyModel);
     public Task<CompanyModel> FindByIdAsync(string id);
     public Task<TemplateModel> FindByIdWithTemplateAsync(string id, string templateId);

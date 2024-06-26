@@ -55,6 +55,27 @@ public class CompanyController : ControllerBase
         return Ok(ceva);
     }
 
+    [HttpGet("CompanyByUserEmail")]
+    public async Task<ActionResult<CompanyModel>> GetByUserEmail(string userEmail)
+    {
+        try
+        {
+            var company = await _companyService.GetCompanyByUserEmail(userEmail);
+            var companyResponse =  new CompanyResponseWithUsers
+            {
+                Id = company.Id,
+                Name = company.Name,
+                Templates = company.Templates.Select(t=> new TemplateResponse(t.Id,t.Name, company.Name, t.TotalNumberOfUsers, t.JsonContent)).ToList()
+            };
+
+            return Ok(companyResponse);
+        }
+        catch (Exception e)
+        {
+            return BadRequest(e.Message);
+        }
+    }
+
    /* [HttpPost]
     public async Task<ActionResult<CompanyModel>> CreateCompany([FromBody] CompanyRequest companyRequest)
     {

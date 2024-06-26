@@ -34,6 +34,19 @@ public class CompanyRepository :  ICompanyRepository
         return await _appDbContext.Companies.FirstOrDefaultAsync(c => c.Name == companyName);
     }
 
+    public async Task<CompanyModel> GetByUserEmail(string userEmail)
+    {
+        var company = await _appDbContext.Companies
+            .Include(c => c.Users)
+            .Include(c => c.Templates)
+            .FirstOrDefaultAsync(c => c.Users.Any(u => u.Email == userEmail));
+
+        if (company is null)
+            throw new Exception($"Company with userEmail {userEmail} does not exist");
+
+        return company;
+    }
+
     public async Task CreateCompanyAsync(CompanyModel companyModel)
     {
         _appDbContext.Add(companyModel);

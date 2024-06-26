@@ -42,7 +42,19 @@ public class CompanyService : ICompanyService
     {
         return await _companyRepository.GetByNameAsync(companyName);
     }
-    
+
+    public async Task<CompanyModel> GetCompanyByUserEmail(string userEmail)
+    {
+        try
+        {
+            return await _companyRepository.GetByUserEmail(userEmail);
+        }
+        catch (Exception e)
+        {
+            throw new Exception(e.Message);
+        }
+    }
+
     public async Task<CompanyModel> CreateCompanyAsync(CompanyRequest request)
     {
         try

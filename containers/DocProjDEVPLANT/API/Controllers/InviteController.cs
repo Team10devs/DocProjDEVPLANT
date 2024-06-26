@@ -52,14 +52,7 @@ public class InviteController : ControllerBase
     public async Task<IActionResult> ValidateInviteToken([FromQuery] string token, [FromQuery] string pdfId, [FromQuery] string email)
     {
         var isValid = await _tokenService.ValidateTokenAsync(token, pdfId, email);
-        if (isValid)
-        {
-            return Ok("Valid Token. Access allowed.");
-        }
-        else
-        {
-            return BadRequest("Invalid Token.");
-        }
+        return Ok(isValid);
     }
 
     [HttpGet("getTokenById")]

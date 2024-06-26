@@ -1,3 +1,4 @@
+using DocProjDEVPLANT.Domain.Entities.Enums;
 using DocProjDEVPLANT.Domain.Entities.User;
 
 namespace DocProjDEVPLANT.Domain.Entities.Templates;
@@ -20,4 +21,5 @@ public class PdfModel : Entity
     public TemplateModel Template { get; set; }
     public List<string> Jsons { get; set; }
     public List<UserModel> Users { get; set; }
+    public PdfStatus Status { get; set; }
 }

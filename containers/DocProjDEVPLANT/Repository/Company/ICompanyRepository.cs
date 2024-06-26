@@ -1,4 +1,4 @@
-﻿using DocProjDEVPLANT.Domain.Entities.Company;
+using DocProjDEVPLANT.Domain.Entities.Company;
 using DocProjDEVPLANT.Domain.Entities.Templates;
 using DocProjDEVPLANT.Domain.Entities.User;
 
@@ -8,6 +8,7 @@ public interface ICompanyRepository
 {
     public Task<List<CompanyModel>> GetAllCompaniesAsync();
     public Task<CompanyModel> GetByNameAsync(string companyName);
+    public Task<CompanyModel> GetByUserEmail(string userEmail);
     public Task CreateCompanyAsync(CompanyModel companyModel);
     public Task<CompanyModel> FindByIdAsync(string id);
     public Task<TemplateModel> FindByIdWithTemplateAsync(string id, string templateId);
@@ -17,7 +18,8 @@ public interface ICompanyRepository
     Task<bool> UpdateAsync(CompanyModel company);
     /*Task UploadDocument(string companyId, string templateId, byte[]? document);*/
     Task<PdfModel> AddUserToPdf(string pdfId, string userEmail, string json);
-    Task<(PdfModel, TemplateModel)> VerifyNumberOfUsers(string pdfId, string templateId);
+    Task<PdfModel> CheckPDF(string pdfId);
     Task AddTemplate(string companyId, string templateName, byte[] fileContent, int totalNumberOfUsers,string jsonContent);
     Task SendEmailToUsers(UserModel user, TemplateModel templateModel, byte[] pdf);
+    Task<PdfModel> UpdatePdfJsons(string pdfId, List<string> jsons);
 }

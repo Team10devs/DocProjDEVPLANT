@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using DocProjDEVPLANT.Domain.Entities.Company;
 using DocProjDEVPLANT.Domain.Entities.Enums;
@@ -32,6 +32,19 @@ public class CompanyRepository :  ICompanyRepository
     public async Task<CompanyModel> GetByNameAsync(string companyName)
     {
         return await _appDbContext.Companies.FirstOrDefaultAsync(c => c.Name == companyName);
+    }
+
+    public async Task<CompanyModel> GetByUserEmail(string userEmail)
+    {
+        var company = await _appDbContext.Companies
+            .Include(c => c.Users)
+            .Include(c => c.Templates)
+            .FirstOrDefaultAsync(c => c.Users.Any(u => u.Email == userEmail));
+
+        if (company is null)
+            throw new Exception($"Company with userEmail {userEmail} does not exist");
+
+        return company;
     }
 
     public async Task CreateCompanyAsync(CompanyModel companyModel)
@@ -75,6 +88,7 @@ public class CompanyRepository :  ICompanyRepository
         }
         
         var pdf = new PdfModel(template);
+        pdf.Status = PdfStatus.Empty;
 
         await _appDbContext.Pdfs.AddAsync(pdf);
         await _appDbContext.SaveChangesAsync();
@@ -96,7 +110,7 @@ public class CompanyRepository :  ICompanyRepository
     {
         await _appDbContext.SaveChangesAsync();
     }
-    
+
     public async Task<bool> UpdateAsync(CompanyModel company)
     {
         _appDbContext.Companies.Update(company);
@@ -115,7 +129,7 @@ public class CompanyRepository :  ICompanyRepository
 
         var pdfModel = new PdfModel(template);
         pdfModel.Content = document;
-        
+
         template.GeneratedPdfs.Add(pdfModel);
         await _appDbContext.SaveChangesAsync();
     } nu era folosita nici unde metoda asta*/
@@ -196,6 +210,9 @@ public class CompanyRepository :  ICompanyRepository
         if (pdf is null)
             throw new Exception($"Pdf with id {pdfId} does not exist");
 
+        if (pdf.Status == PdfStatus.Completed)
+            throw new Exception("This document has already been marked as completed!");
+
         if (string.IsNullOrWhiteSpace(json))
             throw new Exception($"The json file must not be null");
         
@@ -235,11 +252,14 @@ public class CompanyRepository :  ICompanyRepository
         
         try
         {
-            
+            pdf.Status = PdfStatus.InCompletion;
             pdf.CurrentNumberOfUsers++;
             pdf.Jsons.Add(json);
             pdf.Users.Add(user);
-            
+
+            if (pdf.Template.TotalNumberOfUsers == pdf.CurrentNumberOfUsers)
+                pdf.Status = PdfStatus.Completed;
+
             if (string.IsNullOrWhiteSpace(user.UserData))
             {
                 user.UserData = json;
@@ -271,34 +291,24 @@ public class CompanyRepository :  ICompanyRepository
         }
     }
 
-    public async Task<(PdfModel, TemplateModel)> VerifyNumberOfUsers(string pdfId, string templateId)
+    public async Task<PdfModel> CheckPDF(string pdfId)
     {
         var pdf = await _appDbContext.Pdfs
             .Include(p=>p.Template)
             .Include(p=>p.Users)
+            .Include(p=>p.Template.Company)
             .FirstOrDefaultAsync(p => p.Id == pdfId);
         
         if (pdf is null)
             throw new Exception($"Pdf with id {pdfId} does not exist");
-
-        var template = await _appDbContext.Templates
-            .Include(t => t.GeneratedPdfs)
-            .Include(t=>t.Company)
-            .FirstOrDefaultAsync(t => t.Id == templateId);
         
-        if (template is null)
-            throw new Exception($"Template with id {templateId} does not exist");
-
-        if (pdf.Template.Id != templateId)
-            throw new Exception($"The pdf does not correspond to the template");
-
-        if (pdf.CurrentNumberOfUsers < template.TotalNumberOfUsers)
-            throw new Exception($"Not enough users have completed their forms {pdf.CurrentNumberOfUsers}/{template.TotalNumberOfUsers}");
+        if (pdf.CurrentNumberOfUsers < pdf.Template.TotalNumberOfUsers)
+            throw new Exception($"Not enough users have completed their forms {pdf.CurrentNumberOfUsers}/{pdf.Template.TotalNumberOfUsers}");
         
-        if (pdf.CurrentNumberOfUsers > template.TotalNumberOfUsers)
+        if (pdf.CurrentNumberOfUsers > pdf.Template.TotalNumberOfUsers)
             throw new Exception($"More users than required have completed their forms");
-        
-        return (pdf, template);
+
+        return pdf;
     }
     
     public async Task AddTemplate (string companyId, string templateName, byte[] fileContent, int totalNumberOfUsers,string jsonContent)
@@ -320,5 +330,36 @@ public class CompanyRepository :  ICompanyRepository
     public async Task SendEmailToUsers(UserModel user, TemplateModel templateModel, byte[] pdf)
     {
         await _emailService.SendEmailAsync(user, templateModel, pdf);
+    }
+
+    public async Task<PdfModel> UpdatePdfJsons(string pdfId, List<string> jsons)
+    {
+        var pdf = await _appDbContext.Pdfs
+            .Include(p=>p.Template)
+            .Include(p=>p.Users)
+            .FirstOrDefaultAsync(p => p.Id == pdfId);
+        
+        if (pdf is null)
+            throw new Exception($"Pdf with id {pdfId} does not exist");
+
+        if (pdf.CurrentNumberOfUsers != jsons.Count)
+            throw new Exception($"The number of json strings given is not correct");
+        
+        var templateJson = pdf.Template.JsonContent;
+        
+        // verifica daca e ok json ul
+        foreach (var json in jsons)
+        {
+            if (!ValidateJson(templateJson, json))
+            {
+                throw new Exception($"The json {json} is not valid for template {templateJson}");
+            }   
+        }
+
+        pdf.Jsons = jsons;
+        _appDbContext.Pdfs.Update(pdf);
+        await _appDbContext.SaveChangesAsync();
+
+        return pdf;
     }
 }

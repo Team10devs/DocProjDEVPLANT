@@ -9,11 +9,14 @@ public interface ICompanyService
 {
     Task<Result<IEnumerable<CompanyModel>>> GetAllAsync();
     Task<CompanyModel> GetCompanyByNameAsync(string companyName);
+    Task<CompanyModel> GetCompanyByUserEmail(string userEmail);
     Task<CompanyModel> CreateCompanyAsync(CompanyRequest request);
     Task<Result<CompanyModel>> GetByIdAsync(string companyId);
-    Task<Byte[]> GeneratePdf(string pdfId, string templateId);
+    Task<Byte[]> GeneratePdf(string pdfId);
+    Task<Byte[]> PreviewPdf(string pdfId, List<string> jsons);
     Task<byte[]> ConvertDocxToJson(string companyId, string templateName, IFormFile file);
     Task<PdfModel> GenerateEmptyPdf(string companyId, string templateId);
     Task<Result> AddUserToCompanyAsync(string companyId, string userId);
     Task<PdfModel> AddUserToPdf(string pdfId, string userEmail, string json,string? token = null);
+    Task<PdfModel> PatchPdfJsons(string pdfId, List<string> jsons);
 }

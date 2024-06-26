@@ -153,7 +153,7 @@ public class UserController : ControllerBase
         //     return BadRequest("Failed to register");
         // }
     }
-    
+
     [HttpPost("addIdVariables")]
     public async Task<IActionResult> AddIdVariables(IFormFile image)
     {

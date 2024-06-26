@@ -1,4 +1,5 @@
 ﻿using DocProjDEVPLANT.API.User;
+using DocProjDEVPLANT.Domain.Entities.Company;
 using DocProjDEVPLANT.Domain.Entities.User;
 using DocProjDEVPLANT.Services.Utils.ResultPattern;
 
@@ -16,4 +17,5 @@ public interface IUserService
     Task<Result<UserModel>> AddIdVariablesToUser(string userId, UserPersonalData personalDataDto);
 
     Task UpdateUserAsync(UserModel user);
+    Task<CompanyModel?> GetCompanyByUserEmail(string email);
 }

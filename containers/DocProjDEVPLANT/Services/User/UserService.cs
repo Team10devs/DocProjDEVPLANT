@@ -1,10 +1,13 @@
 using System.Dynamic;
+using DocProjDEVPLANT.API.Company;
 using DocProjDEVPLANT.API.User;
+using DocProjDEVPLANT.Domain.Entities.Company;
 using DocProjDEVPLANT.Domain.Entities.User;
 using DocProjDEVPLANT.Repository.Company;
 using DocProjDEVPLANT.Repository.User;
 using DocProjDEVPLANT.Services.Scanner;
 using DocProjDEVPLANT.Services.Utils.ResultPattern;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Newtonsoft.Json;
 
 namespace DocProjDEVPLANT.Services.User;
@@ -139,5 +142,18 @@ public class UserService : IUserService
     public async Task UpdateUserAsync(UserModel user)
     {
         await _userRepository.UpdateUserAsync(user);
+    }
+
+    public async Task<CompanyModel?> GetCompanyByUserEmail(string email)
+    {
+        try
+        {
+            var user = await _userRepository.FindByEmailAsync(email);
+            return user.Company;
+        }
+        catch (Exception e)
+        {
+            throw new Exception(e.Message);
+        }
     }
 }

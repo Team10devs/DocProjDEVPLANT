@@ -1,4 +1,7 @@
+using DocProjDEVPLANT.API.Company;
+using DocProjDEVPLANT.API.DTOs.Template;
 using DocProjDEVPLANT.API.User;
+using DocProjDEVPLANT.Domain.Entities.Company;
 using DocProjDEVPLANT.Domain.Entities.Enums;
 using DocProjDEVPLANT.Domain.Entities.User;
 using DocProjDEVPLANT.Services.Firebase;
@@ -120,6 +123,32 @@ public class UserController : ControllerBase
             return NotFound();
         }
         return Ok(users);
+    }
+
+    [HttpGet("Company/{userEmail}")]
+
+    public async Task<ActionResult<CompanyResponse?>> GetCompanyByUserEmail(string userEmail)
+    {
+        try
+        {
+            var company = await _userService.GetCompanyByUserEmail(userEmail);
+
+            if (company is null)
+                return NotFound($"User with email {userEmail} might not be part of a company!");
+            
+            var companyResponse = new CompanyResponse(
+                company.Id,
+                company.Name,
+                company.Templates.Select(t => new TemplateResponse(t.Id, t.Name, company.Name, t.TotalNumberOfUsers /*t.DocxFile*/)).ToList()
+            );
+
+            return Ok(companyResponse);
+        }
+        catch (Exception e)
+        {
+            return BadRequest(e.Message);
+        }
+            
     }
     
     [HttpPatch("UpdateUserPersonalData")]

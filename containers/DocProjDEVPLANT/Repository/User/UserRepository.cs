@@ -26,6 +26,7 @@ public class UserRepository :  IUserRepository
     {
         var user = await _appDbContext.Users
             .Include(u => u.Company)
+            .Include( u=> u.Company.Templates )
             .FirstOrDefaultAsync(u => u.Email == email);
 
         if (user is null)

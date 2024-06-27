@@ -86,60 +86,92 @@ public class UserController : ControllerBase
         // else
         // {
         // daca nu exista , facem unul nou
-        try
+    try
+{
+    CompanyModel company = null;
+
+    if (!string.IsNullOrEmpty(userRequest.companyName))
+    {
+        company = await _companyService.GetCompanyByNameAsync(userRequest.companyName);
+
+        if (company == null)
         {
-            CompanyModel company = null;
-
-            if (!string.IsNullOrEmpty(userRequest.companyName))
+            // companie noua si setare rol user la superUser
+            try
             {
-                company = await _companyService.GetCompanyByNameAsync(userRequest.companyName);
-
-                if (company == null)
+                var newCompanyRequest = new CompanyRequest(userRequest.companyName);
+                var newCompany = await _companyService.CreateCompanyAsync(newCompanyRequest);
+                if (newCompany == null)
                 {
-                    //companie noua si setare rol ca superUser 
-                    try
-                    {
-                        var newCompanyRequest = new CompanyRequest(userRequest.companyName);
-                        var newCompany = await _companyService.CreateCompanyAsync(newCompanyRequest);
-                        if (newCompany == null)
-                        {
-                            return BadRequest($"Failed to create company.");
-                        }
-
-                        company = newCompany;
-
-                        userRequest = userRequest with { role = RoleEnum.SuperUser };
-                    }
-                    catch (Exception ex)
-                    {
-                        return BadRequest($"Failed to create company: {ex.Message}");
-                    }
+                    return BadRequest("Failed to create company.");
                 }
-                else
-                {
-                    // daca compania exista il facem user normal
-                    userRequest = userRequest with { role = RoleEnum.OrdinaryUser };
-                }
+
+                company = newCompany;
+                
+                userRequest = userRequest with { role = RoleEnum.SuperUser };
             }
-
-            var createdUser = await _userService.CreateUserAsync(userRequest);
-
-            //dupa ce userul ii creat, il adaugam la companie
-            if (company != null)
+            catch (Exception ex)
             {
-                var addUserToCompanyResult = await _companyService.AddUserToCompanyAsync(company.Id, createdUser.Id);
-                if (addUserToCompanyResult.IsFailure)
-                {
-                    return BadRequest($"Failed to add user to company.");
-                }
+                return BadRequest($"Failed to create company: {ex.Message}");
             }
-
-            return Ok(Map(createdUser));
         }
-        catch (Exception e)
+        else
         {
-            return BadRequest(e.Message);
+            // daca exista compania userRole = ordinaryUser
+            userRequest = userRequest with { role = RoleEnum.OrdinaryUser };
         }
+    }
+
+    var existingUser = await _userService.GetUserByEmailAsync(userRequest.email);
+
+    if (existingUser == null)
+    {
+        // daca nu exista creem user
+        var createdUser = await _userService.CreateUserAsync(userRequest);
+
+        // adaugare in companie
+        if (company != null)
+        {
+            var addUserToCompanyResult = await _companyService.AddUserToCompanyAsync(company.Id, createdUser.Id);
+            if (addUserToCompanyResult.IsFailure)
+            {
+                return BadRequest("Failed to add user to company.");
+            }
+        }
+
+        return Ok(Map(createdUser));
+    }
+    else if (existingUser.Role == RoleEnum.UnregisteredUser)
+    {
+        // actualizare user
+        existingUser.UserName = userRequest.username;
+        existingUser.Role = userRequest.role;
+
+        await _userService.UpdateUserAsync(existingUser);
+
+        // user actualizat in companie
+        if (company != null)
+        {
+            var addUserToCompanyResult = await _companyService.AddUserToCompanyAsync(company.Id, existingUser.Id);
+            if (addUserToCompanyResult.IsFailure)
+            {
+                return BadRequest("Failed to add user to company.");
+            }
+        }
+
+        return Ok(Map(existingUser));
+    }
+    else
+    {
+        return BadRequest("User already exists and is not an UnregisteredUser.");
+    }
+}
+catch (Exception e)
+{
+    return BadRequest(e.Message);
+}
+
+
     
 
     // }

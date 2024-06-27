@@ -47,7 +47,8 @@ public class CompanyController : ControllerBase
             {
                 Id = u.Id,
                 UserName = u.UserName,
-                Role = u.Role
+                Role = u.Role,
+                Email = u.Email
             }).ToList(),
             Templates = c.Templates.Select(t=> new TemplateResponse(t.Id,t.Name, c.Name, t.TotalNumberOfUsers/*t.DocxFile*/)).ToList()
         }).ToList();

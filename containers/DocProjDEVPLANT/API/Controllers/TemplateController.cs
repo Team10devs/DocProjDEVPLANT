@@ -8,7 +8,7 @@ using Minio;
 namespace DocProjDEVPLANT.API.Controllers;
 
 
-[Route("Template")]
+[Route("/api/Template")]
 [ApiController]
 public class TemplateController : ControllerBase
 {

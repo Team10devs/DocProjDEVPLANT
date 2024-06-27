@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DocProjDEVPLANT.API.Controllers;
 
-[Route("Invite")]
+[Route("/api/Invite")]
 [ApiController]
 public class InviteController : ControllerBase
 {

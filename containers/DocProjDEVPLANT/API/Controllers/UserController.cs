@@ -12,7 +12,7 @@ using DocProjDEVPLANT.Services.Utils.ResultPattern;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DocProjDEVPLANT.API.Controllers;
-[Route("User")]
+[Route("/api/User")]
 [ApiController]
 public class UserController : ControllerBase
 {

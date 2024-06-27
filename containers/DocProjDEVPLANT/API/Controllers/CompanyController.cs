@@ -15,7 +15,7 @@ using PdfResponse = DocProjDEVPLANT.Domain.Entities.Templates.PdfResponse;
 
 namespace DocProjDEVPLANT.API.Controllers;
 
-[Route("Company")]
+[Route("/api/Company")]
 [ApiController]
 public class CompanyController : ControllerBase
 {
@@ -103,7 +103,7 @@ public class CompanyController : ControllerBase
         }
     }
 
-    [HttpPost("api/generateEmptyPdf")]
+    [HttpPost("generateEmptyPdf")]
     public async Task<ActionResult<PdfResponse>> GenerateEmptyPdf(string companyId, string templateId)
     {
         PdfModel pdf;
@@ -128,7 +128,7 @@ public class CompanyController : ControllerBase
         return pdfResponse;
     }
     
-    [HttpPost("api/docx")]
+    [HttpPost("docx")]
     public async Task<ActionResult> ConvertDocxToJson(string companyId, string templateName, IFormFile file)
     {
         byte[] byteArray;
@@ -144,7 +144,7 @@ public class CompanyController : ControllerBase
         return File(byteArray, "application/json", $"{templateName}.json");
     }
 
-    [HttpPost("api/pdf")]
+    [HttpPost("pdf")]
     public async Task<ActionResult> GenerateDocument(string pdfId)
     {
         
@@ -179,7 +179,7 @@ public class CompanyController : ControllerBase
         // return File(pdfBytes, "application/pdf", $"generated.pdf");
         return Ok(pdfBytes);
     }
-    [HttpPatch("api/addUserToPdf")]
+    [HttpPatch("addUserToPdf")]
     public async Task<ActionResult<PdfResponse>> AddToPdf([FromQuery]string pdfId, string userEmail, [FromBody]string json, [FromQuery]string token = null)
     {
         try

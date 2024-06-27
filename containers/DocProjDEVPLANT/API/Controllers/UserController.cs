@@ -195,6 +195,20 @@ public class UserController : ControllerBase
 
         return BadRequest(result.Error);
     }
+
+    [HttpPatch("updateUserJsonData")]
+    public async Task<ActionResult<UserResponse>> UpdateUserJsonData(string userEmail, string jsonData)
+    {
+        try
+        {
+            var user = await _userService.UpdateUserJson(userEmail, jsonData);
+            return Ok(Map(user));
+        }
+        catch (Exception e)
+        {
+            return BadRequest(e.Message);
+        }
+    }
      
     private UserResponse Map(UserModel userModel)
     {

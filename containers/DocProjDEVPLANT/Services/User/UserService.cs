@@ -136,6 +136,18 @@ public class UserService : IUserService
         return Result.Succes(user);
     }
 
+    public async Task<UserModel> UpdateUserJson(string userEmail, string jsonData)
+    {
+        try
+        {
+            return await _userRepository.UpdateUserJsonAsync(userEmail, jsonData);
+        }
+        catch (Exception e)
+        {
+            throw new Exception(e.Message);
+        }
+    }
+
     public async Task UpdateUserAsync(UserModel user)
     {
         await _userRepository.UpdateUserAsync(user);

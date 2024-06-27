@@ -3,6 +3,8 @@ using DocProjDEVPLANT.Domain.Entities.User;
 using DocProjDEVPLANT.Repository.Database;
 using DocProjDEVPLANT.Services.Utils.ResultPattern;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace DocProjDEVPLANT.Repository.User;
 
@@ -74,5 +76,33 @@ public class UserRepository :  IUserRepository
         _appDbContext.Users.Update(user); 
         await _appDbContext.SaveChangesAsync();
         
+    }
+
+    public async Task<UserModel> UpdateUserJsonAsync(string userEmail, string jsonData)
+    {
+        try
+        {
+            var user = await FindByEmailAsync(userEmail);
+
+            if (string.IsNullOrWhiteSpace(jsonData))
+                throw new Exception($"Json data is empty");
+            
+            var originalUserData = JObject.Parse(user.UserData);
+            var newUserData = JObject.Parse(jsonData);
+                
+            originalUserData.Merge(newUserData, new JsonMergeSettings
+            {
+                MergeArrayHandling = MergeArrayHandling.Union
+            });
+
+            user.UserData = originalUserData.ToString(Formatting.None);
+            _appDbContext.Users.Update(user);
+
+            return user;
+        }
+        catch (Exception e)
+        {
+            throw new Exception(e.Message);
+        }
     }
 }

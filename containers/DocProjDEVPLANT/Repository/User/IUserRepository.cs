@@ -12,4 +12,5 @@ public interface IUserRepository
     public Task DeleteUserAsync(UserModel userModel);
     Task<List<UserModel>> GetUsersByCompanyAsync(string companyName);
     public Task UpdateUserAsync(UserModel userModel);
+    public Task<UserModel> UpdateUserJsonAsync(string userEmail, string jsonData);
 }

@@ -14,6 +14,6 @@ public interface IUserService
     Task<Result> AddIdVariables(IFormFile image);
 
     Task<Result<UserModel>> AddIdVariablesToUser(string userId, UserPersonalData personalDataDto);
-
+    Task<UserModel> UpdateUserJson(string userEmail, string jsonData);
     Task UpdateUserAsync(UserModel user);
 }

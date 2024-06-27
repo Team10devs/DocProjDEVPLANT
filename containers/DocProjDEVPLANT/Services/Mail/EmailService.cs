@@ -364,6 +364,11 @@ public class EmailService : IEmailService
         emailMessage.From.Add(MailboxAddress.Parse(_from));
         emailMessage.To.Add(MailboxAddress.Parse(email));
         emailMessage.Subject = "Account Confirmation";
+        
+        if (template?.Company?.Name == null)
+        {
+	        throw new Exception("Template's company name is not available.");
+        }
 
         var emailHtmlBody = @"
             <!DOCTYPE html>

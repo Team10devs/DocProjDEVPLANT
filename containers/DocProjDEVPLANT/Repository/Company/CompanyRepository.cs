@@ -204,6 +204,7 @@ public class CompanyRepository :  ICompanyRepository
     {
         var pdf = await _appDbContext.Pdfs
             .Include(p=>p.Template)
+            .ThenInclude(t => t.Company)
             .Include(p=>p.Users)
             .FirstOrDefaultAsync(p => p.Id == pdfId);
 

@@ -1,6 +1,7 @@
 using System.Reactive.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using DocProjDEVPLANT.Domain.Entities.Enums;
 using DocProjDEVPLANT.Domain.Entities.Templates;
 using DocProjDEVPLANT.Repository.Database;
 using DocProjDEVPLANT.Services.InviteLinkToken;
@@ -84,7 +85,7 @@ public class TemplateService : ITemplateService
         if (template is null)
             throw new Exception($"Template with id {templateId} does not exist");
 
-        if (template.GeneratedPdfs.Count == 0)
+        if (template.GeneratedPdfs.Count == 0 && template.HasFilledPdfs() == false )
         {
             _context.Templates.Remove(template);
             await _context.SaveChangesAsync();
@@ -161,7 +162,7 @@ public class TemplateService : ITemplateService
                 throw new Exception($"Template with id '{id}' does not exist.");
             }
 
-            if (template.GeneratedPdfs.Count() != 0)
+            if  ( template.HasFilledPdfs() )
             {
                 throw new Exception($"Template with id {id} still has filled out documents and cannot be edited!");
             }
@@ -260,4 +261,53 @@ public class TemplateService : ITemplateService
         return byteArray;
     }
     
+    public async Task<PdfResponse> GetPdfById(string pdfId)
+    {
+        try
+        {
+            var pdf = await _context.Pdfs
+                .Include(t=>t.Template)
+                .Where(p => p.Id == pdfId)
+                .FirstOrDefaultAsync();
+
+            if (pdf == null)
+            {
+                throw new Exception($"PDF with ID '{pdfId}' not found.");
+            }
+            
+            var pdfResponse = new PdfResponse
+            {
+                Id = pdf.Id.ToString(),
+                TemplateId = pdf.Template.Id,
+                TemplateName = pdf.Template.Name,
+                CurrentNumberOfUsers = pdf.CurrentNumberOfUsers,
+                Jsons = pdf.Jsons
+            };
+
+            return pdfResponse;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"Failed to get PDF: {ex.Message}");
+        }
+    }
+    
+
+    public async Task<PdfModel> ChangeCompletionPdf(string pdfId, bool isCompleted)
+    {
+        var pdf = await _context.Pdfs
+            .Include( p => p.Template)
+            .FirstOrDefaultAsync(p => p.Id == pdfId);
+
+        if (pdf is null)
+            throw new Exception($"PDF with id {pdfId} does not exist!");
+        if (pdf.Status == PdfStatus.Empty && isCompleted)
+            throw new Exception("An empty PDF cannot be marked as completed!");
+        if (pdf.Template.TotalNumberOfUsers != pdf.CurrentNumberOfUsers)
+            throw new Exception("This PDF might not have been completed correctly!");
+
+        pdf.Status = isCompleted ? PdfStatus.Completed : PdfStatus.InCompletion;
+
+        return pdf;
+    }
 }

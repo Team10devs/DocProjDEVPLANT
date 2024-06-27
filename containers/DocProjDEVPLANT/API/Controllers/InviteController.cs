@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DocProjDEVPLANT.API.Controllers;
 
-[Route("Invite")]
+[Route("/api/Invite")]
 [ApiController]
 public class InviteController : ControllerBase
 {
@@ -42,7 +42,7 @@ public class InviteController : ControllerBase
             throw new Exception(e.Message);
         }
         
-        var inviteLink = $"http://localhost:3000/invite?token={token}"; 
+        var inviteLink = $"http://localhost:4200/invite?token={token}"; 
         //inca nu am unde sa il trimit pe user 
         await _emailService.SendInviteEmailAsync(request.Email, template, inviteLink);
         return Ok(new { InviteLink = inviteLink });
@@ -52,13 +52,26 @@ public class InviteController : ControllerBase
     public async Task<IActionResult> ValidateInviteToken([FromQuery] string token, [FromQuery] string pdfId, [FromQuery] string email)
     {
         var isValid = await _tokenService.ValidateTokenAsync(token, pdfId, email);
-        if (isValid)
+        return Ok(isValid);
+    }
+
+    [HttpGet("getTokenById")]
+    public async Task<IActionResult> GetTokenById([FromQuery] string tokenId)
+    {
+        try
         {
-            return Ok("Valid Token. Access allowed.");
+            var token = await _tokenService.GetTokenByTokenIdAsync(tokenId);
+
+            if (token == null)
+            {
+                return NotFound($"Token with ID '{tokenId}' not found.");
+            }
+
+            return Ok(token);
         }
-        else
+        catch (Exception e)
         {
-            return BadRequest("Invalid Token.");
+            return BadRequest($"Failed to retrieve token: {e.Message}");
         }
     }
 }

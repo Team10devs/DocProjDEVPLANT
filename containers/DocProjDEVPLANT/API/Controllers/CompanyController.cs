@@ -15,7 +15,7 @@ using PdfResponse = DocProjDEVPLANT.Domain.Entities.Templates.PdfResponse;
 
 namespace DocProjDEVPLANT.API.Controllers;
 
-[Route("Company")]
+[Route("/api/Company")]
 [ApiController]
 public class CompanyController : ControllerBase
 {
@@ -55,7 +55,28 @@ public class CompanyController : ControllerBase
         return Ok(ceva);
     }
 
-    [HttpPost]
+    [HttpGet("CompanyByUserEmail")]
+    public async Task<ActionResult<CompanyModel>> GetByUserEmail(string userEmail)
+    {
+        try
+        {
+            var company = await _companyService.GetCompanyByUserEmail(userEmail);
+            var companyResponse =  new CompanyResponseWithUsers
+            {
+                Id = company.Id,
+                Name = company.Name,
+                Templates = company.Templates.Select(t=> new TemplateResponse(t.Id,t.Name, company.Name, t.TotalNumberOfUsers, t.JsonContent)).ToList()
+            };
+
+            return Ok(companyResponse);
+        }
+        catch (Exception e)
+        {
+            return BadRequest(e.Message);
+        }
+    }
+
+   /* [HttpPost]
     public async Task<ActionResult<CompanyModel>> CreateCompany([FromBody] CompanyRequest companyRequest)
     {
         var company = _companyService.CreateCompanyAsync(companyRequest);
@@ -66,7 +87,7 @@ public class CompanyController : ControllerBase
         }
 
         return Ok(company.Result);
-    }
+    }*/
 
     [HttpPatch("AddUserToCompany")]
     public async Task<ActionResult<CompanyModel>> AddCompanyUser(string companyId, [FromBody] string userId)
@@ -82,7 +103,7 @@ public class CompanyController : ControllerBase
         }
     }
 
-    [HttpPost("api/generateEmptyPdf")]
+    [HttpPost("generateEmptyPdf")]
     public async Task<ActionResult<PdfResponse>> GenerateEmptyPdf(string companyId, string templateId)
     {
         PdfModel pdf;
@@ -107,7 +128,7 @@ public class CompanyController : ControllerBase
         return pdfResponse;
     }
     
-    [HttpPost("api/docx")]
+    [HttpPost("docx")]
     public async Task<ActionResult> ConvertDocxToJson(string companyId, string templateName, IFormFile file)
     {
         byte[] byteArray;
@@ -123,14 +144,14 @@ public class CompanyController : ControllerBase
         return File(byteArray, "application/json", $"{templateName}.json");
     }
 
-    [HttpPost("api/pdf")]
-    public async Task<ActionResult> GenerateDocument(string pdfId, string templateId)
+    [HttpPost("pdf")]
+    public async Task<ActionResult> GenerateDocument(string pdfId)
     {
         
         Byte[] pdfBytes;
         try
         {
-            pdfBytes = await _companyService.GeneratePdf(pdfId, templateId);
+            pdfBytes = await _companyService.GeneratePdf(pdfId);
         }
         catch (Exception e)
         {
@@ -141,7 +162,24 @@ public class CompanyController : ControllerBase
         return Ok();
     }
     
-    [HttpPatch("api/addUserToPdf")]
+    [HttpPost("PreviewPdf")]
+    public async Task<ActionResult> PreviewDocument(string pdfId, List<string> jsons)
+    {
+        
+        Byte[] pdfBytes;
+        try
+        {
+            pdfBytes = await _companyService.PreviewPdf(pdfId, jsons);
+        }
+        catch (Exception e)
+        {
+            return BadRequest(e.Message);
+        }
+        
+        // return File(pdfBytes, "application/pdf", $"generated.pdf");
+        return Ok(pdfBytes);
+    }
+    [HttpPatch("addUserToPdf")]
     public async Task<ActionResult<PdfResponse>> AddToPdf([FromQuery]string pdfId, string userEmail, [FromBody]string json, [FromQuery]string token = null)
     {
         try
@@ -166,6 +204,34 @@ public class CompanyController : ControllerBase
         catch (UnauthorizedAccessException)
         {
             return Unauthorized("Invalid or expired token.");
+        }
+        catch (Exception e)
+        {
+            return BadRequest(e.Message);
+        }
+    }
+
+    [HttpPatch("UpdatePdfJsons")]
+    public async Task<ActionResult<PdfResponse>> UpdateJsonsPdf([FromQuery] string pdfId, [FromBody] List<string> jsons)
+    {
+        try
+        {
+            var pdf = await _companyService.PatchPdfJsons(pdfId, jsons);
+            
+            var users = pdf.Users;
+            var userResponses = users.Select(MapUsers);
+        
+            var pdfResponse = new PdfResponse
+            {
+                Id = pdf.Id,
+                TemplateId = pdf.Template.Id,
+                TemplateName = pdf.Template.Name,
+                CurrentNumberOfUsers = pdf.CurrentNumberOfUsers,
+                Jsons = pdf.Jsons,
+                Users = userResponses.ToList()
+            };
+
+            return Ok(pdfResponse);
         }
         catch (Exception e)
         {

@@ -2,4 +2,4 @@
 
 namespace DocProjDEVPLANT.API.User;
 
-public record UserRequest(string email,string username,RoleEnum role);
+public record UserRequest(string email,string username,RoleEnum role,string? companyName = null);

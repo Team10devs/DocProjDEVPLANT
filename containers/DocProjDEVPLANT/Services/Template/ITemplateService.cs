@@ -1,8 +1,6 @@
 
-using DocProjDEVPLANT.API.DTOs.Template;
 using DocProjDEVPLANT.Domain.Entities.Templates;
 using DocProjDEVPLANT.Services.Utils.ResultPattern;
-using PdfResponse = DocProjDEVPLANT.Domain.Entities.Templates.PdfResponse;
 
 namespace DocProjDEVPLANT.Services.Template;
 
@@ -15,4 +13,6 @@ public interface ITemplateService
     Task<List<PdfResponseMinio>> GetPdfsByTemplateId(string templateId);
     Task<TemplateModel> GetTemplateByPdfId(string pdfId);
     Task<byte[]> PatchTemplate(string id, string newName, IFormFile file);
+    Task<PdfModel> ChangeCompletionPdf(string pdfId, bool isCompleted);
+    Task<PdfResponse> GetPdfById(string pdfId);
 }

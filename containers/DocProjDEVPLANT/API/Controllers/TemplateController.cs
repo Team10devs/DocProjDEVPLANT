@@ -1,16 +1,14 @@
 ﻿using DocProjDEVPLANT.API.DTOs.Template;
 using DocProjDEVPLANT.Domain.Entities.Templates;
 using DocProjDEVPLANT.Services.Company;
-using DocProjDEVPLANT.Services.Minio;
 using DocProjDEVPLANT.Services.Template;
 using Microsoft.AspNetCore.Mvc;
 using Minio;
-using Newtonsoft.Json.Linq;
 
 namespace DocProjDEVPLANT.API.Controllers;
 
 
-[Route("Template")]
+[Route("/api/Template")]
 [ApiController]
 public class TemplateController : ControllerBase
 {
@@ -97,6 +95,20 @@ public class TemplateController : ControllerBase
         }
     }
     
+    [HttpGet("getPdfById/{pdfId}")]
+    public async Task<IActionResult> GetPdfById(string pdfId)
+    {
+        try
+        {
+            var pdfResponse = await _templateService.GetPdfById(pdfId);
+            return Ok(pdfResponse);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest($"Failed to get PDF: {ex.Message}");
+        }
+    }
+    
     [HttpPatch("{templateId}/Template/docx/nrUsers")]
     public async Task<ActionResult> PatchTemplate(string templateId, string newName, IFormFile docx)
     {
@@ -109,6 +121,20 @@ public class TemplateController : ControllerBase
 
             byte[] byteArray = await _templateService.PatchTemplate(templateId, newName, docx);
             return Ok(template.Value.JsonContent);
+        }
+        catch (Exception e)
+        {
+            return BadRequest(e.Message);
+        }
+    }
+
+    [HttpPatch("{pdfId}/PDF/Complete")]
+    public async Task<ActionResult> PatchPdfStatus(string pdfId, bool isCompleted)
+    {
+        try
+        {
+           var pdf = await _templateService.ChangeCompletionPdf(pdfId, isCompleted);
+           return Ok(pdf.Status);
         }
         catch (Exception e)
         {

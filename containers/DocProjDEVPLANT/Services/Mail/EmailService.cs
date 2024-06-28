@@ -99,16 +99,25 @@ public class EmailService : IEmailService
                                                                         </td>
                                                                     </tr>
                                                                 </table>
+																<table width=""100%"" border=""0"" cellpadding=""0"" cellspacing=""0"" role=""presentation"" style=""mso-table-lspace: 0pt; mso-table-rspace: 0pt;"">
+																	<tr>
+																		<td style=""text-align: center; padding: 10px 0;"">
+																			<a href=""/"" class=""logo"">
+																				<img height=""80px"" src=""https://imgur.com/AyS5y7f.png"" alt=""Navbar Logo"" />
+																			</a>
+																		</td>
+																	</tr>
+																</table>
                                                                 <table class=""paragraph_block block-2"" width=""100%"" border=""0"" cellpadding=""0"" cellspacing=""0"" role=""presentation"" style=""word-break: break-word;"">
                                                                     <tr>
                                                                         <td class=""pad"" style=""padding-bottom:10px;padding-left:40px;padding-right:10px;padding-top:10px;"">
                                                                             <div style=""color:#6f7376;direction:ltr;font-family:Helvetica Neue, Helvetica, Arial, sans-serif;font-size:18px;font-weight:400;letter-spacing:0px;line-height:150%;text-align:left;mso-line-height-alt:27px;"">
-                                                                                <p style=""margin: 0; margin-bottom: 16px;"">Hello {firstName},</p>
-                                                                                <p style=""margin: 0; margin-bottom: 16px;"">Your {documentName} document for {companyName} has been successfully issued and is attached to this email.</p>
+                                                                                <p style=""margin: 0; margin-bottom: 16px;"">Hello <b>{firstName}</b>,</p>
+                                                                                <p style=""margin: 0; margin-bottom: 16px;"">Your <b>{documentName}</b> document for <b>{companyName}</b> has been successfully issued and is attached to this email.</p>
                                                                                 <p style=""margin: 0; margin-bottom: 16px;"">If you have any questions or need further assistance, please do not hesitate to reach out.</p>
                                                                                 <p style=""margin: 0; margin-bottom: 16px;"">Thank you for using our app!</p>
                                                                                 <p style=""margin: 0; margin-bottom: 16px;"">Best regards,</p>
-                                                                                <p style=""margin: 0;"">[Your Company Name] Team</p>
+                                                                                <p style=""margin: 0;""><b>Team Contract Seal</b></p>
                                                                             </div>
                                                                         </td>
                                                                     </tr>
@@ -286,12 +295,21 @@ public class EmailService : IEmailService
 																	</td>
 																</tr>
 															</table>
+															<table width=""100%"" border=""0"" cellpadding=""0"" cellspacing=""0"" role=""presentation"" style=""mso-table-lspace: 0pt; mso-table-rspace: 0pt;"">
+																<tr>
+																	<td style=""text-align: center; padding: 10px 0;"">
+																		<a href=""/"" class=""logo"">
+																			<img height=""80px"" src=""https://imgur.com/AyS5y7f.png"" alt=""Navbar Logo"" />
+																		</a>
+																	</td>
+																</tr>
+															</table>
 															<table class=""paragraph_block block-2"" width=""100%"" border=""0"" cellpadding=""0"" cellspacing=""0"" role=""presentation"" style=""mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;"">
 																<tr>
 																	<td class=""pad"" style=""padding-bottom:10px;padding-left:40px;padding-right:10px;padding-top:10px;"">
 																		<div style=""color:#6f7376;direction:ltr;font-family:Helvetica Neue, Helvetica, Arial, sans-serif;font-size:18px;font-weight:400;letter-spacing:0px;line-height:150%;text-align:left;mso-line-height-alt:27px;"">
 																			<p style=""margin: 0; margin-bottom: 16px;"">Dear Sir/Madam,</p>
-																			<p style=""margin: 0;"">We kindly request your prompt completion of the {formName} for {companyName}. Your timely response is greatly appreciated.</p>
+																			<p style=""margin: 0;"">We kindly request your prompt completion of the <b>{formName}</b> for <b>{companyName}</b>. Your timely response is greatly appreciated.</p>
 																		</div>
 																	</td>
 																</tr>
@@ -303,7 +321,7 @@ public class EmailService : IEmailService
 																			<p style=""margin: 0; margin-bottom: 16px;"">If you have any questions or require further assistance, please feel free to contact us.</p>
 																			<p style=""margin: 0; margin-bottom: 16px;"">Thank you for using our application.</p>
 																			<p style=""margin: 0; margin-bottom: 16px;"">Best regards,</p>
-																			<p style=""margin: 0;"">[Your Company Name] Team</p>
+																			<p style=""margin: 0;""><b>Team Contract Seal</b></p>
 																		</div>
 																	</td>
 																</tr>
@@ -317,7 +335,7 @@ public class EmailService : IEmailService
 		<v:textbox inset=""0px,0px,0px,0px"">
 		<center dir=""false"" style=""color:#ffffff;font-family:Arial, sans-serif;font-size:20px"">
 		<![endif]-->
-																			<div style=""background-color:#7747FF;border-bottom:0px solid transparent;border-left:0px solid transparent;border-radius:4px;border-right:0px solid transparent;border-top:0px solid transparent;color:#ffffff;display:inline-block;font-family:Helvetica Neue, Helvetica, Arial, sans-serif;font-size:20px;font-weight:400;mso-border-alt:none;padding-bottom:5px;padding-top:5px;text-align:center;text-decoration:none;width:auto;word-break:keep-all;"">
+																			<div style=""background-color:#071952;border-bottom:0px solid transparent;border-left:0px solid transparent;border-radius:4px;border-right:0px solid transparent;border-top:0px solid transparent;color:#ffffff;display:inline-block;font-family:Helvetica Neue, Helvetica, Arial, sans-serif;font-size:20px;font-weight:400;mso-border-alt:none;padding-bottom:5px;padding-top:5px;text-align:center;text-decoration:none;width:auto;word-break:keep-all;"">
 																				<span style=""padding-left:20px;padding-right:20px;font-size:20px;display:inline-block;letter-spacing:normal;"">
 																				<span style=""word-break: break-word; line-height: 40px;"">
 																				<a href=""{formLink}"" style=""color: #ffffff; text-decoration: none;"">Form link</a></span></span></div><!--[if mso]></center></v:textbox></v:roundrect><![endif]-->
@@ -486,12 +504,21 @@ public class EmailService : IEmailService
 																		</td>
 																	</tr>
 																</table>
+																<table width=""100%"" border=""0"" cellpadding=""0"" cellspacing=""0"" role=""presentation"" style=""mso-table-lspace: 0pt; mso-table-rspace: 0pt;"">
+																	<tr>
+																		<td style=""text-align: center; padding: 10px 0;"">
+																			<a href=""/"" class=""logo"">
+																				<img height=""80px"" src=""https://imgur.com/AyS5y7f.png"" alt=""Navbar Logo"" />
+																			</a>
+																		</td>
+																	</tr>
+																</table>
 																<table class=""paragraph_block block-2"" width=""100%"" border=""0"" cellpadding=""0"" cellspacing=""0"" role=""presentation"" style=""mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;"">
 																	<tr>
 																		<td class=""pad"" style=""padding-bottom:0px;padding-left:40px;padding-right:40px;padding-top:10px;"">
 																			<div style=""color:#6f7376;direction:ltr;font-family:Helvetica Neue, Helvetica, Arial, sans-serif;font-size:18px;font-weight:400;letter-spacing:0px;line-height:150%;text-align:left;mso-line-height-alt:27px;"">
 																				<p style=""margin: 0; margin-bottom: 16px;"">Dear Sir/Madam,</p>
-																				<p style=""margin: 0; margin-bottom: 16px;"">Thank you for completing the {formName} for {companyName}. We are excited to have you on board!</p>
+																				<p style=""margin: 0; margin-bottom: 16px;"">Thank you for completing the <b>{formName}</b> for <b>{companyName}</b>. We are excited to have you on board!</p>
 																				<p style=""margin: 0;""></p>To enhance your experience and make future interactions with us even smoother, we invite you to create an account on our platform. By registering, you can save your information, track your activities, and enjoy a personalized experience tailored just for you.</p>
 																			</div>
 																		</td>
@@ -499,12 +526,12 @@ public class EmailService : IEmailService
 																</table>
 																<table class=""paragraph_block block-3"" width=""100%"" border=""0"" cellpadding=""0"" cellspacing=""0"" role=""presentation"" style=""mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;"">
 																	<tr>
-																		<td class=""pad"" style=""padding-bottom:10px;padding-left:40px;padding-right:40px;padding-top:0px;"">
+																		<td class=""pad"" style=""padding-bottom:10px;padding-left:40px;padding-right:40px;padding-top:10px;"">
 																			<div style=""color:#6f7376;direction:ltr;font-family:Helvetica Neue, Helvetica, Arial, sans-serif;font-size:18px;font-weight:400;letter-spacing:0px;line-height:150%;text-align:left;mso-line-height-alt:27px;"">
 																				<p style=""margin: 0; margin-bottom: 16px;"">If you have any questions or require further assistance, please feel free to contact us.</p>
 																				<p style=""margin: 0; margin-bottom: 16px;"">Thank you for using our application.</p>
 																				<p style=""margin: 0; margin-bottom: 16px;"">Best regards,</p>
-																				<p style=""margin: 0;"">[Your Company Name] Team</p>
+																				<p style=""margin: 0;""><b>Team Contract Seal</b></p>
 																			</div>
 																		</td>
 																	</tr>
@@ -518,7 +545,7 @@ public class EmailService : IEmailService
 			<v:textbox inset=""0px,0px,0px,0px"">
 			<center dir=""false"" style=""color:#ffffff;font-family:Arial, sans-serif;font-size:20px"">
 			<![endif]-->
-																				<div style=""background-color:#7747FF;border-bottom:0px solid transparent;border-left:0px solid transparent;border-radius:4px;border-right:0px solid transparent;border-top:0px solid transparent;color:#ffffff;display:inline-block;font-family:Helvetica Neue, Helvetica, Arial, sans-serif;font-size:20px;font-weight:400;mso-border-alt:none;padding-bottom:5px;padding-top:5px;text-align:center;text-decoration:none;width:auto;word-break:keep-all;""><span style=""padding-left:20px;padding-right:20px;font-size:20px;display:inline-block;letter-spacing:normal;""><span style=""word-break: break-word; line-height: 40px;""><a href=""{registerLink}"" style=""color: #ffffff; text-decoration: none;"">Register link</a></span></span></div><!--[if mso]></center></v:textbox></v:roundrect><![endif]-->
+																				<div style=""background-color:#071952;border-bottom:0px solid transparent;border-left:0px solid transparent;border-radius:4px;border-right:0px solid transparent;border-top:0px solid transparent;color:#ffffff;display:inline-block;font-family:Helvetica Neue, Helvetica, Arial, sans-serif;font-size:20px;font-weight:400;mso-border-alt:none;padding-bottom:5px;padding-top:5px;text-align:center;text-decoration:none;width:auto;word-break:keep-all;""><span style=""padding-left:20px;padding-right:20px;font-size:20px;display:inline-block;letter-spacing:normal;""><span style=""word-break: break-word; line-height: 40px;""><a href=""{registerLink}"" style=""color: #ffffff; text-decoration: none;"">Register link</a></span></span></div><!--[if mso]></center></v:textbox></v:roundrect><![endif]-->
 																			</div>
 																		</td>
 																	</tr>

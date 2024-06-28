@@ -122,4 +122,19 @@ public class MinioService : IMinioService
         return memoryStream.ToArray();
     }
     
+    public async Task RemoveFileAsync(string bucketName, string objectName)
+    {
+        try
+        {
+            await _minioClient.RemoveObjectAsync(new RemoveObjectArgs()
+                .WithBucket(bucketName)
+                .WithObject(objectName));
+        }
+        catch (MinioException e)
+        {
+            Console.WriteLine($"Error occurred: {e}");
+            throw;
+        }
+    }
+    
 }

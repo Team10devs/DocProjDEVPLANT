@@ -110,6 +110,7 @@ public class TemplateService : ITemplateService
         try
         {
             var pdfs = await _context.Pdfs
+                .Include(p => p.Users)
                 .Where(p => p.Template.Id == templateId)
                 .ToListAsync();
 
@@ -125,7 +126,15 @@ public class TemplateService : ITemplateService
                     var pdfBytes = await _minioService.GetFileAsync(bucketName, pdfFile);
                     string pdfId = pdfFile.EndsWith(".pdf") ? pdfFile.Substring(0, pdfFile.Length - 4) : pdfFile;
                     
-                    var pdfResponse = new PdfResponseMinio(pdfId, pdfBytes, pdf.Jsons);
+                    var userNames = pdf.Users?.Select(u => u.UserName).ToList();
+                    
+                    var pdfResponse = new PdfResponseMinio(
+                        pdfId,
+                        pdfBytes,
+                        pdf.Jsons,
+                        userNames,
+                        pdf.CurrentNumberOfUsers.ToString()
+                    );
                     pdfsForTemplate.Add(pdfResponse);
                 }
             }

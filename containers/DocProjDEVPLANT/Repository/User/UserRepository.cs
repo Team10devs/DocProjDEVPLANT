@@ -97,7 +97,8 @@ public class UserRepository :  IUserRepository
 
             user.UserData = originalUserData.ToString(Formatting.None);
             _appDbContext.Users.Update(user);
-
+            await _appDbContext.SaveChangesAsync();
+            
             return user;
         }
         catch (Exception e)

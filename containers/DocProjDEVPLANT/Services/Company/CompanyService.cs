@@ -374,7 +374,6 @@ public class CompanyService : ICompanyService
                     if (wordCount.ContainsKey(cleanKey))
                     {
                         wordCount[cleanKey]++;
-                        throw new Exception($"{cleanKey}");
                     }
                     else
                     {

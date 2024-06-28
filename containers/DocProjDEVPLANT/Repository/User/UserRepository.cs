@@ -30,8 +30,8 @@ public class UserRepository :  IUserRepository
             .Include(u => u.Company)
             .FirstOrDefaultAsync(u => u.Email == email);
 
-        if (user is null)
-            throw new Exception($"User with email {email} does not exist");
+        //if (user is null)
+          //  throw new Exception($"User with email {email} does not exist"); las asa momentan, nu pot sa fac user daca nu imi gaseste email
 
         return user;
     }

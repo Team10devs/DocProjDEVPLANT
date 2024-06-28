@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using DocProjDEVPLANT.Domain.Entities.Company;
@@ -6,9 +7,11 @@ using DocProjDEVPLANT.Domain.Entities.Templates;
 using DocProjDEVPLANT.Domain.Entities.User;
 using DocProjDEVPLANT.Repository.Database;
 using DocProjDEVPLANT.Services.Mail;
+using DocProjDEVPLANT.Services.Minio;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Xceed.Words.NET;
 
 namespace DocProjDEVPLANT.Repository.Company;
 
@@ -17,10 +20,12 @@ public class CompanyRepository :  ICompanyRepository
     
     protected readonly AppDbContext _appDbContext;
     protected readonly IEmailService _emailService;
-    public CompanyRepository(AppDbContext appDbContext, IEmailService emailService)
+    protected readonly IMinioService _minioService;
+    public CompanyRepository(AppDbContext appDbContext, IEmailService emailService,IMinioService minioService)
     {
         _appDbContext = appDbContext;
         _emailService = emailService;
+        _minioService = minioService;
     }
     public async Task<List<CompanyModel>> GetAllCompaniesAsync()
     {
@@ -360,7 +365,142 @@ public class CompanyRepository :  ICompanyRepository
         pdf.Jsons = jsons;
         _appDbContext.Pdfs.Update(pdf);
         await _appDbContext.SaveChangesAsync();
-
+        
+        await GeneratePdfBytesAndUpdateAsync(pdf); // regenerare pdf
         return pdf;
     }
+    
+    
+private async Task<byte[]> GeneratePdfBytesAndUpdateAsync(PdfModel pdf)
+{
+    var templateDocxBytes = pdf.Template.DocxFile;
+
+    if (templateDocxBytes == null || templateDocxBytes.Length == 0)
+    {
+        throw new Exception("Not a docx file.");
+    }
+
+    var jsonList = pdf.Jsons.Select(JObject.Parse).ToList();
+
+    using (var stream = new MemoryStream(templateDocxBytes))
+    {
+        stream.Seek(0, SeekOrigin.Begin);
+        using (var doc = DocX.Load(stream))
+        {
+            string pattern = @"\{\{([^{}]+)\}\}";
+            var replacedValues = new Dictionary<string, string>();
+
+            foreach (var paragraph in doc.Paragraphs)
+            {
+                var matches = Regex.Matches(paragraph.Text, pattern);
+
+                foreach (Match match in matches)
+                {
+                    var cleanedWord = match.Value.TrimStart('{').TrimEnd('}');
+                    var parts = cleanedWord.Split('.');
+
+                    if (parts.Length == 2)
+                    {
+                        var primaryKey = parts[0].TrimStart();
+                        var secondaryKey = parts[1].TrimEnd();
+
+                        if (replacedValues.TryGetValue(cleanedWord, out var replacedValue))
+                        {
+                            paragraph.ReplaceText(match.Value, replacedValue);
+                            continue;
+                        }
+
+                        var numberPart = Regex.Match(primaryKey, @"\d+$");
+                        JObject jsonObject = null;
+                        if (numberPart.Success)
+                        {
+                            primaryKey = Regex.Replace(primaryKey, @"\d+$", "").TrimEnd();
+
+                            var number = int.Parse(numberPart.Value);
+                            if (number > 0 && number <= pdf.CurrentNumberOfUsers)
+                            {
+                                jsonObject = jsonList[number - 1];
+                            }
+                        }
+
+                        if (jsonObject == null)
+                        {
+                            for (int i = pdf.CurrentNumberOfUsers - 1; i >= 0; i--)
+                            {
+                                var jsonListObject = jsonList[i];
+                                if (jsonListObject.TryGetValue(primaryKey, out JToken primaryToken1) &&
+                                    primaryToken1 is JObject primaryObject1 &&
+                                    primaryObject1.TryGetValue(secondaryKey, out JToken secondaryToken1) &&
+                                    secondaryToken1.Type != JTokenType.Null)
+                                {
+                                    jsonObject = jsonListObject;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (jsonObject != null && 
+                            jsonObject.TryGetValue(primaryKey, out JToken primaryToken) &&
+                            primaryToken is JObject primaryObject &&
+                            primaryObject.TryGetValue(secondaryKey, out JToken secondaryToken) && 
+                            secondaryToken.Type != JTokenType.Null)
+                        {
+                            paragraph.ReplaceText(match.Value, secondaryToken.ToString());
+                            replacedValues[cleanedWord] = secondaryToken.ToString();
+                            primaryObject[secondaryKey] = null;
+                        }
+                        else
+                        {
+                            throw new Exception($"The json {jsonObject} does not have the value for {primaryKey}.{secondaryKey}");
+                        }
+                    }
+                }
+            }
+
+            var modifiedStream = new MemoryStream();
+            doc.SaveAs(modifiedStream);
+            var docxBytes = modifiedStream.ToArray();
+
+            var tempFilePath = Path.Combine(Directory.GetCurrentDirectory(), Guid.NewGuid() + ".docx");
+            await File.WriteAllBytesAsync(tempFilePath, docxBytes);
+
+            var pdfFilePath = Path.ChangeExtension(tempFilePath, ".pdf");
+            var processStartInfo = new ProcessStartInfo
+            {
+                FileName = "soffice",
+                Arguments = $"--convert-to pdf {tempFilePath} --headless",
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+
+            using (var process = new Process { StartInfo = processStartInfo })
+            {
+                process.Start();
+                await process.WaitForExitAsync();
+
+                var output = process.StandardOutput.ReadToEnd();
+                var error = process.StandardError.ReadToEnd();
+
+                if (process.ExitCode != 0)
+                {
+                    throw new Exception($"Error converting DOCX to PDF: {error}");
+                }
+
+                var pdfBytes = await File.ReadAllBytesAsync(pdfFilePath);
+                
+                await _minioService.RemoveFileAsync("pdf-bucket", $"{pdf.Id}.pdf");
+                
+                await _minioService.UploadFileAsync("pdf-bucket", $"{pdf.Id}.pdf", pdfFilePath, pdf.Template.Name);
+
+                File.Delete(tempFilePath);
+                File.Delete(pdfFilePath);
+                
+                return pdfBytes;
+            }
+        }
+    }
+}
+
 }

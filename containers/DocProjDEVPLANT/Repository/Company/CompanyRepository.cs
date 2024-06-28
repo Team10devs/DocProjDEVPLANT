@@ -238,7 +238,7 @@ public class CompanyRepository :  ICompanyRepository
         
         if (user is null)
         {
-            var registerLink = $"http://localhost:4200/register";
+            var registerLink = $"http://localhost:4200/register-page";
             
             var result = await UserModel.CreateAsync(
                 userEmail,

@@ -219,6 +219,7 @@ public class TemplateService : ITemplateService
         {
             var cleanedWord = match.Value.TrimStart('{').TrimEnd('}');
             var parts = cleanedWord.Split('.');
+            cleanedWord = cleanedWord.TrimEnd().TrimStart();
             
             if (parts.Length == 2)
             {

@@ -103,7 +103,7 @@ public class EmailService : IEmailService
 																	<tr>
 																		<td style=""text-align: center; padding: 10px 0;"">
 																			<a href=""/"" class=""logo"">
-																				<img height=""80px"" src=""https://imgur.com/AyS5y7f.png"" alt=""Navbar Logo"" />
+																				<img height=""80px"" src=""https://imgur.com/AyS5y7f.png"" />
 																			</a>
 																		</td>
 																	</tr>
@@ -299,7 +299,7 @@ public class EmailService : IEmailService
 																<tr>
 																	<td style=""text-align: center; padding: 10px 0;"">
 																		<a href=""/"" class=""logo"">
-																			<img height=""80px"" src=""https://imgur.com/AyS5y7f.png"" alt=""Navbar Logo"" />
+																			<img height=""80px"" src=""https://imgur.com/AyS5y7f.png"" />
 																		</a>
 																	</td>
 																</tr>
@@ -508,7 +508,7 @@ public class EmailService : IEmailService
 																	<tr>
 																		<td style=""text-align: center; padding: 10px 0;"">
 																			<a href=""/"" class=""logo"">
-																				<img height=""80px"" src=""https://imgur.com/AyS5y7f.png"" alt=""Navbar Logo"" />
+																				<img height=""80px"" src=""https://imgur.com/AyS5y7f.png"" />
 																			</a>
 																		</td>
 																	</tr>

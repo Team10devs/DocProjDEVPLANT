@@ -196,7 +196,8 @@ public class CompanyService : ICompanyService
                         {
                             var cleanedWord = match.Value.TrimStart('{').TrimEnd('}');
                             var parts = cleanedWord.Split('.');
-
+                            cleanedWord = cleanedWord.TrimEnd().TrimStart();
+                            
                             if (parts.Length == 2)
                             {
                                 var primaryKey = parts[0].TrimStart();
@@ -349,6 +350,7 @@ public class CompanyService : ICompanyService
         foreach (Match match in matches)
         {
             var cleanedWord = match.Value.TrimStart('{').TrimEnd('}');
+            cleanedWord = cleanedWord.TrimEnd().TrimStart();
             var parts = cleanedWord.Split('.');
             
             if (parts.Length == 2)
@@ -372,6 +374,7 @@ public class CompanyService : ICompanyService
                     if (wordCount.ContainsKey(cleanKey))
                     {
                         wordCount[cleanKey]++;
+                        throw new Exception($"{cleanKey}");
                     }
                     else
                     {
@@ -477,7 +480,8 @@ public class CompanyService : ICompanyService
                         {
                             var cleanedWord = match.Value.TrimStart('{').TrimEnd('}');
                             var parts = cleanedWord.Split('.');
-
+                            cleanedWord = cleanedWord.TrimEnd().TrimStart();
+                            
                             if (parts.Length == 2)
                             {
                                 var primaryKey = parts[0].TrimStart();

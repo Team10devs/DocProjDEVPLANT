@@ -208,7 +208,7 @@ catch (Exception e)
         {
             return NotFound();
         }
-        return Ok(users);
+        return Ok(users.Select(Map));
     }
     
     [HttpPatch("updateUserPersonalData")]

@@ -119,10 +119,13 @@ public class TemplateService : ITemplateService
             foreach (var pdf in pdfs)
             {
                 var pdfFile = pdfFiles.FirstOrDefault(f => f.Replace(".pdf", "") == pdf.Id);
+                
                 if (pdfFile != null)
                 {
                     var pdfBytes = await _minioService.GetFileAsync(bucketName, pdfFile);
-                    var pdfResponse = new PdfResponseMinio(pdfFile, pdfBytes, pdf.Jsons);
+                    string pdfId = pdfFile.EndsWith(".pdf") ? pdfFile.Substring(0, pdfFile.Length - 4) : pdfFile;
+                    
+                    var pdfResponse = new PdfResponseMinio(pdfId, pdfBytes, pdf.Jsons);
                     pdfsForTemplate.Add(pdfResponse);
                 }
             }
